@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>analyse</class>
+ <widget class="QMainWindow" name="analyse">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>643</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="calcEnergies">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>260</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Calculate</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="geomConv">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>180</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Geom. Conv.</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="addState">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>70</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>+</string>
+    </property>
+    <property name="icon">
+     <iconset theme="Arrow">
+      <normaloff>../../../../.designer/backup</normaloff>../../../../.designer/backup</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="uploadState">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>260</y>
+      <width>101</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load file</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="freqCorr">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>50</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Frequency</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="energyTable">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>360</y>
+      <width>590</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>States</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>dE</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>solv</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string> dG</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Hi</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QCheckBox" name="bbsCorr">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>90</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Big Basis</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="moveStateDown">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>200</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>D</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="delState">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>110</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-</string>
+    </property>
+    <property name="icon">
+     <iconset theme="Arrow">
+      <normaloff>../../../../.designer/backup</normaloff>../../../../.designer/backup</iconset>
+    </property>
+   </widget>
+   <widget class="QLabel" name="statesLabel">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>20</y>
+      <width>71</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>17</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>States</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="deleteState">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>260</y>
+      <width>101</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delete file</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="moveStateUp">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>160</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>U</string>
+    </property>
+    <property name="icon">
+     <iconset theme="Arrow">
+      <normaloff>../../../../.designer/backup</normaloff>../../../../.designer/backup</iconset>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="normalMode">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>220</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Norm. Mode</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="correctionsLabel">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>20</y>
+      <width>131</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>17</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Corrections</string>
+    </property>
+   </widget>
+   <widget class="QDialogButtonBox" name="buttonBox">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>540</y>
+      <width>341</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="standardButtons">
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+    </property>
+   </widget>
+   <widget class="QTreeView" name="stateTree">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>50</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="solvCorr">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>130</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Solvation</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="tableInfo">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>540</y>
+      <width>171</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Energies</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Absolute Energies</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Job Details</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
