@@ -21,40 +21,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_add_state.clicked.connect(self.add_state)
         self.button_delete_state.clicked.connect(self.delete_state)
 
-        self.button_add_file.clicked.connect(self.import_file_to_list)
+        #self.button_add_file.clicked.connect(self.import_file_to_list)
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
 
-    def onChange(self):
-        print("something changed!")
-        #self.tabWidget.setTabText(0, "Hello")
+        self.button_add_file.clicked.connect(self.add_files_to_list)
 
-    def add_state(self):
+    def add_files_to_list(self):
         """
-        Add state to tabBar widget with a ListWidget
-        """
-        state = self.tabWidget.count() + 1
-        self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
-
-        #self.tabWidget.currentWidget.connect(self.change)
-        #self.tabWidget.currentChanged.connect(self.onChange)
-
-
-    def import_file_to_list(self):
-        """
-        :return:
+        Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget.
+        TODO should also be stored in dict for saving and loading project
         """
         # Avoid crash when no tabs exist
         if self.tabWidget.currentIndex() < 0:
+            #TODO raise error in log window!
             return
 
-        print(self.tabWidget.currentIndex())
-        items_in_list = self.tabWidget.currentWidget().count()
-        print(items_in_list)
-        self.tabWidget.currentWidget().insertItem(items_in_list, "NEW FILE")
+        path = os.getcwd()  # wordkdir TODO
+        filter_type = "Geometry files (*.pdb *.xyz);; Gaussian input files (*.com *.inp);; " \
+                      "Gaussian output files (*.out)"
+        title_ = "Import File"
+
+        files_path, type = self.import_files(title_, filter_type,path)
+
+        files_names = [x.split("/")[-1] for x in files_path]
+
+        #Insert new items at the end of the list
+        items_insert_index = self.tabWidget.currentWidget().count()
+
+        self.tabWidget.currentWidget().insertItems(items_insert_index, files_names)
 
     def delete_file_from_list(self):
         """
-
+        Deletes selected file(s) from QtabBarWidget-->Tab-->QListWdget-->item
         :return:
         """
         #Avoid crash when no tabs exist
@@ -66,15 +64,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Get the selected item(s) ---> returns a list of objects
         list_items = current_list.selectedItems()
 
-
         #Remove selected items from list:
         for item in list_items:
             current_list.takeItem(current_list.row(item))
 
 
+    def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
+        """
+        Opens file dialog where multiple files can be selected.
+        Return: files_ --> list of files (absolute path)
+        Return: files_type --> string with the chosen filter_type
+        """
+        files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
+
+        return files_, files_type
+
+    def onChange(self):
+        """
+        Activated whenever tabs are changed --> TODO Rename tabs in accordance with current tab indexes
+        """
+        print("something changed!")
+        #self.tabWidget.setTabText(0, "Hello")
+
+    def add_state(self):
+        """
+        Add state (new tab) to tabBar widget with a ListWidget child.
+        """
+        state = self.tabWidget.count() + 1
+        self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
+
     def delete_state(self):
         """ 
-        Deletes curret state (tab) from tabBar widget
+        Deletes current state (tab) from tabBar widget together with QListWidget child.
         TODO
         """
         tab_index = self.tabWidget.currentIndex()
