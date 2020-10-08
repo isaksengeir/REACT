@@ -7,6 +7,7 @@ from UIs.MainWindow import Ui_MainWindow
 
 #methods --> Classes --> Modules --> Packages
 
+
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -92,6 +93,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         state = self.tabWidget.count() + 1
         self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
+
+        self.tabWidget.currentWidget().setAcceptDrops(True)
+        self.tabWidget.currentWidget().setDragEnabled(True)
+        self.tabWidget.currentWidget().setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
 
     def delete_state(self):
         """ 
