@@ -1,1 +1,4 @@
-Free DFT UI
+RE∆CT
+
+run with: python3 REACT.py
+
