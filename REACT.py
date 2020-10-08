@@ -43,6 +43,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         :return:
         """
+        # Avoid crash when no tabs exist
+        if self.tabWidget.currentIndex() < 0:
+            return
+
         print(self.tabWidget.currentIndex())
         items_in_list = self.tabWidget.currentWidget().count()
         print(items_in_list)
@@ -53,11 +57,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         :return:
         """
+        #Avoid crash when no tabs exist
+        if self.tabWidget.currentIndex() < 0:
+            return
         #Get the list displayed in the current tab (state)
         current_list = self.tabWidget.currentWidget()
 
         #Get the selected item(s) ---> returns a list of objects
         list_items = current_list.selectedItems()
+
 
         #Remove selected items from list:
         for item in list_items:
@@ -69,8 +77,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Deletes curret state (tab) from tabBar widget
         TODO
         """
-        print(self.tabWidget.currentIndex())
-
         tab_index = self.tabWidget.currentIndex()
 
         #Avoid crash when there are not tabs
