@@ -70,7 +70,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         TODO
         """
         print(self.tabWidget.currentIndex())
+
         tab_index = self.tabWidget.currentIndex()
+
+        #Avoid crash when there are not tabs
+        if tab_index < 0:
+            return
+
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
 
