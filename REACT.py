@@ -1,10 +1,8 @@
 import sys
 import os
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets
 from UIs.MainWindow import Ui_MainWindow
-
-#from MainWindow import Ui_MainWindow
-
+from src.ReactWidgets import DragDropListWidget
 #methods --> Classes --> Modules --> Packages
 
 
@@ -69,14 +67,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for item in list_items:
             current_list.takeItem(current_list.row(item))
 
-
     def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
         """
         Opens file dialog where multiple files can be selected.
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
-        files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
+        files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
+                                                                    options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         return files_, files_type
 
@@ -92,14 +90,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
         state = self.tabWidget.count() + 1
-        self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
-
-        self.tabWidget.currentWidget().setAcceptDrops(True)
-        self.tabWidget.currentWidget().setDragEnabled(True)
-        self.tabWidget.currentWidget().setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
 
     def delete_state(self):
-        """ 
+        """
         Deletes current state (tab) from tabBar widget together with QListWidget child.
         TODO
         """
