@@ -116,9 +116,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 #        self.textBrowser.append(text)
 #        self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
-
-
 app = QtWidgets.QApplication(sys.argv)
+#setStyle Fusion ... not sure we need this TODO delete/test/confirm?
+app.setStyle("Fusion")
 
 window = MainWindow()
 window.show()

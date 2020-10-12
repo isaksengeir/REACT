@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QListWidget, QAbstractItemView
+from PyQt5.QtWidgets import QListWidget
 
 
 class DragDropListWidget(QListWidget):
@@ -32,13 +32,14 @@ class DragDropListWidget(QListWidget):
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
-            files_accept = ["out", "pdb", "com", "xyz"]
+            files_accept = ["out", "pdb", "com", "xyz", "inp"]
             links_ = []
             for url in event.mimeData().urls():
                 # https://doc.qt.io/qt-5/qurl.html
                 if str(url.toLocalFile()).split("/")[-1].split(".")[-1] in files_accept:
                     links_.append(str(url.toLocalFile()))
 
+            #TODO should we add the entire path to project table? If not, this must communicate back path to dict() somehow
             self.addItems(links_)
 
         else:
