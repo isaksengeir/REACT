@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="24x24">
+    <file>icons/edit-pencil.png</file>
+    <file>icons/view_file.png</file>
     <file>icons/arrow-circle-right.png</file>
     <file>icons/arrow-circle-left.png</file>
     <file>icons/folder-open.png</file>

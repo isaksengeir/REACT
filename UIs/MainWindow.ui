@@ -97,8 +97,9 @@ margin-top: 2px; /* make non-selected tabs look smaller */
 
 
 QPushButton {
-	background-color: rgb(50,50,50);
+	background-color: rgb(143, 23, 119);
   	color: white;
+
 }
 
 QPushButton:hover
@@ -124,8 +125,9 @@ border:None;
 QListWidget{
 border:None;
 margin-top:5px;
-margin-left:1px;
+margin-left:5px;
 margin-right:5px;
+
 
 
 color:rgb(220,220,220);
@@ -136,6 +138,7 @@ color:rgb(220,220,220);
 QListView::item {
     /* Won't work without borders set */
 	padding-left:1px;
+	padding-right:10px;
 	padding-top:1px;
 	padding-bottom:1px;
 }
@@ -147,6 +150,7 @@ QListView::item:selected{
 color: rgb(42,42,42);
 background-color:rgb(220,220,220);
 padding-left:10px;
+padding-right:-10px;
 
 }
 
@@ -657,6 +661,113 @@ p, li { white-space: pre-wrap; }
               </size>
              </property>
             </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Quick launch</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="button_edit_file">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/icons/edit-pencil.png</normaloff>:/24x24/icons/edit-pencil.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="button_print_file">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/icons/view_file.png</normaloff>:/24x24/icons/view_file.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButton_3">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>func1</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <widget class="QPushButton" name="pushButton_4">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>func2</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

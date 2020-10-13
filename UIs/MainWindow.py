@@ -98,8 +98,9 @@ class Ui_MainWindow(object):
 "\n"
 "\n"
 "QPushButton {\n"
-"    background-color: rgb(50,50,50);\n"
+"    background-color: rgb(143, 23, 119);\n"
 "      color: white;\n"
+"\n"
 "}\n"
 "\n"
 "QPushButton:hover\n"
@@ -125,8 +126,9 @@ class Ui_MainWindow(object):
 "QListWidget{\n"
 "border:None;\n"
 "margin-top:5px;\n"
-"margin-left:1px;\n"
+"margin-left:5px;\n"
 "margin-right:5px;\n"
+"\n"
 "\n"
 "\n"
 "color:rgb(220,220,220);\n"
@@ -137,6 +139,7 @@ class Ui_MainWindow(object):
 "QListView::item {\n"
 "    /* Won\'t work without borders set */\n"
 "    padding-left:1px;\n"
+"    padding-right:10px;\n"
 "    padding-top:1px;\n"
 "    padding-bottom:1px;\n"
 "}\n"
@@ -148,6 +151,7 @@ class Ui_MainWindow(object):
 "color: rgb(42,42,42);\n"
 "background-color:rgb(220,220,220);\n"
 "padding-left:10px;\n"
+"padding-right:-10px;\n"
 "\n"
 "}\n"
 "\n"
@@ -321,6 +325,44 @@ class Ui_MainWindow(object):
         spacerItem4 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_2.addItem(spacerItem4, 0, 1, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_2)
+        self.gridLayout_3 = QtWidgets.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.label_4 = QtWidgets.QLabel(self.frame_4)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout_3.addWidget(self.label_4, 0, 0, 1, 1)
+        self.button_edit_file = QtWidgets.QPushButton(self.frame_4)
+        self.button_edit_file.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_edit_file.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_edit_file.setStyleSheet("")
+        self.button_edit_file.setText("")
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(":/24x24/icons/edit-pencil.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_edit_file.setIcon(icon4)
+        self.button_edit_file.setIconSize(QtCore.QSize(24, 24))
+        self.button_edit_file.setFlat(True)
+        self.button_edit_file.setObjectName("button_edit_file")
+        self.gridLayout_3.addWidget(self.button_edit_file, 0, 1, 1, 1)
+        self.button_print_file = QtWidgets.QPushButton(self.frame_4)
+        self.button_print_file.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_print_file.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_print_file.setStyleSheet("")
+        self.button_print_file.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(":/24x24/icons/view_file.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_print_file.setIcon(icon5)
+        self.button_print_file.setIconSize(QtCore.QSize(24, 24))
+        self.button_print_file.setFlat(True)
+        self.button_print_file.setObjectName("button_print_file")
+        self.gridLayout_3.addWidget(self.button_print_file, 0, 2, 1, 1)
+        self.pushButton_3 = QtWidgets.QPushButton(self.frame_4)
+        self.pushButton_3.setMinimumSize(QtCore.QSize(0, 20))
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.gridLayout_3.addWidget(self.pushButton_3, 1, 0, 1, 1)
+        self.pushButton_4 = QtWidgets.QPushButton(self.frame_4)
+        self.pushButton_4.setMinimumSize(QtCore.QSize(0, 20))
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.gridLayout_3.addWidget(self.pushButton_4, 1, 1, 1, 2)
+        self.verticalLayout_3.addLayout(self.gridLayout_3)
         self.gridLayout.addWidget(self.frame_4, 1, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -357,4 +399,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Project:"))
         self.label_projectname.setText(_translate("MainWindow", "new_project"))
         self.label_3.setText(_translate("MainWindow", "States"))
+        self.label_4.setText(_translate("MainWindow", "Quick launch"))
+        self.pushButton_3.setText(_translate("MainWindow", "func1"))
+        self.pushButton_4.setText(_translate("MainWindow", "func2"))
 import icons_rc

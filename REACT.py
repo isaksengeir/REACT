@@ -42,12 +42,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         files_path, type = self.import_files(title_, filter_type,path)
 
-        files_names = [x.split("/")[-1] for x in files_path]
+        #File names without path: TODO?
+        #files_names = [x.split("/")[-1] for x in files_path]
 
         #Insert new items at the end of the list
         items_insert_index = self.tabWidget.currentWidget().count()
 
-        self.tabWidget.currentWidget().insertItems(items_insert_index, files_names)
+        #Insert files/filenames to project table:
+        #TODO using entire path of file - maybe best this way?
+        self.tabWidget.currentWidget().insertItems(items_insert_index, files_path)
+
+        #Move horizontall scrollbar according to text
+        self.tabWidget.currentWidget().repaint()
+        scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
+        scrollbar.setValue(self.tabWidget.currentWidget().horizontalScrollBar().maximum())
 
     def delete_file_from_list(self):
         """
