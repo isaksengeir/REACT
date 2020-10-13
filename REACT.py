@@ -14,7 +14,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("REACT")
         self.add_state()
 
-        self.tabWidget.currentChanged.connect(self.onChange)
+        self.tabWidget.currentChanged.connect(self.update_tab_names)
 
         #MainWindow Buttons with methods:
         self.button_add_state.clicked.connect(self.add_state)
@@ -78,12 +78,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         return files_, files_type
 
-    def onChange(self):
+    def update_tab_names(self):
         """
-        Activated whenever tabs are changed --> TODO Rename tabs in accordance with current tab indexes
+        Activated whenever tabs are moved. Renames Tabs in correct order of states (1,2,3,4...)
         """
-        print("something changed!")
-        #self.tabWidget.setTabText(0, "Hello")
+        for tab in range(self.tabWidget.count()):
+            tab_name = self.tabWidget.tabText(tab)
+            if tab_name != str(tab+1):
+                self.tabWidget.setTabText(tab, str(tab+1))
 
     def add_state(self):
         """
