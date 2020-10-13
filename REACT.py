@@ -20,10 +20,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_add_state.clicked.connect(self.add_state)
         self.button_delete_state.clicked.connect(self.delete_state)
 
-        #self.button_add_file.clicked.connect(self.import_file_to_list)
+        self.button_add_file.clicked.connect(self.add_files_to_list)
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
 
-        self.button_add_file.clicked.connect(self.add_files_to_list)
+        self.button_print_file.clicked.connect(self.print_selected_file)
+
+
 
     def add_files_to_list(self):
         """
@@ -116,15 +118,33 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
 
+    def print_selected_file(self):
+        """
+        Will print the selected file to the main window.
+        """
+        #Avoid crash when no items in list:
+        if not self.tabWidget.currentWidget().currentItem():
+            return
 
+        filename = self.tabWidget.currentWidget().currentItem().text()
 
-#    def append_text(self, text=str()):
-#        """
-#        :param text: text to be printed in ain window textBrowser
-#        :return:
-#        """
-#        self.textBrowser.append(text)
-#        self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
+        #check if file exist - if not - make user aware and remove from list
+        if not os.path.exists(filename):
+            self.append_text(f"{filename} does not exist. Removing from project list.")
+            self.delete_file_from_list()
+            return
+
+        with open(filename, 'r') as pfile:
+            for line in pfile:
+                self.append_text(line.strip("\n"))
+
+    def append_text(self, text=str()):
+        """
+        :param text: text to be printed in ain window textBrowser
+        :return:
+        """
+        self.textBrowser.appendPlainText(text)
+        self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
 app = QtWidgets.QApplication(sys.argv)
 #setStyle Fusion ... not sure we need this TODO delete/test/confirm?
