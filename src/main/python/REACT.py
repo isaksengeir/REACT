@@ -2,7 +2,8 @@ import sys
 import os
 from PyQt5 import QtWidgets
 from UIs.MainWindow import Ui_MainWindow
-from src.ReactWidgets import DragDropListWidget
+from mods.ReactWidgets import DragDropListWidget
+from fbs_runtime.application_context.PyQt5 import ApplicationContext
 #methods --> Classes --> Modules --> Packages
 
 
@@ -146,6 +147,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
+
+appctxt = ApplicationContext()
 app = QtWidgets.QApplication(sys.argv)
 #setStyle Fusion ... not sure we need this TODO delete/test/confirm?
 app.setStyle("Fusion")
@@ -153,3 +156,5 @@ app.setStyle("Fusion")
 window = MainWindow()
 window.show()
 app.exec()
+exit_code=appctxt.app.exec_()
+sys.exit(exit_code)
