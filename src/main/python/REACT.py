@@ -147,13 +147,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
+#Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
+appctxt = ApplicationContext()
 
-app = QtWidgets.QApplication(sys.argv)
+#Create window and show
 window = MainWindow()
 window.show()
-app.exec()
 
-#TODO - figure out what these do, and how to prevent process from hanging after closing REACT.py
-#appctxt = ApplicationContext()
-#exit_code = appctxt.app.exec_()
-#sys.exit(exit_code)
+#Invoke appctxt.app.exec_()
+exit_code = appctxt.app.exec_()
+sys.exit(exit_code)
