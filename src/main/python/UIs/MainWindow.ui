@@ -472,8 +472,8 @@ color: rgb(220,220,220); */</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>:/24x24/icons/arrow-plus.png</normaloff>:/24x24/icons/arrow-plus.png</iconset>
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/arrow-plus.png</normaloff>:/24x24/resources/icons/arrow-plus.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -504,8 +504,8 @@ color: rgb(220,220,220); */</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>:/24x24/icons/arrow-minus.png</normaloff>:/24x24/icons/arrow-minus.png</iconset>
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/arrow-minus.png</normaloff>:/24x24/resources/icons/arrow-minus.png</iconset>
              </property>
              <property name="iconSize">
               <size>
