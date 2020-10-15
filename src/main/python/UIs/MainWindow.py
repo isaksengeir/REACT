@@ -386,4 +386,4 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Quick launch"))
         self.pushButton_3.setText(_translate("MainWindow", "func1"))
         self.pushButton_4.setText(_translate("MainWindow", "func2"))
-import icons_rc
+##import icons_rc

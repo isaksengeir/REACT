@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt5 import QtWidgets
-
+import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
