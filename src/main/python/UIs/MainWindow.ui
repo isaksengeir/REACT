@@ -386,7 +386,7 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/icons/folder-open.png</normaloff>:/24x24/icons/folder-open.png</iconset>
+               <normaloff>:/24x24/resources/icons/folder-open.png</normaloff>:/24x24/resources/icons/folder-open.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -418,7 +418,7 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/icons/save.png</normaloff>:/24x24/icons/save.png</iconset>
+               <normaloff>:/24x24/resources/icons/save.png</normaloff>:/24x24/resources/icons/save.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -472,7 +472,7 @@ color: rgb(220,220,220); */</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="icons.qrc">
+              <iconset>
                <normaloff>:/24x24/icons/arrow-plus.png</normaloff>:/24x24/icons/arrow-plus.png</iconset>
              </property>
              <property name="iconSize">
@@ -504,7 +504,7 @@ color: rgb(220,220,220); */</string>
               <string/>
              </property>
              <property name="icon">
-              <iconset resource="icons.qrc">
+              <iconset>
                <normaloff>:/24x24/icons/arrow-minus.png</normaloff>:/24x24/icons/arrow-minus.png</iconset>
              </property>
              <property name="iconSize">
@@ -567,7 +567,7 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/icons/arrow-minus.png</normaloff>:/24x24/icons/arrow-minus.png</iconset>
+               <normaloff>:/24x24/resources/icons/arrow-minus.png</normaloff>:/24x24/resources/icons/arrow-minus.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -616,7 +616,7 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/icons/arrow-plus.png</normaloff>:/24x24/icons/arrow-plus.png</iconset>
+               <normaloff>:/24x24/resources/icons/arrow-plus.png</normaloff>:/24x24/resources/icons/arrow-plus.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -675,7 +675,7 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/icons/edit-pencil.png</normaloff>:/24x24/icons/edit-pencil.png</iconset>
+               <normaloff>:/24x24/resources/icons/edit-pencil.png</normaloff>:/24x24/resources/icons/edit-pencil.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -710,7 +710,7 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/icons/view_file.png</normaloff>:/24x24/icons/view_file.png</iconset>
+               <normaloff>:/24x24/resources/icons/view_file.png</normaloff>:/24x24/resources/icons/view_file.png</iconset>
              </property>
              <property name="iconSize">
               <size>

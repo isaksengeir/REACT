@@ -1,15 +1,15 @@
 <RCC>
   <qresource prefix="24x24">
-    <file>icons/edit-pencil.png</file>
-    <file>icons/view_file.png</file>
-    <file>icons/arrow-circle-right.png</file>
-    <file>icons/arrow-circle-left.png</file>
-    <file>icons/folder-open.png</file>
-    <file>icons/save.png</file>
-    <file>icons/settings.png</file>
-    <file>icons/arrow-minus.png</file>
-    <file>icons/arrow-plus.png</file>
-    <file>icons/arrow-circle-bottom.png</file>
-    <file>icons/arrow-circle-top.png</file>
+    <file>../../resources/icons/edit-pencil.png</file>
+    <file>../../resources/icons/view_file.png</file>
+    <file>../../resources/icons/arrow-circle-right.png</file>
+    <file>../../resources/icons/arrow-circle-left.png</file>
+    <file>../../resources/icons/folder-open.png</file>
+    <file>../../resources/icons/save.png</file>
+    <file>../../resources/icons/settings.png</file>
+    <file>../../resources/icons/arrow-minus.png</file>
+    <file>../../resources/icons/arrow-plus.png</file>
+    <file>../../resources/icons/arrow-circle-bottom.png</file>
+    <file>../../resources/icons/arrow-circle-top.png</file>
   </qresource>
 </RCC>
