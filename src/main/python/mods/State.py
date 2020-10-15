@@ -47,8 +47,8 @@ class State():
                 print(f"File \"{f}\" not found")
 
     def get_all_gpaths(self):
-            '''
-            return: list of all gaussian filpaths associated with a given state.
-            '''
-
+        '''
+        return: list of all gaussian filpaths associated with a given state.
+        '''
         return [x.get_filepath() for x in self.gfiles.values()]
+

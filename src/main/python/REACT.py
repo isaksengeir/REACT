@@ -1,9 +1,11 @@
 import sys
 import os
+import json
 from PyQt5 import QtWidgets
 import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
+from mods.State import State
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 #methods --> Classes --> Modules --> Packages
 
@@ -12,8 +14,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
-
         self.setWindowTitle("REACT")
+
+        self.states = {}
+        self.proj_name = 'new_project'
+
         self.add_state()
 
         self.tabWidget.currentChanged.connect(self.update_tab_names)
@@ -27,11 +32,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.button_print_file.clicked.connect(self.print_selected_file)
 
+        self.button_save_project.clicked.connect(self.save_project)
+        self.button_open_project.clicked.connect(self.import_project)
+
 
     def add_files_to_list(self):
         """
-        Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget.
-        TODO should also be stored in dict for saving and loading project
+        Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
         """
         # Avoid crash when no tabs exist
         if self.tabWidget.currentIndex() < 0:
@@ -43,10 +50,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                       "Gaussian output files (*.out)"
         title_ = "Import File"
 
-        files_path, type = self.import_files(title_, filter_type,path)
+        files_path, type_ = self.import_files(title_, filter_type,path)
 
         #File names without path: TODO?
         #files_names = [x.split("/")[-1] for x in files_path]
+
+        #add new file to current state 
+        if files_path:
+            self.states[self.curr_state()].add_gfiles(files_path)
 
         #Insert new items at the end of the list
         items_insert_index = self.tabWidget.currentWidget().count()
@@ -74,6 +85,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Get the selected item(s) ---> returns a list of objects
         list_items = current_list.selectedItems()
 
+        #delete files from state
+        self.states[self.curr_state()].del_gfiles([x.text() for x in list_items])
+
         #Remove selected items from list:
         for item in list_items:
             current_list.takeItem(current_list.row(item))
@@ -98,12 +112,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if tab_name != str(tab+1):
                 self.tabWidget.setTabText(tab, str(tab+1))
 
-    def add_state(self):
+    def add_state(self, import_project=False):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
-        state = self.tabWidget.count() + 1
-        self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
+
+        print(f"current state_dict looks like this{self.states}")
+
+        if import_project:
+            #TODO code assumes that states are numbered correctly
+            tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{import_project[0]}") 
+            self.states[import_project[0]] = State(tab_index, import_project[1])
+
+        else:
+            state = self.tabWidget.count() + 1
+            tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
+            self.states[str(state)] = State(tab_index) # TODO buggy? State is created according to tab-count (ex. state 1 is now accessed with key = 1) If tabs are renumbered, key to access State has to be updated. 
 
     def delete_state(self):
         """
@@ -115,6 +139,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Avoid crash when there are not tabs
         if tab_index < 0:
             return
+
+        #remove current state
+        self.states.pop(self.curr_state())
 
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
@@ -146,6 +173,87 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
+
+    def curr_state(self):
+        """
+        Return: dict key to access current state.
+        """
+        return str(self.tabWidget.currentIndex()+1)
+
+    def import_project(self):
+        """
+        Import project-file and creates new state instances accordingly. Deletes all states in workplace.
+        TODO import logfile
+        """
+
+        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", os.getcwd(), "Project/JSON (*.json)")
+        
+        if proj_path == '':
+            return
+        
+        if bool(self.states) == True:
+            pass 
+            #TODO raise some warning that workspace is not empty, save project before closing?
+        
+        #delete states currently in workspace
+        self.states.clear()
+        self.tabWidget.clear()
+        #for tab_index in range(self.tabWidget.count()):
+        #    self.tabWidget.widget(tab_index).deleteLater()
+
+        self.proj_name = proj_path.split("/")[-1]  
+  
+        self.label_projectname.setText(self.proj_name.replace('.json', ''))
+
+        with open(proj_path, 'r') as proj_file:
+            proj = json.load(proj_file)
+
+        try:
+            settings = proj.pop('Settings')
+            #TODO set settings
+        except:
+            pass
+
+        for state in proj.items():
+
+            self.add_state(state)
+            self.tabWidget.widget(self.states[state[0]].get_tab_index()).insertItems(-1, self.states[state[0]].get_filenames())
+
+    def save_project(self):
+        """
+        exports a JSON file including all states and list of associated gaussian files
+        data = {1 : [file1,file2,..],
+                2 : [file1,file2,..]
+                }
+        TODO add a 'Settings' item to JSON file (working path..)
+        TODO save logfile 
+        """
+
+        project = {}
+
+        for state in self.states.items():
+            project[state[0]] = state[1].get_all_gpaths()
+
+        #if not self.proj_name:
+        #    self.proj_name = 'neww_project.json'
+
+        new_file_path = os.getcwd() + '/' + self.proj_name
+
+        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", new_file_path, "JSON (*.json)")
+
+        if proj_path == '':
+            return
+
+        self.proj_name = proj_path.split("/")[-1]  
+        
+        #change project name title in workspace
+        new_proj_title = proj_path.split('/')[-1].replace('.json', '')    
+        self.label_projectname.setText(new_proj_title)
+
+        with open(proj_path, 'w') as f:
+            json.dump(project, f)
+
+
 
 #Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
 appctxt = ApplicationContext()
