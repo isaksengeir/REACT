@@ -30,11 +30,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_add_file.clicked.connect(self.add_files_to_list)
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
 
-        self.button_print_file.clicked.connect(self.print_selected_file)
+        #self.button_print_file.clicked.connect(self.print_selected_file) #TODO I think we do not need this ....
+        self.button_print_energy.clicked.connect(self.print_energy)
+        self.button_print_scf.clicked.connect(self.print_scf)
 
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
-
 
     def add_files_to_list(self):
         """
@@ -111,6 +112,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             tab_name = self.tabWidget.tabText(tab)
             if tab_name != str(tab+1):
                 self.tabWidget.setTabText(tab, str(tab+1))
+        #TODO this needs also to fix the correct tab index for the gaussian file objects...
 
     def add_state(self, import_project=False):
         """
@@ -173,6 +175,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
+
+    def print_energy(self):
+        """
+        Takes the selected file and prints the final ENERGY (SCF Done) in hartree and kcal/mol.
+        :return:
+        """
+        self.append_text("Final Energy...")
+
+    def print_scf(self):
+        """
+        Takes the selected file and prints the 4 Convergence criterias.
+        :return:
+        """
+        self.append_text("Converged?...")
 
     def curr_state(self):
         """
