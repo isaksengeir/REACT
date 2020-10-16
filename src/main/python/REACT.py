@@ -166,7 +166,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for line in pfile:
                 self.append_text(line.strip("\n"))
 
-    def append_text(self, text=str()):
+    def append_text(self, text=str(), date_time=False):
         """
         :param text: text to be printed in ain window textBrowser
         :return:

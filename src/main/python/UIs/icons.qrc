@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="24x24">
+    <file>../../resources/icons/quick_print_SCF.png</file>
+    <file>../../resources/icons/quick_print_E.png</file>
     <file>../../resources/icons/edit-pencil.png</file>
     <file>../../resources/icons/view_file.png</file>
     <file>../../resources/icons/arrow-circle-right.png</file>
