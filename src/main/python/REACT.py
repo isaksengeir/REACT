@@ -184,9 +184,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         tab_index = self.tabWidget.currentIndex()
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
+        
+
         self.states[str(self.curr_state())].gfiles[filename].read_dft_out(filepath)
-        print(self.states[str(self.curr_state())].gfiles[filename])
         state_energy = self.states[str(self.curr_state())].gfiles[filename].ene["E_gas"]
+        
+
         self.append_text(f"Final Energy = {state_energy}")
 
     def print_scf(self):
