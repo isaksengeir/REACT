@@ -3,7 +3,7 @@ class GaussianFile():
     
         self.file_path = file_path
         self.job_details = {}
-
+        self.ene = {}
         #TODO check convergence and analyse file
 
     def get_filepath(self):
