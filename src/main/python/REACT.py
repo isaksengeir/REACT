@@ -7,6 +7,7 @@ from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
+import time
 #methods --> Classes --> Modules --> Packages
 
 
@@ -36,6 +37,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
+
+        #Print welcome
+        self.append_text("Welcome to REACT", True)
 
     def add_files_to_list(self):
         """
@@ -99,8 +103,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
-        files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
-                                                                    options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        if 'linux' in sys.platform:
+            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
+        else:
+            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
+                                                                        options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         return files_, files_type
 
@@ -148,14 +155,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             #TODO code assumes that states are numbered correctly
             self.states.append(State(import_project[1]))
 
-            tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{import_project[0]}") 
+            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
             self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_filenames())
 
         else:
             self.states.append(State()) 
 
             state = self.tabWidget.count() + 1
-            tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
+            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
 
 
     def delete_state(self):
@@ -198,6 +205,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :param text: text to be printed in ain window textBrowser
         :return:
         """
+        if date_time:
+            text = "%s\n%s" % (time.asctime(time.localtime(time.time())), text)
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
@@ -206,16 +215,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Takes the selected file and prints the final ENERGY (SCF Done) in hartree and kcal/mol.
         :return:
         """
-        tab_index = self.tabWidget.currentIndex()
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
         
 
         self.states[tab_index].gfiles[filename].read_dft_out(filepath)
         state_energy = self.states[tab_index].gfiles[filename].ene["E_gas"]
-        
+        energy_kcal = 627.51 * state_energy
 
-        self.append_text(f"Final Energy = {state_energy}")
+        #maybe not use fstrings to format here?
+        self.append_text(f"Final Energy = {state_energy} a.u.\n")
+        self.append_text(f"             = {energy_kcal:.2f} kcal/mol")
 
     def print_scf(self):
         """

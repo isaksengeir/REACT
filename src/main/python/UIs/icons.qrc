@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="24x24">
+    <file>../../resources/icons/quick_delta_E.png</file>
     <file>../../resources/icons/quick_print_SCF.png</file>
     <file>../../resources/icons/quick_print_E.png</file>
     <file>../../resources/icons/edit-pencil.png</file>
@@ -13,5 +14,11 @@
     <file>../../resources/icons/arrow-plus.png</file>
     <file>../../resources/icons/arrow-circle-bottom.png</file>
     <file>../../resources/icons/arrow-circle-top.png</file>
+  </qresource>
+  <qresource prefix="logos">
+    <file>../../resources/icons/logo_pink.png</file>
+    <file>../../resources/icons/logo_blue.png</file>
+    <file>../../resources/icons/logo_purple.png</file>
+    <file>../../resources/icons/logo_white.png</file>
   </qresource>
 </RCC>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>736</width>
+    <width>686</width>
     <height>436</height>
    </rect>
   </property>
@@ -16,19 +16,24 @@
   <property name="styleSheet">
    <string notr="true">
 QMainWindow{
-background-color:rgb(42, 42, 42);
+background-color:rgb(20, 20, 20);
 color: rgb(98, 114, 164);
 }
 
 QScrollBar{
-background-color:rgb(56,58,89);
-
+/*background-color:rgb(56,58,89);*/
+background-color:rgb(30,30,30);
 }
 
-
 QFrame{
-background-color: rgb(56,58,89);
-border: 2px solid rgb(220,220,220);
+/*background-color: rgb(56,58,89);*/
+background-color: rgb(30,30,30);
+/*border: 2px solid rgb(220,220,220);*/
+/*border: 2px solid rgb(143, 23, 119);*/
+border: 2px solid rgb(98, 114, 164);
+/*border: 2px solid rgb(56,58,89);*/
+
+
 border-radius:10px;
 
 }
@@ -56,7 +61,9 @@ margin: 0; /* if there is only one tab, we don't want overlapping margins */
 
 QTabWidget::pane { /* The tab widget frame */
 /*border-top: 2px solid #C2C7CB;*/
-border-top:4px solid rgb(56,58,89);
+
+/*border-top:4px solid rgb(56,58,89);*/
+border-top:4px solid rgb(30,30,30);
 }
 
 QTabWidget::tab-bar {
@@ -65,14 +72,17 @@ left: 5px; /* move to the right by 5px */
 
 /* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabBar::tab {
-border: 2px solid rgb(98, 114, 164);
+/*border: 2px solid rgb(98, 114, 164);
 
-border-bottom-color: rgb(98, 114, 164);
+border-bottom-color: rgb(98, 114, 164);*/
+border: 2px solid rgb(40, 40, 40);
+
+border-bottom-color: rgb(143, 23, 119);
 border-top-left-radius: 4px;
 border-top-right-radius: 4px;
 min-width: 8ex;
 padding: 2px;
-color:rgb(220,220,220);
+color:rgb(143, 23, 119);
 
 }
 
@@ -84,11 +94,11 @@ background-color:rgb(42,42,42);
 QTabBar::tab:selected {
 /*border-color: #9B9B9B;*/
 
-	border-color: rgb(98, 114, 164);
-	border-bottom-color: rgb(56,58,89);
+	border-color: rgb(143, 23, 119);
+	border-bottom-color:  rgb(143,23,119);
 	border-width: 3px;
-	color:rgb(220,220,220);
-	background-color: rgb(56,58,89);
+	color:rgb(20,20,20);
+	background-color: rgb(143,23,119);
 
 }
 QTabBar::tab:!selected {
@@ -97,25 +107,27 @@ margin-top: 2px; /* make non-selected tabs look smaller */
 
 
 QPushButton {
-	background-color: rgb(143, 23, 119);
-  	color: white;
+	/*background-color:rgb(98, 114, 164);*/
+	background-color: rgb(30,30,30);
+	color: rgb(143,23,119);
+	
 
 }
 
 QPushButton:hover
 {
-   	background-color:rgb(98, 114, 164);
-	border-style: outset;
+   	background-color: rgb(143, 23, 119);
+	color:rgb(20,20,20);
+	/*border-style: outset;
 	border-width: 0px;
-	border-radius:12px;
+	border-radius:12px;*/
 	
 	/*border-color: rgb(12, 103, 213);*/
 }
 QPushButton:pressed
 {
-   	/*background-color:rgb(17, 145, 255);
-	color: black*/
-	background-color: rgb(42, 42, 42);
+	color: rgb(143, 23, 119);
+	background-color: rgb(20, 20, 20);
 }
 
 QTableView{
@@ -129,8 +141,9 @@ margin-left:5px;
 margin-right:5px;
 
 
+background-color: rgb(30,30,30);
 
-color:rgb(220,220,220);
+color:rgb(98, 114, 164);
 
 }
 
@@ -143,12 +156,12 @@ QListView::item {
 	padding-bottom:1px;
 }
 QListView::item:hover{
-background-color: rgb(98, 114, 164);
+background-color: rgb(143,23,119);
 }
 
 QListView::item:selected{
-color: rgb(42,42,42);
-background-color:rgb(220,220,220);
+color: rgb(20,20,20);
+background-color:rgb(98, 114, 164);
 padding-left:10px;
 padding-right:-10px;
 
@@ -156,7 +169,7 @@ padding-right:-10px;
 
 QPlainTextEdit{
 border: None;
-color:rgb(220,220,220);
+color:rgb(98, 114, 164);
 }
 
 /*background-color: black;
@@ -189,7 +202,71 @@ color: rgb(220,220,220); */</string>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2"/>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="leftMargin">
+          <number>3</number>
+         </property>
+         <property name="rightMargin">
+          <number>3</number>
+         </property>
+         <item>
+          <widget class="QSplitter" name="splitter">
+           <property name="styleSheet">
+            <string notr="true">QSplitter{border: 0px;}</string>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Settings</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Calculation setup</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pushButton_5">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Create cluster</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pushButton">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QSplitter{border: 0px;}</string>
+            </property>
+            <property name="text">
+             <string>Analyse calculation</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item row="2" column="0" colspan="3">
@@ -235,6 +312,15 @@ color: rgb(220,220,220); */</string>
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_7">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>12</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
@@ -252,8 +338,17 @@ color: rgb(220,220,220); */</string>
            </item>
            <item>
             <widget class="QLabel" name="label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
-              <string>RE∆CT</string>
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="icons.qrc">:/logos/resources/icons/logo_blue.png</pixmap>
              </property>
             </widget>
            </item>
@@ -299,7 +394,7 @@ color: rgb(220,220,220); */</string>
             <bool>true</bool>
            </property>
            <property name="plainText">
-            <string>RE∆CT</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -313,6 +408,29 @@ color: rgb(220,220,220); */</string>
           <width>300</width>
           <height>300</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: rgb(143, 23, 119);
+  	color: white;
+
+}
+
+QPushButton:hover
+{
+   	background-color:rgb(143, 23, 119);
+	border-style: outset;
+	border-width: 0px;
+	border-radius:12px;
+	
+	/*border-color: rgb(12, 103, 213);*/
+}
+QPushButton:pressed
+{
+   	/*background-color:rgb(17, 145, 255);
+	color: black*/
+	background-color: rgb(42, 42, 42);
+}</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -538,8 +656,9 @@ color: rgb(220,220,220); */</string>
            <item row="0" column="0" rowspan="5">
             <widget class="QTabWidget" name="tabWidget">
              <property name="styleSheet">
-              <string notr="true">border-color:rgb(98, 114, 164);
-</string>
+              <string notr="true">/*border-color:rgb(98, 114, 164);*/
+
+border-color:rgb(143, 23, 119);</string>
              </property>
              <property name="currentIndex">
               <number>-1</number>
@@ -681,49 +800,7 @@ color: rgb(220,220,220); */</string>
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Quick launch</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
-            <widget class="QPushButton" name="button_print_file_3">
-             <property name="minimumSize">
-              <size>
-               <width>24</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>24</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true"/>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="icon">
-              <iconset resource="icons.qrc">
-               <normaloff>:/24x24/resources/icons/view_file.png</normaloff>:/24x24/resources/icons/view_file.png</iconset>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>24</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="flat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
             <widget class="QPushButton" name="button_print_scf">
              <property name="minimumSize">
               <size>
@@ -759,6 +836,48 @@ color: rgb(220,220,220); */</string>
             </widget>
            </item>
            <item row="0" column="3">
+            <widget class="QPushButton" name="button_print_relativeE">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/quick_delta_E.png</normaloff>:/24x24/resources/icons/quick_delta_E.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Quick launch</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
             <widget class="QPushButton" name="button_print_energy">
              <property name="minimumSize">
               <size>
@@ -790,32 +909,6 @@ color: rgb(220,220,220); */</string>
              </property>
              <property name="flat">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="pushButton_3">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>func1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1" colspan="3">
-            <widget class="QPushButton" name="pushButton_4">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>func2</string>
              </property>
             </widget>
            </item>
