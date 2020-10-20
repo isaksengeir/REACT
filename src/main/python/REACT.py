@@ -118,17 +118,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
-
-        print(f"current state_dict looks like this{self.states}")
-
+        #TODO BENTE why are you not using the DragDropListWidget ? I changed it back to DragDropListWidget (Geir)..
         if import_project:
             #TODO code assumes that states are numbered correctly
-            tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{import_project[0]}") 
+            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
             self.states[import_project[0]] = State(tab_index, import_project[1])
 
         else:
             state = self.tabWidget.count() + 1
-            tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
+            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
             self.states[str(state)] = State(tab_index) # TODO buggy? State is created according to tab-count (ex. state 1 is now accessed with key = 1) If tabs are renumbered, key to access State has to be updated. 
 
     def delete_state(self):

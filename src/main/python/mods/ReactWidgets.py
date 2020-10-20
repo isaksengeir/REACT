@@ -43,7 +43,6 @@ class DragDropListWidget(QListWidget):
             self.addItems(links_)
 
         else:
-            print("ignoring drop Event")
             super(DragDropListWidget, self).dropEvent(event)
             event.accept()
 
