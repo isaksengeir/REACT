@@ -103,8 +103,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
-        files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
-                                                                    options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        if 'linux' in sys.platform:
+            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
+        else:
+            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
+                                                                        options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         return files_, files_type
 
