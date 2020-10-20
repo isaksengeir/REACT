@@ -219,8 +219,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filename = filepath.split('/')[-1]
         
 
-        self.states[tab_index].gfiles[filename].read_dft_out(filepath)
-        state_energy = self.states[tab_index].gfiles[filename].ene["E_gas"]
+        self.states[self.tabWidget.currentIndex()].gfiles[filename].read_dft_out(filepath)
+        state_energy = self.states[self.tabWidget.currentIndex()].gfiles[filename].ene["E_gas"]
         energy_kcal = 627.51 * state_energy
 
         #maybe not use fstrings to format here?
