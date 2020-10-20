@@ -7,6 +7,7 @@ from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
+import time
 #methods --> Classes --> Modules --> Packages
 
 
@@ -36,6 +37,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
+
+        #Print welcome
+        self.append_text("Welcome to REACT", True)
 
     def add_files_to_list(self):
         """
@@ -171,6 +175,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :param text: text to be printed in ain window textBrowser
         :return:
         """
+        if date_time:
+            text = "%s\n%s" % (time.asctime(time.localtime(time.time())), text)
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
