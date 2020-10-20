@@ -144,7 +144,7 @@ class Ui_MainWindow(object):
 "\n"
 "background-color: rgb(30,30,30);\n"
 "\n"
-"color:rgb(220,220,220);\n"
+"color:rgb(98, 114, 164);\n"
 "\n"
 "}\n"
 "\n"
@@ -161,8 +161,8 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QListView::item:selected{\n"
-"color: rgb(42,42,42);\n"
-"background-color:rgb(220,220,220);\n"
+"color: rgb(20,20,20);\n"
+"background-color:rgb(98, 114, 164);\n"
 "padding-left:10px;\n"
 "padding-right:-10px;\n"
 "\n"
@@ -170,7 +170,7 @@ class Ui_MainWindow(object):
 "\n"
 "QPlainTextEdit{\n"
 "border: None;\n"
-"color:rgb(143,23,119);\n"
+"color:rgb(98, 114, 164);\n"
 "}\n"
 "\n"
 "/*background-color: black;\n"
@@ -458,3 +458,4 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "States"))
         self.label_4.setText(_translate("MainWindow", "Quick launch"))
 #import icons_rc
+
