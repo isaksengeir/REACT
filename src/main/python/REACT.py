@@ -16,7 +16,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle("REACT")
 
-        self.states = {}
+        self.states = []
         self.proj_name = 'new_project'
 
         self.add_state()
@@ -58,7 +58,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #add new file to current state 
         if files_path:
-            self.states[self.curr_state()].add_gfiles(files_path)
+            self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
 
         #Insert new items at the end of the list
         items_insert_index = self.tabWidget.currentWidget().count()
@@ -87,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         list_items = current_list.selectedItems()
 
         #delete files from state
-        self.states[self.curr_state()].del_gfiles([x.text() for x in list_items])
+        self.states[self.tabwidget.currentIndex()].del_gfiles([x.text() for x in list_items])
 
         #Remove selected items from list:
         for item in list_items:
@@ -107,29 +107,56 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_tab_names(self):
         """
         Activated whenever tabs are moved. Renames Tabs in correct order of states (1,2,3,4...)
+        Algorithm for updating list of states: temporary new list is created, 
+
+        TODO this function is actually called everytime a tab is clicked (not only when tabs are removed/deleted) This seems unnecessary
         """
+
+        found_change = False
+
+        #new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
+        #thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
+        new_pointers = []
+
         for tab in range(self.tabWidget.count()):
             tab_name = self.tabWidget.tabText(tab)
             if tab_name != str(tab+1):
+
+                if found_change == False:
+                    found_change = True
+                
+                #Since this tab have been moved, the associated State-obj is retrived by using the old tab name (before assigning new tab name).
+                new_pointers.append(self.states[int(tab_name)-1])
                 self.tabWidget.setTabText(tab, str(tab+1))
-        #TODO this needs also to fix the correct tab index for the gaussian file objects...
+
+            else:
+                #This tab as not been moved, no need to change label, same pointer is added to new list.
+                new_pointers.append(self.states[int(tab_name)-1])
+
+
+        if found_change or (len(self.states) != len(new_pointers)):
+            #if the length is not equal, tabs have been added or removed. When self.states is overwriten after a tab has been deleted,
+            #python garbage mechanism should delete the State-object, as there are no longer any reference to that object.
+            self.states = new_pointers
+
 
     def add_state(self, import_project=False):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
-
-        print(f"current state_dict looks like this{self.states}")
-
         if import_project:
             #TODO code assumes that states are numbered correctly
+            self.states.append(State(import_project[1]))
+
             tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{import_project[0]}") 
-            self.states[import_project[0]] = State(tab_index, import_project[1])
+            self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_filenames())
 
         else:
+            self.states.append(State()) 
+
             state = self.tabWidget.count() + 1
             tab_index = self.tabWidget.addTab(QtWidgets.QListWidget(self), f"{state}")
-            self.states[str(state)] = State(tab_index) # TODO buggy? State is created according to tab-count (ex. state 1 is now accessed with key = 1) If tabs are renumbered, key to access State has to be updated. 
+
 
     def delete_state(self):
         """
@@ -142,8 +169,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if tab_index < 0:
             return
 
-        #remove current state
-        self.states.pop(self.curr_state())
 
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
@@ -186,8 +211,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filename = filepath.split('/')[-1]
         
 
-        self.states[str(self.curr_state())].gfiles[filename].read_dft_out(filepath)
-        state_energy = self.states[str(self.curr_state())].gfiles[filename].ene["E_gas"]
+        self.states[tab_index].gfiles[filename].read_dft_out(filepath)
+        state_energy = self.states[tab_index].gfiles[filename].ene["E_gas"]
         
 
         self.append_text(f"Final Energy = {state_energy}")
@@ -213,6 +238,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", os.getcwd(), "Project/JSON (*.json)")
         
+        #To avoid error if dialogwindow is opened, but no file is selected
         if proj_path == '':
             return
         
@@ -223,8 +249,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #delete states currently in workspace
         self.states.clear()
         self.tabWidget.clear()
-        #for tab_index in range(self.tabWidget.count()):
-        #    self.tabWidget.widget(tab_index).deleteLater()
 
         self.proj_name = proj_path.split("/")[-1]  
   
@@ -242,7 +266,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for state in proj.items():
 
             self.add_state(state)
-            self.tabWidget.widget(self.states[state[0]].get_tab_index()).insertItems(-1, self.states[state[0]].get_filenames())
 
     def save_project(self):
         """
@@ -256,11 +279,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         project = {}
 
-        for state in self.states.items():
-            project[state[0]] = state[1].get_all_gpaths()
-
-        #if not self.proj_name:
-        #    self.proj_name = 'neww_project.json'
+        for state_index in range(len(self.states)):
+            project[state_index] = self.states[state_index].get_all_gpaths()
 
         new_file_path = os.getcwd() + '/' + self.proj_name
 

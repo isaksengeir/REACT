@@ -2,10 +2,9 @@ from mods.GaussianFile import GaussianFile
 
 class State():
 
-    def __init__(self, tab_index, file_paths=None):
+    def __init__(self, file_paths=None):
 
         self.gfiles = {}
-        self.tab_index = tab_index
 
         if file_paths:
             self.add_gfiles(file_paths)
@@ -17,12 +16,6 @@ class State():
         """
         #return [x for x in self.gfiles.keys()] --> to use when printing filename only in workspace, instead of the whole filepath
         return [x.get_filepath() for x in self.gfiles.values()]
-
-    def get_tab_index(self):
-        '''
-        Return: tab index associated with a given state.
-        '''
-        return self.tab_index
 
     def add_gfiles(self, file_paths):
         """
