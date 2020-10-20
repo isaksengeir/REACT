@@ -181,16 +181,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Takes the selected file and prints the final ENERGY (SCF Done) in hartree and kcal/mol.
         :return:
         """
-        tab_index = self.tabWidget.currentIndex()
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
         
 
         self.states[str(self.curr_state())].gfiles[filename].read_dft_out(filepath)
         state_energy = self.states[str(self.curr_state())].gfiles[filename].ene["E_gas"]
-        
+        energy_kcal = 627.51 * state_energy
 
-        self.append_text(f"Final Energy = {state_energy}")
+        #maybe not use fstrings to format here?
+        self.append_text(f"Final Energy = {state_energy} a.u.\n")
+        self.append_text(f"             = {energy_kcal:.2f} kcal/mol")
 
     def print_scf(self):
         """
