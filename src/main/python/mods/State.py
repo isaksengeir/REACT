@@ -46,8 +46,8 @@ class State():
         return [x.get_filepath() for x in self.gfiles.values()]
 
     def get_energy(self, filename):
-         """
+        """
 
-         :return: final SCF Done value
-         """
+        :return: final SCF Done value
+        """
         return self.gfiles[filename].get_energy()
