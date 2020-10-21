@@ -61,8 +61,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #files_names = [x.split("/")[-1] for x in files_path]
 
         #add new file to current state 
-        if files_path:
-            self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
+        self.add_file_to_state(files_path)
 
         #Insert new items at the end of the list
         items_insert_index = self.tabWidget.currentWidget().count()
@@ -75,6 +74,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tabWidget.currentWidget().repaint()
         scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
         scrollbar.setValue(self.tabWidget.currentWidget().horizontalScrollBar().maximum())
+
+    def add_file_to_state(self, files_path):
+
+        if files_path:
+            self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
+
 
     def delete_file_from_list(self):
         """
@@ -91,7 +96,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         list_items = current_list.selectedItems()
 
         #delete files from state
-        self.states[self.tabwidget.currentIndex()].del_gfiles([x.text() for x in list_items])
+        self.states[self.tabWidget.currentIndex()].del_gfiles([x.text() for x in list_items])
 
         #Remove selected items from list:
         for item in list_items:
@@ -132,19 +137,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if found_change == False:
                     found_change = True
                 
-                #Since this tab have been moved, the associated State-obj is retrived by using the old tab name (before assigning new tab name).
-                new_pointers.append(self.states[int(tab_name)-1])
-                self.tabWidget.setTabText(tab, str(tab+1))
+                try:
+                    #Try function is added because this fails in the event of inmporting a project (list index of range error). Ideally, the function should only be called on actual tab-changes
+
+                    #Since this tab have been moved, the associated State-obj is retrived by using the old tab name (before assigning new tab name).
+                    new_pointers.append(self.states[int(tab_name)-1])
+                    self.tabWidget.setTabText(tab, str(tab+1))
+                except:
+                    print('This should only be printed if you just imported a project')
 
             else:
-                #This tab as not been moved, no need to change label, same pointer is added to new list.
-                new_pointers.append(self.states[int(tab_name)-1])
 
+                try:
+                    #This tab as not been moved, no need to change label, same pointer is added to new list.
+                    new_pointers.append(self.states[int(tab_name)-1])
+                except:
+                    print('This should only be printed if you just imported a project')
 
         if found_change or (len(self.states) != len(new_pointers)):
             #if the length is not equal, tabs have been added or removed. When self.states is overwriten after a tab has been deleted,
             #python garbage mechanism should delete the State-object, as there are no longer any reference to that object.
+            print(f"!!!NOW!! replacing {self.states} with {new_pointers}")
             self.states = new_pointers
+
+        ##This gives an error at import of project, but these two lines are just included for testing purposes 
+        current_files = self.states[self.tabWidget.currentIndex()].get_all_gpaths()
+        print(f"index {self.tabWidget.currentIndex()} and files: {current_files}")
 
 
     def add_state(self, import_project=False):
@@ -154,6 +172,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if import_project:
             #TODO code assumes that states are numbered correctly
             self.states.append(State(import_project[1]))
+            print(f"added state {import_project[0]}, with files {import_project[1]}")
 
             tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
             self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_filenames())
@@ -277,6 +296,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.add_state(state)
 
+        print(f"project looks like this{proj}")
+        print(f"new self.states looks like this:{self.states}")
+
     def save_project(self):
         """
         exports a JSON file including all states and list of associated gaussian files
@@ -290,7 +312,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         project = {}
 
         for state_index in range(len(self.states)):
-            project[state_index] = self.states[state_index].get_all_gpaths()
+            project[state_index+1] = self.states[state_index].get_all_gpaths()
 
         new_file_path = os.getcwd() + '/' + self.proj_name
 
