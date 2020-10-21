@@ -22,7 +22,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.add_state()
 
-        self.tabWidget.currentChanged.connect(self.update_tab_names)
+        self.tabWidget.tabBar().tabMoved.connect(self.update_tab_names)
 
         #MainWindow Buttons with methods:
         self.button_add_state.clicked.connect(self.add_state)
@@ -45,10 +45,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
         """
-        # Avoid crash when no tabs exist
+        # Add state tab if not any exists...
         if self.tabWidget.currentIndex() < 0:
-            #TODO raise error in log window!
-            return
+            self.append_text("No states exist - files must be assigned to a state.", True)
+            self.append_text("Auto-creating state 1 - files will be added there")
+            self.add_state(import_project=False)
 
         path = os.getcwd()  # wordkdir TODO
         filter_type = "Geometry files (*.pdb *.xyz);; Gaussian input files (*.com *.inp);; " \
@@ -89,6 +90,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Avoid crash when no tabs exist
         if self.tabWidget.currentIndex() < 0:
             return
+
+        #avid crash when no files exist in state:
+        if self.tabWidget.currentWidget().count() < 1:
+            return
+
         #Get the list displayed in the current tab (state)
         current_list = self.tabWidget.currentWidget()
 
@@ -108,6 +114,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
+        #TODO this can be removed at some point - it is not readable on mac either. This is because of the DontUseNativeDialog (which will be removed)
         if 'linux' in sys.platform:
             files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
         else:
@@ -121,49 +128,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Activated whenever tabs are moved. Renames Tabs in correct order of states (1,2,3,4...)
         Algorithm for updating list of states: temporary new list is created, 
 
-        TODO this function is actually called everytime a tab is clicked (not only when tabs are removed/deleted) This seems unnecessary
         """
-
-        found_change = False
-
         #new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
         #thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
         new_pointers = []
 
-        for tab in range(self.tabWidget.count()):
-            tab_name = self.tabWidget.tabText(tab)
-            if tab_name != str(tab+1):
+        for tab_index in range(self.tabWidget.count()):
+            state = self.tabWidget.tabText(tab_index)
 
-                if found_change == False:
-                    found_change = True
-                
-                try:
-                    #Try function is added because this fails in the event of inmporting a project (list index of range error). Ideally, the function should only be called on actual tab-changes
+            new_pointers.append(self.states[int(state) - 1])
+            if state != str(tab_index+1):
+                self.tabWidget.setTabText(tab_index, str(tab_index+1))
 
-                    #Since this tab have been moved, the associated State-obj is retrived by using the old tab name (before assigning new tab name).
-                    new_pointers.append(self.states[int(tab_name)-1])
-                    self.tabWidget.setTabText(tab, str(tab+1))
-                except:
-                    print('This should only be printed if you just imported a project')
-
-            else:
-
-                try:
-                    #This tab as not been moved, no need to change label, same pointer is added to new list.
-                    new_pointers.append(self.states[int(tab_name)-1])
-                except:
-                    print('This should only be printed if you just imported a project')
-
-        if found_change or (len(self.states) != len(new_pointers)):
-            #if the length is not equal, tabs have been added or removed. When self.states is overwriten after a tab has been deleted,
-            #python garbage mechanism should delete the State-object, as there are no longer any reference to that object.
-            print(f"!!!NOW!! replacing {self.states} with {new_pointers}")
-            self.states = new_pointers
-
-        ##This gives an error at import of project, but these two lines are just included for testing purposes 
-        current_files = self.states[self.tabWidget.currentIndex()].get_all_gpaths()
-        print(f"index {self.tabWidget.currentIndex()} and files: {current_files}")
-
+        self.states = new_pointers
 
     def add_state(self, import_project=False):
         """
@@ -181,8 +158,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.states.append(State()) 
 
             state = self.tabWidget.count() + 1
-            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
-
+            self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
 
     def delete_state(self):
         """
@@ -194,7 +170,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Avoid crash when there are not tabs
         if tab_index < 0:
             return
-
 
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
@@ -236,15 +211,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
-        
 
-        self.states[self.tabWidget.currentIndex()].gfiles[filename].read_dft_out(filepath)
-        state_energy = self.states[self.tabWidget.currentIndex()].gfiles[filename].ene["E_gas"]
+        if filename.split('.')[-1] != "out":
+            self.append_text("%s does not seem to be a Gaussian output file." % filename)
+            return
+
+        state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filename)
+        #energy_kcal = superfile.connvert_to_kcal(energy_au) TODO ?
         energy_kcal = 627.51 * state_energy
 
-        #maybe not use fstrings to format here?
-        self.append_text(f"Final Energy = {state_energy} a.u.\n")
-        self.append_text(f"             = {energy_kcal:.2f} kcal/mol")
+        self.append_text("\nFinal energy of %s:" % filename)
+        self.append_text("%f a.u" % state_energy)
+        self.append_text("%.4f kcal/mol" % energy_kcal)
 
     def print_scf(self):
         """

@@ -20,6 +20,7 @@ background-color:rgb(20, 20, 20);
 color: rgb(98, 114, 164);
 }
 
+
 QScrollBar{
 /*background-color:rgb(56,58,89);*/
 background-color:rgb(30,30,30);
@@ -172,8 +173,17 @@ border: None;
 color:rgb(98, 114, 164);
 }
 
-/*background-color: black;
-color: rgb(220,220,220); */</string>
+
+QFileDialog{
+background-color:rgb(30,30,30);
+border: 0px;
+color: rgb(98,114,164);
+}
+
+QFileDialog::QFrame{
+background-color:yellow;
+}
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
