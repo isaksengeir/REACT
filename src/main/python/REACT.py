@@ -22,7 +22,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.add_state()
 
-        self.tabWidget.currentChanged.connect(self.update_tab_names)
+        self.tabWidget.tabBar().tabMoved.connect(self.update_tab_names)
 
         #MainWindow Buttons with methods:
         self.button_add_state.clicked.connect(self.add_state)
@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
         """
-        # Avoid crash when no tabs exist
+        # Add state tab if not any exists...
         if self.tabWidget.currentIndex() < 0:
             self.append_text("No states exist - files must be assigned to a state.", True)
             self.append_text("Auto-creating state 1 - files will be added there")
@@ -118,10 +118,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Activated whenever tabs are moved. Renames Tabs in correct order of states (1,2,3,4...)
         Algorithm for updating list of states: temporary new list is created, 
 
-        TODO this function is actually called everytime a tab is clicked (not only when tabs are removed/deleted) This seems unnecessary
-        -->Well, how much clicking will there be? In the original code, it only did something when indexed changes. Now we are creating variables on any event....
         """
-
         found_change = False
 
         #new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
