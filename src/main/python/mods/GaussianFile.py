@@ -27,7 +27,7 @@ class GaussianFile():
                     self.Eps = "{:.2f}".format(float(line.split()[4]))
 
                 if "SCF Done" in line:
-                    self.ene["E_energy"] = float(line.split()[4])
+                    self.ene["energy"] = float(line.split()[4])
                     
                 if "Zero-point correction=" in line:
                     self.ene["ZPE"] = float(line.split()[2])
