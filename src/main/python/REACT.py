@@ -85,6 +85,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Avoid crash when no tabs exist
         if self.tabWidget.currentIndex() < 0:
             return
+
+        #avid crash when no files exist in state:
+        if self.tabWidget.currentWidget().count() < 1:
+            return
+
         #Get the list displayed in the current tab (state)
         current_list = self.tabWidget.currentWidget()
 

@@ -21,6 +21,7 @@ class Ui_MainWindow(object):
 "color: rgb(98, 114, 164);\n"
 "}\n"
 "\n"
+"\n"
 "QScrollBar{\n"
 "/*background-color:rgb(56,58,89);*/\n"
 "background-color:rgb(30,30,30);\n"
@@ -173,8 +174,17 @@ class Ui_MainWindow(object):
 "color:rgb(98, 114, 164);\n"
 "}\n"
 "\n"
-"/*background-color: black;\n"
-"color: rgb(220,220,220); */")
+"\n"
+"QFileDialog{\n"
+"background-color:rgb(30,30,30);\n"
+"border: 0px;\n"
+"color: rgb(98,114,164);\n"
+"}\n"
+"\n"
+"QFileDialog::item{\n"
+"color:rgb(98,114,164);\n"
+"}\n"
+"")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -458,4 +468,3 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "States"))
         self.label_4.setText(_translate("MainWindow", "Quick launch"))
 #import icons_rc
-
