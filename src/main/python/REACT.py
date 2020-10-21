@@ -119,33 +119,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Algorithm for updating list of states: temporary new list is created, 
 
         """
-        found_change = False
-
         #new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
         #thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
         new_pointers = []
 
-        for tab in range(self.tabWidget.count()):
-            tab_name = self.tabWidget.tabText(tab)
-            if tab_name != str(tab+1):
+        for tab_index in range(self.tabWidget.count()):
+            state = self.tabWidget.tabText(tab_index)
 
-                if found_change == False:
-                    found_change = True
-                
-                #Since this tab have been moved, the associated State-obj is retrived by using the old tab name (before assigning new tab name).
-                new_pointers.append(self.states[int(tab_name)-1])
-                self.tabWidget.setTabText(tab, str(tab+1))
+            new_pointers.append(self.states[int(state) - 1])
+            if state != str(tab_index+1):
+                self.tabWidget.setTabText(tab_index, str(tab_index+1))
 
-            else:
-                #This tab as not been moved, no need to change label, same pointer is added to new list.
-                new_pointers.append(self.states[int(tab_name)-1])
-
-
-        if found_change or (len(self.states) != len(new_pointers)):
-            #if the length is not equal, tabs have been added or removed. When self.states is overwriten after a tab has been deleted,
-            #python garbage mechanism should delete the State-object, as there are no longer any reference to that object.
-            self.states = new_pointers
-
+        self.states = new_pointers
 
     def add_state(self, import_project=False):
         """
