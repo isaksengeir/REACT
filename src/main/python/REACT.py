@@ -147,8 +147,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.states.append(State()) 
 
             state = self.tabWidget.count() + 1
-            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
-
+            self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
 
     def delete_state(self):
         """
@@ -160,7 +159,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Avoid crash when there are not tabs
         if tab_index < 0:
             return
-
 
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
@@ -202,15 +200,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
-        
+        if filename.split('.')[-1] != "out":
+            self.append_text("%s does not seem to be a Gaussian output file." % filename)
+            return
+
 
         self.states[self.tabWidget.currentIndex()].gfiles[filename].read_dft_out(filepath)
+        #TODO why E_gas? This could be with solvation too... need the final SCF Done here.
         state_energy = self.states[self.tabWidget.currentIndex()].gfiles[filename].ene["E_gas"]
         energy_kcal = 627.51 * state_energy
 
-        #maybe not use fstrings to format here?
-        self.append_text(f"Final Energy = {state_energy} a.u.\n")
-        self.append_text(f"             = {energy_kcal:.2f} kcal/mol")
+        self.append_text("\nFinal energy of %s:" % filename)
+        self.append_text("%f a.u" % state_energy)
+        self.append_text("%.4f kcal/mol" % energy_kcal)
 
     def print_scf(self):
         """
