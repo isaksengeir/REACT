@@ -180,8 +180,8 @@ border: 0px;
 color: rgb(98,114,164);
 }
 
-QFileDialog::item{
-color:rgb(98,114,164);
+QFileDialog::QFrame{
+background-color:yellow;
 }
 </string>
   </property>

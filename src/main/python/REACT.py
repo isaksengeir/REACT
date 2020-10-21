@@ -205,14 +205,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
+
         if filename.split('.')[-1] != "out":
             self.append_text("%s does not seem to be a Gaussian output file." % filename)
             return
 
-
-        self.states[self.tabWidget.currentIndex()].gfiles[filename].read_dft_out(filepath)
-        #TODO why E_gas? This could be with solvation too... need the final SCF Done here.
-        state_energy = self.states[self.tabWidget.currentIndex()].gfiles[filename].ene["E_gas"]
+        state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filename)
+        #energy_kcal = superfile.connvert_to_kcal(energy_au) TODO ?
         energy_kcal = 627.51 * state_energy
 
         self.append_text("\nFinal energy of %s:" % filename)

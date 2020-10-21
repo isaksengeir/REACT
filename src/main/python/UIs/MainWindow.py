@@ -181,8 +181,8 @@ class Ui_MainWindow(object):
 "color: rgb(98,114,164);\n"
 "}\n"
 "\n"
-"QFileDialog::item{\n"
-"color:rgb(98,114,164);\n"
+"QFileDialog::QFrame{\n"
+"background-color:yellow;\n"
 "}\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
