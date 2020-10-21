@@ -47,8 +47,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         # Avoid crash when no tabs exist
         if self.tabWidget.currentIndex() < 0:
-            #TODO raise error in log window!
-            return
+            self.append_text("No states exist - files must be assigned to a state.", True)
+            self.append_text("Auto-creating state 1 - files will be added there")
+            self.add_state(import_project=False)
 
         path = os.getcwd()  # wordkdir TODO
         filter_type = "Geometry files (*.pdb *.xyz);; Gaussian input files (*.com *.inp);; " \
@@ -103,6 +104,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
+        #TODO this can be removed at some point - it is not readable on mac either. This is because of the DontUseNativeDialog (which will be removed)
         if 'linux' in sys.platform:
             files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
         else:
@@ -117,6 +119,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Algorithm for updating list of states: temporary new list is created, 
 
         TODO this function is actually called everytime a tab is clicked (not only when tabs are removed/deleted) This seems unnecessary
+        -->Well, how much clicking will there be? In the original code, it only did something when indexed changes. Now we are creating variables on any event....
         """
 
         found_change = False
