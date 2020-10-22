@@ -1,10 +1,18 @@
-from mods.GaussianFile import OutputFile
+from mods.GaussianFile import OutputFile, InputFile
 
 class State():
 
     def __init__(self, file_paths=None):
 
         self.gfiles = {}
+
+        #File types --> sublass assignment
+        self.file_types = {"com": InputFile,
+                           "inp": InputFile,
+                           "out": OutputFile,
+                           "pdb": None,
+                           "xyx": None}
+
 
         if file_paths:
             self.add_gfiles(file_paths)
@@ -26,12 +34,16 @@ class State():
         #    do multiprocessing or threading instead? Each new GaussianFile object will undergo some processing (read file, check convergence, energies...)
 
         for path in file_paths:
-            self.gfiles[path.split("/")[-1]] = (OutPut(path))
+            #Check file type for correct GaussianFile subclass assignment:
+            filename = path.split("/")[-1]
+            filetype = filename.split(".")[-1]
+
+            self.gfiles[filename] = (self.file_types[filetype](path))
     
     def del_gfiles(self, files_to_del):
-        '''
+        """
         Removes all files in files_to_del list from state.
-        '''
+        """
 
         for f in files_to_del:
             try:
@@ -40,14 +52,13 @@ class State():
                 print(f"File \"{f}\" not found")
 
     def get_all_gpaths(self):
-        '''
+        """
         return: list of all gaussian filpaths associated with a given state.
-        '''
+        """
         return [x.get_filepath() for x in self.gfiles.values()]
 
     def get_energy(self, filename):
         """
-
         :return: final SCF Done value
         """
         return self.gfiles[filename].get_energy()
