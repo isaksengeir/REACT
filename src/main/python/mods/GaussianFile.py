@@ -2,9 +2,25 @@ class GaussianFile():
     def __init__(self, file_path):
     
         self.file_path = file_path
-        self.job_details = {}
-        self.ene = {}
 
+        #Initialize dictionaries
+        self.job_details = {}
+
+
+class InputFile(GaussianFile):
+
+    def __init__(self, file_path):
+        super().__init__(file_path)
+
+
+class OutputFile(GaussianFile):
+
+    def __init__(self, file_path):
+        super().__init__(file_path)
+        self.ene = {}
+        self.solvent = {}
+
+        #Read output
         self.read_dft_out(file_path)
         #TODO check convergence and analyse file
 

@@ -1,4 +1,4 @@
-from mods.GaussianFile import GaussianFile
+from mods.GaussianFile import OutputFile
 
 class State():
 
@@ -26,7 +26,7 @@ class State():
         #    do multiprocessing or threading instead? Each new GaussianFile object will undergo some processing (read file, check convergence, energies...)
 
         for path in file_paths:
-            self.gfiles[path.split("/")[-1]] = (GaussianFile(path))
+            self.gfiles[path.split("/")[-1]] = (OutPut(path))
     
     def del_gfiles(self, files_to_del):
         '''
