@@ -64,3 +64,10 @@ class State:
         :return: final SCF Done value
         """
         return self.gfiles[filename].get_energy()
+
+    def check_convergence(self, filename):
+        """
+        :param filename:
+        :return: None (not geometry optimization), False (not converged) or True (converged)
+        """
+        return self.gfiles[filename].check_convergence()
