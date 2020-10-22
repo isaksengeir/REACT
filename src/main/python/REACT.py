@@ -18,7 +18,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("REACT")
 
         self.states = []
-        self.proj_name = 'new_project'
+        self.proj_name = 'new_project.json'
+        self.proj_path = ''
 
         self.add_state()
 
@@ -231,11 +232,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         self.append_text("Converged?...")
 
-    def curr_state(self):
-        """
-        Return: dict key to access current state.
-        """
-        return str(self.tabWidget.currentIndex()+1)
 
     def import_project(self):
         """
@@ -243,10 +239,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         TODO import logfile
         """
 
-        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", os.getcwd(), "Project/JSON (*.json)")
+        self.proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", self.proj_path, "Project/JSON (*.json)")
         
         #To avoid error if dialogwindow is opened, but no file is selected
-        if proj_path == '':
+        if self.proj_path == '':
             return
         
         if bool(self.states) == True:
@@ -257,11 +253,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states.clear()
         self.tabWidget.clear()
 
-        self.proj_name = proj_path.split("/")[-1]  
+        self.proj_name = self.proj_path.split("/")[-1]  
   
         self.label_projectname.setText(self.proj_name.replace('.json', ''))
 
-        with open(proj_path, 'r') as proj_file:
+        with open(self.proj_path, 'r') as proj_file:
             proj = json.load(proj_file)
 
         try:
@@ -270,12 +266,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         except:
             pass
 
+        try:
+            log_text =proj.pop('Log_text')
+            self.append_text(log_text)
+        except:
+            pass
+
         for state in proj.items():
 
             self.add_state(state)
-
-        print(f"project looks like this{proj}")
-        print(f"new self.states looks like this:{self.states}")
 
     def save_project(self):
         """
@@ -283,7 +282,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         data = {1 : [file1,file2,..],
                 2 : [file1,file2,..]
                 }
-        TODO add a 'Settings' item to JSON file (working path..)
+        TODO add a 'Settings' item to JSON file 
         TODO save logfile 
         """
 
@@ -292,20 +291,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for state_index in range(len(self.states)):
             project[state_index+1] = self.states[state_index].get_all_gpaths()
 
-        new_file_path = os.getcwd() + '/' + self.proj_name
+        project['Log_text'] = self.textBrowser.toPlainText()
 
-        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", new_file_path, "JSON (*.json)")
+        if self.proj_path == '':
+            self.proj_path = os.getcwd() + '/' + self.proj_name
 
-        if proj_path == '':
+        new_proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", self.proj_path, "JSON (*.json)")
+
+        if new_proj_path == '':
             return
 
-        self.proj_name = proj_path.split("/")[-1]  
+        self.proj_name = new_proj_path.split("/")[-1]  
+        self.proj_path = new_proj_path
         
         #change project name title in workspace
-        new_proj_title = proj_path.split('/')[-1].replace('.json', '')    
+        new_proj_title = new_proj_path.split('/')[-1].replace('.json', '')    
         self.label_projectname.setText(new_proj_title)
 
-        with open(proj_path, 'w') as f:
+        with open(self.proj_path, 'w') as f:
             json.dump(project, f)
 
 

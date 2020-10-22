@@ -1,7 +1,14 @@
+import os
+
 class GaussianFile():
     def __init__(self, file_path):
-    
+
+        if not os.path.isfile(file_path):
+            #some error window saying that file no longer exist at this location?
+            pass
+
         self.file_path = file_path
+
         self.job_details = {}
         self.ene = {}
 
