@@ -117,13 +117,12 @@ QPushButton {
 
 QPushButton:hover
 {
-   	background-color: rgb(143, 23, 119);
-	color:rgb(20,20,20);
-	/*border-style: outset;
-	border-width: 0px;
-	border-radius:12px;*/
-	
-	/*border-color: rgb(12, 103, 213);*/
+   	background-color: rgb(40, 40, 40);
+	/*color:rgb(20,20,20);*/
+	border-style: outset;
+	border-width: 2px;
+	border-color: rgb(143,23,119);
+
 }
 QPushButton:pressed
 {
@@ -429,9 +428,11 @@ background-color:yellow;
 QPushButton:hover
 {
    	background-color:rgb(143, 23, 119);
+
 	border-style: outset;
 	border-width: 0px;
-	border-radius:12px;
+	border-radius:10px;
+
 	
 	/*border-color: rgb(12, 103, 213);*/
 }
