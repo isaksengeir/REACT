@@ -1,10 +1,12 @@
 class GaussianFile():
     def __init__(self, file_path):
-    
         self.file_path = file_path
 
-        #Initialize dictionaries
-        self.job_details = {}
+    def get_filepath(self):
+        """
+        Return: filepath for gaussianfile
+        """
+        return self.file_path
 
 
 class InputFile(GaussianFile):
@@ -12,8 +14,11 @@ class InputFile(GaussianFile):
     def __init__(self, file_path):
         super().__init__(file_path)
 
+        #Initialize dictionaries
+        self.job_details = {}
 
-class OutputFile(GaussianFile):
+
+class OutputFile(InputFile):
 
     def __init__(self, file_path):
         super().__init__(file_path)
@@ -23,12 +28,6 @@ class OutputFile(GaussianFile):
         #Read output
         self.read_dft_out(file_path)
         #TODO check convergence and analyse file
-
-    def get_filepath(self):
-        """
-        Return: filepath for gaussianfile
-        """
-        return self.file_path
 
     def read_dft_out(self, DFT_out):
         """ Very unfinished code, should also be moved to a GaussianOUT class

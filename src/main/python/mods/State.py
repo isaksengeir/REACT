@@ -11,7 +11,7 @@ class State():
                            "inp": InputFile,
                            "out": OutputFile,
                            "pdb": None,
-                           "xyx": None}
+                           "xyz": None}
 
 
         if file_paths:
