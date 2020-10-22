@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="24x24">
+    <file>../../resources/icons/react_delta.png</file>
     <file>../../resources/icons/quick_delta_E.png</file>
     <file>../../resources/icons/quick_print_SCF.png</file>
     <file>../../resources/icons/quick_print_E.png</file>
@@ -16,6 +17,9 @@
     <file>../../resources/icons/arrow-circle-top.png</file>
   </qresource>
   <qresource prefix="logos">
+    <file>../../resources/icons/REACT_logo3.png</file>
+    <file>../../resources/icons/REACT_logo2.png</file>
+    <file>../../resources/icons/REACT_logo.png</file>
     <file>../../resources/icons/logo_pink.png</file>
     <file>../../resources/icons/logo_blue.png</file>
     <file>../../resources/icons/logo_purple.png</file>
