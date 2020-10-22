@@ -35,6 +35,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #self.button_print_file.clicked.connect(self.print_selected_file) #TODO I think we do not need this ....
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.print_scf)
+        self.button_print_relativeE.clicked.connect(self.print_relative_energy)
 
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
@@ -81,7 +82,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if files_path:
             self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
-
 
     def delete_file_from_list(self):
         """
@@ -226,6 +226,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("%f a.u" % state_energy)
         self.append_text("%.4f kcal/mol" % energy_kcal)
 
+    def print_relative_energy(self):
+        """
+        calculates the relative energy (to state 1) for all states and prints it in the log window
+        :return:
+        """
+        energies = list()
+        for tab_index in range(self.tabWidget.count()):
+            state = tab_index + 1
+            if self.tabWidget.widget(tab_index).currentItem():
+                file_path = self.tabWidget.widget(tab_index).currentItem().text()
+                filename = file_path.split('/')[-1]
+                energies.append(self.states[tab_index].get_energy(filename))
+                self.append_text("State %d: %.4f kcal/mol (%s)" %
+                                 (state, 627.51*(energies[tab_index] - energies[0]), filename))
+            else:
+                self.append_text("No files selected for state %d" % state)
+
+
     def print_scf(self):
         """
         Takes the selected file and prints the 4 Convergence criterias.
@@ -284,7 +302,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 2 : [file1,file2,..]
                 }
         TODO add a 'Settings' item to JSON file 
-        TODO save logfile 
+        TODO save logfile
+        TODO remember items colored red ? and recolor them when loading the project?
         """
 
         project = {}
