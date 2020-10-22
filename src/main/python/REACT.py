@@ -2,7 +2,6 @@ import sys
 import os
 import json
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
 import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
@@ -71,13 +70,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Insert files/filenames to project table:
         #TODO using entire path of file - maybe best this way?
-        for file in files_path:
-            self.tabWidget.currentWidget().insertItem(items_insert_index, file)
-            # Check if output file and if it has converged:
-            if file.split(".")[-1] == "out":
-                self.check_convergence(file, items_insert_index)
-            items_insert_index += 1
-
+        self.tabWidget.currentWidget().insertItems(items_insert_index, files_path)
 
         #Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
@@ -88,14 +81,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if files_path:
             self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
-
-    def check_convergence(self, file_path, item_index):
-        filename = file_path.split('/')[-1]
-        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filename)
-        if converged is False:
-            #self.tabWidget.currentWidget(item_index).setForeground(Qt.red)
-            self.tabWidget.currentWidget().item(item_index).setForeground(Qt.red)
-            self.append_text("Warning: %s seems to have not converged!" % filename)
 
 
     def delete_file_from_list(self):
