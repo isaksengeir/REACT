@@ -216,6 +216,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.append_text("%s does not seem to be a Gaussian output file." % filename)
             return
 
+        #this file --> State
         state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filename)
         #energy_kcal = superfile.connvert_to_kcal(energy_au) TODO ?
         energy_kcal = 627.51 * state_energy

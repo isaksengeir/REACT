@@ -42,4 +42,8 @@ class GaussianFile():
                     self.ene["dG"] = float(line.split()[6])
 
     def get_energy(self):
-         return self.ene["energy"]
+        """
+        :return:
+        """
+        return self.ene["energy"]
+
