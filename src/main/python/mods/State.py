@@ -1,19 +1,21 @@
 from mods.GaussianFile import OutputFile, InputFile
+from mods.MoleculeFile import PDBFile, XYZFile
 
-class State():
+
+class State:
 
     def __init__(self, file_paths=None):
-
-        self.gfiles = {}
 
         #File types --> sublass assignment
         self.file_types = {"com": InputFile,
                            "inp": InputFile,
                            "out": OutputFile,
-                           "pdb": None,
-                           "xyz": None}
+                           "pdb": PDBFile,
+                           "xyz": XYZFile}
 
-
+        # filename (key) : file_path (value)
+        # TODO Bente - what happens if to filenames with the same name are added to the same state (different paths)
+        self.gfiles = {}
         if file_paths:
             self.add_gfiles(file_paths)
 

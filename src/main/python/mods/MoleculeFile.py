@@ -7,6 +7,13 @@ class XYZFile(GaussianFile):
         #Atom X Y Z
         #atoms = {1:}
 
+    def convert_to_pdb(self):
+        """
+        Create PDB file from XYZ file
+        :return: TODO
+        """
+        pass
+
 
 class PDBFile(GaussianFile):
     def __init__(self, file_path):
@@ -16,3 +23,10 @@ class PDBFile(GaussianFile):
         #PDB ATOM NAME
         #Residue name
         #Residue Number
+
+    def convert_to_xyz(self):
+        """
+        Create XYZ file from PDB file
+        :return: TODO
+        """
+        pass
