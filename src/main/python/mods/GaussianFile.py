@@ -1,4 +1,3 @@
-
 class GaussianFile:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -23,21 +22,61 @@ class OutputFile(InputFile):
 
     def __init__(self, file_path):
         super().__init__(file_path)
+
+        self.file_path = file_path
+
         self.ene = {}
         self.solvent = {}
-        self.converged = {"Maximum Force": None,
-                          "RMS     Force": None,
-                          "Maximum Displacement": None,
-                          "RMS     Displacement": None}
 
-        # Read output
-        self.read_dft_out(file_path)
-        # TODO check convergence and analyse file
+        # Job converged or not?
+        self.converged = {"Maximum Force": bool,
+                          "RMS     Force": bool,
+                          "Maximum Displacement": bool,
+                          "RMS     Displacement": bool}
 
-    def read_dft_out(self, DFT_out):
-        """ Very unfinished code, should also be moved to a GaussianOUT class
+        # Where to get gaussian output value from line.split(int)
+        # first key = Line to look for in output file
+        # second key(s) are key names for assignment in self.job_details with tuple value giving index [0] and
+        # type expected in line [1]
+        self.g_reader = {"Solvent":
+                            {"Solvent": (2, float),
+                             "Eps": (4, float)},
+                        "SCF Done":
+                            {"SCF Done": (4, float)},
+                        "Zero-point correction=":
+                            {"Zero-point correction": (2, float)},
+                        "Thermal correction to Energy= ":
+                            {"Thermal correction to Energy": (4, float)},
+                        "Thermal correction to Enthalpy":
+                            {"Thermal correction to Enthalpy": (4, float)},
+                        "Thermal correction to Gibbs Free Energy":
+                            {"Thermal correction to Gibbs Free Energy": (6, float)},
+                        "Maximum Force":
+                             {"Maximum Force Value": (2, float),
+                              "Maximum Force Threshold": (3, float),
+                              "Maximum Force Converged?": (4, bool)},
+                        "RMS     Force":
+                             {"RMS Force Value": (2, float),
+                              "RMS Force Threshold": (3, float),
+                              "RMS Force Converged?": (4, bool)},
+                        "Maximum Displacement":
+                             {"Maximum Displacement Value": (2, float),
+                              "Maximum Displacement Threshold": (3, float),
+                              "Maximum Displacement Converged?": (4, bool)},
+                        "RMS     Displacement":
+                             {"RMS Displacement Value": (2, float),
+                              "RMS Displacement Threshold": (3, float),
+                              "RMS Displacement Converged?": (4, bool)}
+                        }
+
+        # Read output on init to get key job details
+        self.read_gaussian_out()
+
+    def read_gaussian_out(self):
         """
 
+        """
+        DFT_out = self.file_path
         with open(DFT_out) as f:
             # TODO init globals with None/False
             for line in f:
@@ -78,7 +117,7 @@ class OutputFile(InputFile):
             converged = None
         else:
             converged = False
-            if sum(term == True for term in self.converged.values()) == 4:
+            if sum(term is True for term in self.converged.values()) == 4:
                 converged = True
 
         return converged
@@ -94,6 +133,3 @@ class OutputFile(InputFile):
         Reads output file and returns all SCF Done energies
         :return: energies, MaximumForce, RMS Force, Maximum Displacement, RMS Displacement
         """
-
-
-

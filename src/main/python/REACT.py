@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #self.button_print_file.clicked.connect(self.print_selected_file) #TODO I think we do not need this ....
         self.button_print_energy.clicked.connect(self.print_energy)
-        self.button_print_scf.clicked.connect(self.print_scf)
+        self.button_print_scf.clicked.connect(self.get_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
 
         self.button_save_project.clicked.connect(self.save_project)
@@ -259,8 +259,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                  self.append_text("No files selected for state %d" % state)
 
 
-
-    def print_scf(self):
+    def get_scf(self):
         """
         Takes the selected file and prints the 4 Convergence criterias.
         :return:
