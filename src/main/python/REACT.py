@@ -266,11 +266,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
 
-        scf, max_force, rms_force, max_displacement, rms_displacement = \
-            self.states[self.tabWidget.currentIndex()].get_scf(filename)
+        scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filename)
 
         self.append_text("Converged?...")
-        print(scf)
+        print(scf_data)
 
     def curr_state(self):
         """

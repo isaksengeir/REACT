@@ -139,20 +139,21 @@ class OutputFile(InputFile):
 
         # "RMS     Displacement" 2
         rms_displacement = list()
+        scf_data = {"SCF Done": list(),
+                    "Maximum Force": list(),
+                    "RMS     Force": list(),
+                    "Maximum Displacement": list(),
+                    "RMS     Displacement": list()}
 
         with open(self.file_path) as out:
             for line in out:
-                if "SCF Done" in line:
-                    scf.append(float(line.split()[4]))
-                elif "Maximum Force" in line:
-                    max_force.append(float(line.split()[2]))
-                elif "RMS     Force" in line:
-                    rms_force.append(float(line.split()[2]))
-                elif "Maximum Displacement" in line:
-                    max_displacement.append(float(line.split()[2]))
-                elif "RMS     Displacement" in line:
-                    rms_displacement.append(float(line.split()[2]))
+                if any(g_key in line for g_key in scf_data.keys()):
+                    g_key = [term for term in scf_data.keys() if term in line][0]
+                    split_int = 2
+                    if g_key == "SCF Done":
+                        split_int = 4
+                    scf_data[g_key].append(float(line.split()[split_int]))
 
-        return scf, max_force, rms_force, max_displacement, rms_displacement
+        return scf_data
 
 
