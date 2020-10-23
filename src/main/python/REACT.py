@@ -2,6 +2,7 @@ import sys
 import os
 import json
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
 import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
@@ -18,8 +19,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("REACT")
 
         self.states = []
-        self.proj_name = 'new_project.json'
-        self.proj_path = ''
+        self.proj_name = 'new_project'
 
         self.add_state()
 
@@ -71,7 +71,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #Insert files/filenames to project table:
         #TODO using entire path of file - maybe best this way?
-        self.tabWidget.currentWidget().insertItems(items_insert_index, files_path)
+        for file in files_path:
+            self.tabWidget.currentWidget().insertItem(items_insert_index, file)
+            # Check if output file and if it has converged:
+            if file.split(".")[-1] == "out":
+                self.check_convergence(file, items_insert_index)
+            items_insert_index += 1
+
 
         #Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
@@ -82,6 +88,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if files_path:
             self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
+
+    def check_convergence(self, file_path, item_index):
+        filename = file_path.split('/')[-1]
+        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filename)
+        if converged is False:
+            #self.tabWidget.currentWidget(item_index).setForeground(Qt.red)
+            self.tabWidget.currentWidget().item(item_index).setForeground(Qt.red)
+            self.append_text("Warning: %s seems to have not converged!" % filename)
+
 
     def delete_file_from_list(self):
         """
@@ -227,21 +242,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("%.4f kcal/mol" % energy_kcal)
 
     def print_relative_energy(self):
-        """
-        calculates the relative energy (to state 1) for all states and prints it in the log window
-        :return:
-        """
-        energies = list()
-        for tab_index in range(self.tabWidget.count()):
-            state = tab_index + 1
-            if self.tabWidget.widget(tab_index).currentItem():
-                file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                filename = file_path.split('/')[-1]
-                energies.append(self.states[tab_index].get_energy(filename))
-                self.append_text("State %d: %.4f kcal/mol (%s)" %
-                                 (state, 627.51*(energies[tab_index] - energies[0]), filename))
-            else:
-                self.append_text("No files selected for state %d" % state)
+         """
+         calculates the relative energy (to state 1) for all states and prints it in the log window
+         :return:
+         """
+         energies = list()
+         for tab_index in range(self.tabWidget.count()):
+             state = tab_index + 1
+             if self.tabWidget.widget(tab_index).currentItem():
+                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
+                 filename = file_path.split('/')[-1]
+                 energies.append(self.states[tab_index].get_energy(filename))
+                 self.append_text("State %d: %.4f kcal/mol (%s)" %
+                                  (state, 627.51*(energies[tab_index] - energies[0]), filename))
+             else:
+                 self.append_text("No files selected for state %d" % state)
+
 
 
     def print_scf(self):
@@ -251,6 +267,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         self.append_text("Converged?...")
 
+    def curr_state(self):
+        """
+        Return: dict key to access current state.
+        """
+        return str(self.tabWidget.currentIndex()+1)
 
     def import_project(self):
         """
@@ -258,10 +279,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         TODO import logfile
         """
 
-        self.proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", self.proj_path, "Project/JSON (*.json)")
+        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", os.getcwd(), "Project/JSON (*.json)")
         
         #To avoid error if dialogwindow is opened, but no file is selected
-        if self.proj_path == '':
+        if proj_path == '':
             return
         
         if bool(self.states) == True:
@@ -272,11 +293,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states.clear()
         self.tabWidget.clear()
 
-        self.proj_name = self.proj_path.split("/")[-1]  
+        self.proj_name = proj_path.split("/")[-1]  
   
         self.label_projectname.setText(self.proj_name.replace('.json', ''))
 
-        with open(self.proj_path, 'r') as proj_file:
+        with open(proj_path, 'r') as proj_file:
             proj = json.load(proj_file)
 
         try:
@@ -285,15 +306,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         except:
             pass
 
-        try:
-            log_text =proj.pop('Log_text')
-            self.append_text(log_text)
-        except:
-            pass
-
         for state in proj.items():
 
             self.add_state(state)
+
+        print(f"project looks like this{proj}")
+        print(f"new self.states looks like this:{self.states}")
 
     def save_project(self):
         """
@@ -301,8 +319,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         data = {1 : [file1,file2,..],
                 2 : [file1,file2,..]
                 }
-        TODO add a 'Settings' item to JSON file 
-        TODO save logfile
+        TODO add a 'Settings' item to JSON file (working path..)
+        TODO save logfile 
         TODO remember items colored red ? and recolor them when loading the project?
         """
 
@@ -311,24 +329,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for state_index in range(len(self.states)):
             project[state_index+1] = self.states[state_index].get_all_gpaths()
 
-        project['Log_text'] = self.textBrowser.toPlainText()
+        new_file_path = os.getcwd() + '/' + self.proj_name
 
-        if self.proj_path == '':
-            self.proj_path = os.getcwd() + '/' + self.proj_name
+        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", new_file_path, "JSON (*.json)")
 
-        new_proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", self.proj_path, "JSON (*.json)")
-
-        if new_proj_path == '':
+        if proj_path == '':
             return
 
-        self.proj_name = new_proj_path.split("/")[-1]  
-        self.proj_path = new_proj_path
+        self.proj_name = proj_path.split("/")[-1]  
         
         #change project name title in workspace
-        new_proj_title = new_proj_path.split('/')[-1].replace('.json', '')    
+        new_proj_title = proj_path.split('/')[-1].replace('.json', '')    
         self.label_projectname.setText(new_proj_title)
 
-        with open(self.proj_path, 'w') as f:
+        with open(proj_path, 'w') as f:
             json.dump(project, f)
 
 
