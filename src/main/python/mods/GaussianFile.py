@@ -1,6 +1,11 @@
+import distutils.util
+
+
 class GaussianFile:
     def __init__(self, file_path):
         self.file_path = file_path
+
+        self.job_details = dict
 
     def get_filepath(self):
         """
@@ -15,7 +20,6 @@ class InputFile(GaussianFile):
         super().__init__(file_path)
 
         # Initialize dictionaries
-        self.job_details = {}
 
 
 class OutputFile(InputFile):
@@ -25,9 +29,6 @@ class OutputFile(InputFile):
 
         self.file_path = file_path
 
-        self.ene = {}
-        self.solvent = {}
-
         # Job converged or not?
         self.converged = {"Maximum Force": bool,
                           "RMS     Force": bool,
@@ -36,10 +37,10 @@ class OutputFile(InputFile):
 
         # Where to get gaussian output value from line.split(int)
         # first key = Line to look for in output file
-        # second key(s) are key names for assignment in self.job_details with tuple value giving index [0] and
+        # second key(s) are key names for assignment in self.g_outdata with tuple value giving index [0] and
         # type expected in line [1]
         self.g_reader = {"Solvent":
-                            {"Solvent": (2, float),
+                            {"Solvent": (2, str),
                              "Eps": (4, float)},
                         "SCF Done":
                             {"SCF Done": (4, float)},
@@ -69,64 +70,57 @@ class OutputFile(InputFile):
                               "RMS Displacement Converged?": (4, bool)}
                         }
 
+        #This will store data from output file given by self.g_reader
+        self.g_outdata = dict()
+
         # Read output on init to get key job details
         self.read_gaussian_out()
 
     def read_gaussian_out(self):
         """
-
+        Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader.
         """
         DFT_out = self.file_path
         with open(DFT_out) as f:
-            # TODO init globals with None/False
             for line in f:
-
-                if "Solvent" in line:
-                    self.phase = line.split()[2]
-                    self.Eps = "{:.2f}".format(float(line.split()[4]))
-
-                if "SCF Done" in line:
-                    self.ene["energy"] = float(line.split()[4])
-
-                if "Zero-point correction=" in line:
-                    self.ene["ZPE"] = float(line.split()[2])
-
-                elif "Thermal correction to Energy= " in line:
-                    self.ene["dE"] = float(line.split()[4])
-
-                elif "Thermal correction to Enthalpy=" in line:
-                    self.ene["dH"] = float(line.split()[4])
-
-                elif "Thermal correction to Gibbs Free Energy=" in line:
-                    self.ene["dG"] = float(line.split()[6])
-
-                # Check convergence:
-                for term in self.converged.keys():
-                    if term in line:
-                        if line.split()[4] == "YES":
-                            self.converged[term] = True
+                #Check if line contains any self.g_reader keys:
+                if any(g_key in line for g_key in self.g_reader.keys()):
+                    g_key = [term for term in self.g_reader.keys() if term in line][0]
+                    for out_name in self.g_reader[g_key].keys():
+                        split_int, type_ = self.g_reader[g_key][out_name][0:2]
+                        line_value = line.split()[split_int]
+                        if type_ is bool:
+                            line_value = bool(distutils.util.strtobool(line_value))
                         else:
-                            self.converged[term] = False
+                            line_value = type_(line_value)
+
+                        self.g_outdata[out_name] = line_value
 
     def check_convergence(self):
         """
         Returns True if all 4 SCF convergence criterias are met - else False
         :return: None (not geometry optimization), False (not converged) or True (converged)
         """
-        if None in self.converged.values():
-            converged = None
-        else:
-            converged = False
-            if sum(term is True for term in self.converged.values()) == 4:
+        converged = None
+
+        converge_terms = list()
+        for entry in self.g_outdata.keys():
+            if "Converged?" in entry:
+                converge_terms.append(self.g_outdata[entry])
+
+        if len(converge_terms) > 3:
+            if sum(converged_ is True for converged_ in converge_terms) == 4:
                 converged = True
+            else:
+                converged = False
 
         return converged
 
     def get_energy(self):
         """
-        :return:
+        :return: final SCF Done energy stored in self.g_outdata
         """
-        return self.ene["energy"]
+        return self.g_outdata["SCF Done"]
 
     def get_scf_convergence(self):
         """
