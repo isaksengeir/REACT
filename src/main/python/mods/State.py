@@ -70,3 +70,11 @@ class State:
         :return: None (not geometry optimization), False (not converged) or True (converged)
         """
         return self.gfiles[filename].check_convergence()
+
+    def get_scf(self, filename):
+        """
+        Get lists for SCF Done, and convergence values
+        :param filename:
+        :return:
+        """
+        pass

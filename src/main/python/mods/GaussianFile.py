@@ -88,12 +88,10 @@ class OutputFile(InputFile):
                     g_key = [term for term in self.g_reader.keys() if term in line][0]
                     for out_name in self.g_reader[g_key].keys():
                         split_int, type_ = self.g_reader[g_key][out_name][0:2]
-                        line_value = line.split()[split_int]
                         if type_ is bool:
-                            line_value = bool(distutils.util.strtobool(line_value))
+                            line_value = bool(distutils.util.strtobool(line.split()[split_int]))
                         else:
-                            line_value = type_(line_value)
-
+                            line_value = type_(line.split()[split_int])
                         self.g_outdata[out_name] = line_value
 
     def check_convergence(self):
