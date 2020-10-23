@@ -77,4 +77,4 @@ class State:
         :param filename:
         :return:
         """
-        pass
+        return self.gfiles[filename].get_scf_convergence()

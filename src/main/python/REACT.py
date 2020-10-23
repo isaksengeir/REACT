@@ -97,7 +97,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.tabWidget.currentWidget().item(item_index).setForeground(Qt.red)
             self.append_text("Warning: %s seems to have not converged!" % filename)
 
-
     def delete_file_from_list(self):
         """
         Deletes selected file(s) from QtabBarWidget-->Tab-->QListWdget-->item
@@ -264,7 +263,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Takes the selected file and prints the 4 Convergence criterias.
         :return:
         """
+        filepath = self.tabWidget.currentWidget().currentItem().text()
+        filename = filepath.split('/')[-1]
+
+        scf, max_force, rms_force, max_displacement, rms_displacement = \
+            self.states[self.tabWidget.currentIndex()].get_scf(filename)
+
         self.append_text("Converged?...")
+        print(scf)
 
     def curr_state(self):
         """

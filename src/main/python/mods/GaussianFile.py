@@ -125,3 +125,34 @@ class OutputFile(InputFile):
         Reads output file and returns all SCF Done energies
         :return: energies, MaximumForce, RMS Force, Maximum Displacement, RMS Displacement
         """
+        # SCF Done 4
+        scf = list()
+
+        # "Maximum Force" 2
+        max_force = list()
+
+        # "RMS     Force" 2
+        rms_force = list()
+
+        # "Maximum Displacement" 2
+        max_displacement = list()
+
+        # "RMS     Displacement" 2
+        rms_displacement = list()
+
+        with open(self.file_path) as out:
+            for line in out:
+                if "SCF Done" in line:
+                    scf.append(float(line.split()[4]))
+                elif "Maximum Force" in line:
+                    max_force.append(float(line.split()[2]))
+                elif "RMS     Force" in line:
+                    rms_force.append(float(line.split()[2]))
+                elif "Maximum Displacement" in line:
+                    max_displacement.append(float(line.split()[2]))
+                elif "RMS     Displacement" in line:
+                    rms_displacement.append(float(line.split()[2]))
+
+        return scf, max_force, rms_force, max_displacement, rms_displacement
+
+
