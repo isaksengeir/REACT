@@ -7,6 +7,7 @@ import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
+from mods.ReactPlot import PlotStuff
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import time
 #methods --> Classes --> Modules --> Packages
@@ -269,7 +270,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filename)
 
         self.append_text("Converged?...")
-        print(scf_data)
+
+        PlotStuff(scf_data)
+
 
     def curr_state(self):
         """
