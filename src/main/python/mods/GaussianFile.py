@@ -92,6 +92,7 @@ class OutputFile(InputFile):
                             line_value = bool(distutils.util.strtobool(line.split()[split_int]))
                         else:
                             line_value = type_(line.split()[split_int])
+
                         self.g_outdata[out_name] = line_value
 
     def check_convergence(self):

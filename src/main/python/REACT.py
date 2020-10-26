@@ -268,10 +268,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filename = filepath.split('/')[-1]
 
         scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filename)
-
-        self.append_text("Converged?...")
-
-        PlotStuff(scf_data)
+        PlotStuff(scf_data, filename).plot_scf_convergence()
+        #PlotStuff(scf_data).plot_scf_done()
+        #PlotStuff(scf_data).plot_convergence()
 
 
     def curr_state(self):
