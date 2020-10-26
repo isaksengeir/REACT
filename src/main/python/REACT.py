@@ -35,7 +35,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #self.button_print_file.clicked.connect(self.print_selected_file) #TODO I think we do not need this ....
         self.button_print_energy.clicked.connect(self.print_energy)
-        self.button_print_scf.clicked.connect(self.get_scf)
+        self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
 
         self.button_save_project.clicked.connect(self.save_project)
@@ -78,7 +78,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if file.split(".")[-1] == "out":
                 self.check_convergence(file, items_insert_index)
             items_insert_index += 1
-
 
         #Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
@@ -258,8 +257,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
              else:
                  self.append_text("No files selected for state %d" % state)
 
-
-    def get_scf(self):
+    def plot_scf(self):
         """
         Takes the selected file and prints the 4 Convergence criterias.
         :return:
@@ -268,10 +266,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filename = filepath.split('/')[-1]
 
         scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filename)
-        PlotStuff(scf_data, filename).plot_scf_convergence()
-        #PlotStuff(scf_data).plot_scf_done()
-        #PlotStuff(scf_data).plot_convergence()
 
+        #Check if this is geometry optimization or not (None if not):
+        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filename)
+        plot = PlotStuff(scf_data, filename)
+        if converged is None:
+
+            plot.plot_scf_done()
+            self.append_text("%s seem to not be a geometry optimisation ..." % filename)
+        else:
+            plot.plot_scf_convergence()
+            if converged is False:
+                self.append_text("%s has not converged successfully." % filename)
 
     def curr_state(self):
         """

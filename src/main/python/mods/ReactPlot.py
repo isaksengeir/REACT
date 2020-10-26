@@ -2,13 +2,20 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 
-class PlotStuff:
+class PlotStuff():
     def __init__(self, g_data, filename):
 
         self.g_data = g_data
         self.filename = filename
 
+        #Init matplotlib.pyplot settings
         self.set_plot_settings()
+
+        # Make plot pop up relative to REACT main window:
+        mpl.use("Qt5agg")
+
+        # With Qt5agg we need to turn the interactive mode on!
+        plt.ion()
 
     def set_plot_settings(self):
         """
@@ -58,10 +65,15 @@ class PlotStuff:
         :param energies:
         :return:
         """
-        plt.plot(self.g_data["SCF Done"])
-        plt.ylabel('Energy (a.u.)')
-        plt.xlabel('Iteration')
+        #plt.plot(self.g_data["SCF Done"])
+        #plt.ylabel('Energy (a.u.)')
+        #plt.xlabel('Iteration')
+        fig = plt.figure()
+        scf_data1 = fig.add_subplot(1, 1, 1)
+        scf_data1.set_title("Energy")
+        scf_data1.plot(list(range(1, len(self.g_data["SCF Done"]) + 1)), self.g_data["SCF Done"], label="SCF")
 
+        plt.legend()
         plt.show()
 
     def plot_convergence(self):
@@ -92,22 +104,26 @@ class PlotStuff:
         :return:
         """
         fig = plt.figure()
-
         scf_data = fig.add_subplot(2, 4, (1, 6))
         scf_data.set_title("Energy")
-        scf_data.plot(self.g_data["SCF Done"], label="SCF")
+        scf_data.plot(list(range(1, len(self.g_data["SCF Done"])+1)), self.g_data["SCF Done"], label="SCF")
+
         plt.legend()
 
         force = fig.add_subplot(2,4,(3,4))
         force.set_title("Force")
-        force.plot(self.g_data["Maximum Force"], label="Maximum")
-        force.plot(self.g_data["RMS     Force"], label="RMS")
+        force.plot(list(range(1, len(self.g_data["Maximum Force"])+1)), self.g_data["Maximum Force"], label="Maximum")
+        force.plot(list(range(1, len(self.g_data["RMS     Force"])+1)), self.g_data["RMS     Force"], label="RMS")
         plt.legend()
 
         displ = fig.add_subplot(2,4,(7,8))
         displ.set_title("Displacement")
-        displ.plot(self.g_data["Maximum Displacement"], label="Maximum")
-        displ.plot(self.g_data["RMS     Displacement"], label="RMS")
+        displ.plot(list(range(1, len(self.g_data["Maximum Displacement"])+1)),
+                   self.g_data["Maximum Displacement"], label="Maximum")
+        displ.plot(list(range(1, len(self.g_data["RMS     Displacement"])+1)),
+                   self.g_data["RMS     Displacement"], label="RMS")
+
+
         plt.legend()
 
         fig.suptitle(self.filename)
