@@ -241,21 +241,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("%.4f kcal/mol" % energy_kcal)
 
     def print_relative_energy(self):
-         """
-         calculates the relative energy (to state 1) for all states and prints it in the log window
-         :return:
-         """
-         energies = list()
-         for tab_index in range(self.tabWidget.count()):
-             state = tab_index + 1
-             if self.tabWidget.widget(tab_index).currentItem():
-                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                 filename = file_path.split('/')[-1]
-                 energies.append(self.states[tab_index].get_energy(filename))
-                 self.append_text("State %d: %.4f kcal/mol (%s)" %
-                                  (state, 627.51*(energies[tab_index] - energies[0]), filename))
-             else:
-                 self.append_text("No files selected for state %d" % state)
+        """
+        calculates the relative energy (to state 1) for all states and prints it in the log window
+        :return:
+        """
+        energies = list()
+
+        for tab_index in range(self.tabWidget.count()):
+            state = tab_index + 1
+            if self.tabWidget.widget(tab_index).currentItem():
+                file_path = self.tabWidget.widget(tab_index).currentItem().text()
+                filename = file_path.split('/')[-1]
+                energies.append(self.states[tab_index].get_energy(filename))
+                self.append_text("State %d: %.4f kcal/mol (%s)" %
+                                 (state, 627.51*(energies[tab_index] - energies[0]), filename))
+            else:
+                self.append_text("No files selected for state %d" % state)
 
     def plot_scf(self):
         """
