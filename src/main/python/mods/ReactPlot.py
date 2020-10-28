@@ -2,8 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 
-class PlotStuff:
+class PlotStuff():
     def __init__(self, g_data, filename):
+        super().__init__()
 
         self.g_data = g_data
         self.filename = filename
@@ -14,8 +15,15 @@ class PlotStuff:
         # Make plot pop up relative to REACT main window:
         mpl.use("Qt5agg")
 
+        # TODO change figure colors prior to save, if possible
+        # fm = plt.get_current_fig_manager()
+        # fm.toolbar.actions()[9].clicked.connect()
+
         # With Qt5agg we need to turn the interactive mode on!
         plt.ion()
+
+    def set_figure_save_settings(self):
+        print("Hello")
 
     def set_plot_settings(self):
         """

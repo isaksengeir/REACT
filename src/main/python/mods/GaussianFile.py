@@ -19,7 +19,33 @@ class InputFile(GaussianFile):
     def __init__(self, file_path):
         super().__init__(file_path)
 
-        # Initialize dictionaries
+        # Initialize dictionaries TODO:
+        # Job Types: Energy, Optimization, Frequency, Opt+Freq, IRC, Scan
+        # optimize to: Minimum, TS
+        # Use tight convergence criteria: False (True: opt=tight)
+        # Force Constants: default, Calculate at First point (opt=calcf), Calculate at all points (opt=calcall)
+        # Method: Ground state ... there are other, but stick with this for now
+        # Method type: DFT (include HF, MP2, MP4?)
+        # Method functional: B3LYP
+        # Spin type: Default Spin, Restricted, Undrestricted, Restricted-Open
+        # multiplicity = 2S+1 (S=1/2*n; where n is number of unpaired electrons). For molecules and ions, S=0!
+        # Spin multiplicity: Singlet, Triplet
+        # Charge: 0 #Todo write method to find charge of molecule?
+        # Basis set: 6-31G(d,p)
+        # Additional keywords: # Todo make this more elegant than GaussView opt=noeigentest, empiricaldispersion=gd3 ..
+        # Job title: my job
+        # memory: 16GB
+        # Shared processors: None (None = do not include in input file)
+        # Checkpoint file: None
+        # Old checkpoint file: None
+        # Quadratic convergent SCF: False (True = scf=qc)
+        # Use modified redundant coordinates: False (opt=modredundant)
+        # Compute polarizabilities: False (True = polar)
+        # Additional print: True (# at beginning of inputfile line)
+        # Solvation model: None, CPCM, IEFPCM, SMD
+        # solvent: default, Water, DMSO, Methanol, Ethanol ....
+        # Eps: None (default for solvent), number (include read at top and eps=number at end of input file)
+        job_options = {"Job type": "Energy"}
 
 
 class OutputFile(InputFile):

@@ -32,7 +32,7 @@ class State:
         """
 
         # if len(files_path) > some number:
-        #    do multiprocessing or threading instead? Each new GaussianFile object will undergo some processing (read file, check convergence, energies...)
+        # TODO YES --> do multiprocessing or threading instead? Each new GaussianFile object will undergo some processing (read file, check convergence, energies...)
 
         for path in file_paths:
             # Check file type for correct GaussianFile subclass assignment:
