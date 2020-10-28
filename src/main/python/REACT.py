@@ -54,9 +54,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.append_text("Auto-creating state 1 - files will be added there")
             self.add_state(import_project=False)
 
-        path = os.getcwd()  # wordkdir TODO
-        filter_type = "Geometry files (*.pdb *.xyz);; Gaussian input files (*.com *.inp);; " \
-                      "Gaussian output files (*.out)"
+        #path = os.getcwd()  # wordkdir TODO
+        path = "../resources/DFT_testfiles"
+        filter_type = "Gaussian output files (*.out);; Gaussian input files (*.com *.inp);; " \
+                      "Geometry files (*.pdb *.xyz)"
         title_ = "Import File"
 
         files_path, type_ = self.import_files(title_, filter_type,path)
@@ -241,22 +242,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("%.4f kcal/mol" % energy_kcal)
 
     def print_relative_energy(self):
-        """
-        calculates the relative energy (to state 1) for all states and prints it in the log window
-        :return:
-        """
-        energies = list()
-
-        for tab_index in range(self.tabWidget.count()):
-            state = tab_index + 1
-            if self.tabWidget.widget(tab_index).currentItem():
-                file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                filename = file_path.split('/')[-1]
-                energies.append(self.states[tab_index].get_energy(filename))
-                self.append_text("State %d: %.4f kcal/mol (%s)" %
-                                 (state, 627.51*(energies[tab_index] - energies[0]), filename))
-            else:
-                self.append_text("No files selected for state %d" % state)
+         """
+         calculates the relative energy (to state 1) for all states and prints it in the log window
+         :return:
+         """
+         energies = list()
+         for tab_index in range(self.tabWidget.count()):
+             state = tab_index + 1
+             if self.tabWidget.widget(tab_index).currentItem():
+                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
+                 filename = file_path.split('/')[-1]
+                 energies.append(self.states[tab_index].get_energy(filename))
+                 self.append_text("State %d: %.4f kcal/mol (%s)" %
+                                  (state, 627.51*(energies[tab_index] - energies[0]), filename))
+             else:
+                 self.append_text("No files selected for state %d" % state)
 
     def plot_scf(self):
         """
