@@ -13,6 +13,11 @@ class GaussianFile:
         """
         return self.file_path
 
+    def update_fileobject(self):
+        """
+        TODO Called after file has been edited in text editor, should update object accordingly to changes in file. 
+        """
+        pass
 
 class InputFile(GaussianFile):
 

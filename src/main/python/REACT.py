@@ -7,6 +7,7 @@ import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
+from mods.FileEditor import FileEditor
 from mods.ReactPlot import PlotStuff
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import time
@@ -33,6 +34,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.button_add_file.clicked.connect(self.add_files_to_list)
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
+        self.button_edit_file.clicked.connect(self.edit_file)
 
         #self.button_print_file.clicked.connect(self.print_selected_file) #TODO I think we do not need this ....
         self.button_print_energy.clicked.connect(self.print_energy)
@@ -286,11 +288,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if converged is False:
                 self.append_text("%s has not converged successfully." % filename)
 
-    def curr_state(self):
-        """
-        Return: dict key to access current state.
-        """
-        return str(self.tabWidget.currentIndex()+1)
+    def edit_file(self):
+
+        filepath = self.tabWidget.currentWidget().currentItem().text()
+
+        editor = FileEditor(self, filepath)
+        editor.exec()
+
+        self.states[self.tabWidget.currentIndex()].update_fileobject(filepath)
 
     def import_project(self):
         """

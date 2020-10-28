@@ -82,3 +82,10 @@ class State:
 
     def get_xyx(self, filename):
         pass
+
+    def update_fileobject(self, filepath):
+        """
+        Updates a GaussianFile object in the event a file has been edited.        
+        """
+        filename = filepath.split("/")[-1]
+        self.gfiles[filename].update_fileobject()
