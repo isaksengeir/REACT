@@ -10,6 +10,7 @@ from mods.State import State
 from mods.ReactPlot import PlotStuff
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import time
+import concurrent.futures
 #methods --> Classes --> Modules --> Packages
 
 
@@ -54,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.append_text("Auto-creating state 1 - files will be added there")
             self.add_state(import_project=False)
 
-        #path = os.getcwd()  # wordkdir TODO
+        #path = os.getcwd()  # wordkdir TODO set this as global at some point
         path = "../resources/DFT_testfiles"
         filter_type = "Gaussian output files (*.out);; Gaussian input files (*.com *.inp);; " \
                       "Geometry files (*.pdb *.xyz)"
@@ -65,8 +66,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #File names without path: TODO?
         #files_names = [x.split("/")[-1] for x in files_path]
 
-        #add new file to current state 
-        self.add_file_to_state(files_path)
+        #add new file to current state TODO this takes some time for large files...
+        #with concurrent.futures.ThreadPoolExecutor() as executor:
+        #    [executor.submit(self.add_file_to_state, filepath) for filepath in files_path]
 
         #Insert new items at the end of the list
         items_insert_index = self.tabWidget.currentWidget().count()
@@ -75,6 +77,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #TODO using entire path of file - maybe best this way?
         for file in files_path:
             self.tabWidget.currentWidget().insertItem(items_insert_index, file)
+            self.add_file_to_state(file)
+            #self.tabWidget.currentWidget().insertItem(items_insert_index, file)
             # Check if output file and if it has converged:
             if file.split(".")[-1] == "out":
                 self.check_convergence(file, items_insert_index)
@@ -85,10 +89,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
         scrollbar.setValue(self.tabWidget.currentWidget().horizontalScrollBar().maximum())
 
-    def add_file_to_state(self, files_path):
-
-        if files_path:
-            self.states[self.tabWidget.currentIndex()].add_gfiles(files_path)
+    def add_file_to_state(self, filepath):
+        """
+        :param filepath:
+        :return:
+        """
+        self.states[self.tabWidget.currentIndex()].add_gfiles(filepath)
 
     def check_convergence(self, file_path, item_index):
         filename = file_path.split('/')[-1]
@@ -96,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if converged is False:
             #self.tabWidget.currentWidget(item_index).setForeground(Qt.red)
             self.tabWidget.currentWidget().item(item_index).setForeground(Qt.red)
-            self.append_text("Warning: %s seems to have not converged!" % filename)
+            self.append_text("\nWarning: %s seems to have not converged!" % filename)
 
     def delete_file_from_list(self):
         """

@@ -17,7 +17,8 @@ class State:
         # TODO Bente - what happens if to filenames with the same name are added to the same state (different paths)
         self.gfiles = {}
         if file_paths:
-            self.add_gfiles(file_paths)
+            for filepath in file_paths:
+                self.add_gfiles(filepath)
 
     def get_filenames(self):
         """
@@ -26,7 +27,7 @@ class State:
         # return [x for x in self.gfiles.keys()] --> to use when printing filename only in workspace, instead of the whole filepath
         return [x.get_filepath() for x in self.gfiles.values()]
 
-    def add_gfiles(self, file_paths):
+    def add_gfiles(self, filepath):
         """
         Creates GaussianFile instance for each uploaded file-path.
         """
@@ -34,12 +35,12 @@ class State:
         # if len(files_path) > some number:
         #    do multiprocessing or threading instead? Each new GaussianFile object will undergo some processing (read file, check convergence, energies...)
 
-        for path in file_paths:
-            # Check file type for correct GaussianFile subclass assignment:
-            filename = path.split("/")[-1]
-            filetype = filename.split(".")[-1]
 
-            self.gfiles[filename] = (self.file_types[filetype](path))
+        # Check file type for correct GaussianFile subclass assignment:
+        filename = filepath.split("/")[-1]
+        filetype = filename.split(".")[-1]
+
+        self.gfiles[filename] = self.file_types[filetype](filepath)
 
     def del_gfiles(self, files_to_del):
         """
@@ -78,3 +79,6 @@ class State:
         :return:
         """
         return self.gfiles[filename].get_scf_convergence()
+
+    def get_xyx(self, filename):
+        pass

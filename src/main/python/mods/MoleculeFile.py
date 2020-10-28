@@ -5,7 +5,37 @@ class XYZFile(GaussianFile):
     def __init__(self, file_path):
         super().__init__(file_path)
         #Atom X Y Z
-        #atoms = {1:}
+        # atoms = {1: {name: C, x:value, y: value, z: value}} --> atoms[index][x]
+        self.atoms = dict()
+
+        print(self.file_path)
+
+    def read_coordinate(self):
+        """
+        :return:
+        """
+        # decide what type of file and send to correct reader
+
+    def read_gout(self):
+        """
+        Extract xyz from a gaussian output file
+        :return:
+        """
+        pass
+
+    def read_ginp(self):
+        """
+        Extract coordinates from gaussian input file
+        :return:
+        """
+        pass
+
+    def read_pure_xyz(self):
+        """
+        Get coordinates from a pure .xyz file
+        :return:
+        """
+        pass
 
     def convert_to_pdb(self):
         """

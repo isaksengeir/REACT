@@ -31,7 +31,7 @@ class InputFile(GaussianFile):
         # multiplicity = 2S+1 (S=1/2*n; where n is number of unpaired electrons). For molecules and ions, S=0!
         # Spin multiplicity: Singlet, Triplet
         # Charge: 0 #Todo write method to find charge of molecule?
-        # Basis set: 6-31G(d,p)
+        # Basis set: 6-31G+(d,p)
         # Additional keywords: # Todo make this more elegant than GaussView opt=noeigentest, empiricaldispersion=gd3 ..
         # Job title: my job
         # memory: 16GB
