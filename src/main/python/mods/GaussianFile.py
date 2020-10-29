@@ -5,6 +5,7 @@ class GaussianFile:
     def __init__(self, file_path):
         self.file_path = file_path
 
+        # TODO Put in some defaults here for now:
         self.job_details = dict
 
     def get_filepath(self):

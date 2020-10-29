@@ -179,9 +179,11 @@ border: 0px;
 color: rgb(98,114,164);
 }
 
-QFileDialog::QFrame{
-background-color:yellow;
+QTextEdit{
+color: rgb(98, 114, 164);
+border: None;
 }
+
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">

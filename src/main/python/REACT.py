@@ -9,6 +9,7 @@ from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from mods.FileEditor import FileEditor
 from mods.ReactPlot import PlotStuff
+from mods.MoleculeFile import XYZFile
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import time
 import concurrent.futures
@@ -276,7 +277,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.tabWidget.currentWidget().currentItem():
             self.append_text("\n No file selected for editing!")
             return
+
         filepath = self.tabWidget.currentWidget().currentItem().text()
+
+        xyz = XYZFile(filepath)
 
         editor = FileEditor(self, filepath)
         editor.show()

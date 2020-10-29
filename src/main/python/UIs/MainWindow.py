@@ -180,9 +180,11 @@ class Ui_MainWindow(object):
 "color: rgb(98,114,164);\n"
 "}\n"
 "\n"
-"QFileDialog::QFrame{\n"
-"background-color:yellow;\n"
+"QTextEdit{\n"
+"color: rgb(98, 114, 164);\n"
+"border: None;\n"
 "}\n"
+"\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

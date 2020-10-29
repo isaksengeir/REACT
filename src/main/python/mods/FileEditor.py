@@ -1,6 +1,6 @@
 
 from PyQt5 import QtWidgets
-from UIs.FileEditor_Window import Ui_Dialog
+# from UIs.FileEditor_Window import Ui_Dialog
 from UIs.FileEditorWindow import Ui_FileEditorWindow
 
 class FileEditor(QtWidgets.QMainWindow):

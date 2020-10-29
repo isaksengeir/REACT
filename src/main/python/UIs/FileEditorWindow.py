@@ -26,6 +26,7 @@ class Ui_FileEditorWindow(object):
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame_2)
+        self.gridLayout_2.setContentsMargins(2, 2, 2, 2)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.FileEditorBox = QtWidgets.QTextEdit(self.frame_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
