@@ -1,5 +1,5 @@
 from mods.GaussianFile import OutputFile, InputFile
-from mods.MoleculeFile import PDBFile, XYZFile
+from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
 
 
 class State:
@@ -89,3 +89,13 @@ class State:
         """
         filename = filepath.split("/")[-1]
         self.gfiles[filename].update_fileobject()
+
+    def get_final_geometry(self, filepath):
+        """
+
+        :param filename:
+        :return:
+        """
+        # Get list of GaussianAtoms:
+        gaussian_atoms = self.gfiles[filepath].read_coordinates()
+        gaussian_molecule = GaussianMolecule(gaussian_atoms)

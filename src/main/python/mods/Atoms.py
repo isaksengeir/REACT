@@ -53,16 +53,6 @@ class Atom:
         return self.atomnr
 
 
-class PDBAtom(Atom):
-    """
-    Subclass of the Atom class with additional info required by the PDB file format TODO
-    """
-    def __init__(self):
-        pass
-        super(PDBAtom, self).__init__()
-        pass
-
-
 class GaussianAtom(Atom):
     """
     Class to store information for atom coordinates extracted from Gaussian output files.
@@ -88,4 +78,14 @@ class GaussianAtom(Atom):
 
     @property
     def get_atom_index(self):
-        return self.center_number
+        return int(self.center_number)
+
+
+class PDBAtom(Atom):
+    """
+    Subclass of the Atom class with additional info required by the PDB file format TODO
+    """
+    def __init__(self):
+        pass
+        super(PDBAtom, self).__init__()
+        pass

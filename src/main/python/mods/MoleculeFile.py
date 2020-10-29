@@ -1,45 +1,17 @@
 from mods.GaussianFile import GaussianFile
-from mods.Atoms import Atom, GaussianAtom
+from mods.Atoms import GaussianAtom
 
 
-class XYZFile(GaussianFile):
-    def __init__(self, file_path):
-        super().__init__(file_path)
+class XYZFile():
+    def __init__(self, atoms = None):
         #Atom X Y Z
         # atoms = {1: {name: C, x:value, y: value, z: value}} --> atoms[index][x]
-        self.atoms = dict()
+        if atoms:
+            self.atoms = atoms
+        else:
+            self.atoms = dict()
 
-        print(self.file_path)
-        print(Atom.get_x)
-
-
-
-    def read_coordinate(self):
-        """
-        :return:
-        """
-        # decide what type of file and send to correct reader
-
-    def read_gout(self):
-        """
-        Extract xyz from a gaussian output file
-        :return:
-        """
-        pass
-
-    def read_ginp(self):
-        """
-        Extract coordinates from gaussian input file
-        :return:
-        """
-        pass
-
-    def read_pure_xyz(self):
-        """
-        Get coordinates from a pure .xyz file
-        :return:
-        """
-        pass
+    def get_formatted_xyz(self):
 
     def convert_to_pdb(self):
         """
@@ -48,6 +20,28 @@ class XYZFile(GaussianFile):
         """
         pass
 
+
+class GaussianMolecule(XYZFile, GaussianAtom):
+    """
+    Takes a list of GaussianAtoms
+    """
+    def __init__(self, g_atoms):
+        self.g_molecule = self.make_molecule(g_atoms)
+
+        super().__init__(self.g_molecule)
+
+    def make_molecule(self, g_atoms):
+        molecule = dict()
+        for i in range(len(g_atoms)):
+            atom = g_atoms[i]
+            atom_index = atom.get_atom_index
+            molecule[atom_index] = dict()
+            molecule[atom_index]["name"] = atom.get_atom_name
+            molecule[atom_index]["x"] = atom.get_x
+            molecule[atom_index]["y"] = atom.get_y
+            molecule[atom_index]["z"] = atom.get_z
+
+    # TODO Gaussian molecule probably need some unique properties not present in XYZ file
 
 class PDBFile(GaussianFile):
     def __init__(self, file_path):

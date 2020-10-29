@@ -1,4 +1,5 @@
 import distutils.util
+from mods.Atoms import GaussianAtom
 
 
 class GaussianFile:
@@ -147,6 +148,7 @@ class OutputFile(InputFile):
 
         return converged
 
+    @property
     def get_energy(self):
         """
         :return: final SCF Done energy stored in self.g_outdata
@@ -188,5 +190,35 @@ class OutputFile(InputFile):
                     scf_data[g_key].append(float(line.split()[split_int]))
 
         return scf_data
+
+    def read_coordinates(self):
+        """
+        Extract xyz from a gaussian output file
+        :return:
+        """
+        # list with GaussianAtom objects per geometry optimization --> iter_atoms[-1] is the final atom coordinates
+        iter_atoms = list()
+
+        atoms = list()
+        with open(self.file_path, 'r') as gout:
+            standard_orientation = False
+            get_coordinates = False
+            for line in gout:
+                if standard_orientation and line.split()[0].isdigit():
+                    get_coordinates = True
+
+                if get_coordinates:
+                    if not line.split()[0].isdigit():
+                        standard_orientation = False
+                        get_coordinates = False
+                        iter_atoms.append(atoms)
+                    else:
+                        atoms.append(GaussianAtom(line))
+
+                if "Standard orientation" in line:
+                    standard_orientation = True
+                    atoms = list()
+
+        return iter_atoms
 
 
