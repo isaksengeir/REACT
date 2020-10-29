@@ -293,7 +293,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filepath = self.tabWidget.currentWidget().currentItem().text()
 
         editor = FileEditor(self, filepath)
-        editor.exec()
+        editor.show()
 
         self.states[self.tabWidget.currentIndex()].update_fileobject(filepath)
 
