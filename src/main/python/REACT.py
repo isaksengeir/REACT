@@ -36,7 +36,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
         self.button_edit_file.clicked.connect(self.edit_file)
 
-        #self.button_print_file.clicked.connect(self.print_selected_file) #TODO I think we do not need this ....
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
@@ -198,26 +197,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
 
-    def print_selected_file(self):
-        """
-        Will print the selected file to the main window.
-        """
-        #Avoid crash when no items in list:
-        if not self.tabWidget.currentWidget().currentItem():
-            return
-
-        filename = self.tabWidget.currentWidget().currentItem().text()
-
-        #check if file exist - if not - make user aware and remove from list
-        if not os.path.exists(filename):
-            self.append_text(f"{filename} does not exist. Removing from project list.")
-            self.delete_file_from_list()
-            return
-
-        with open(filename, 'r') as pfile:
-            for line in pfile:
-                self.append_text(line.strip("\n"))
-
     def append_text(self, text=str(), date_time=False):
         """
         :param text: text to be printed in ain window textBrowser
@@ -250,21 +229,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("%.4f kcal/mol" % energy_kcal)
 
     def print_relative_energy(self):
-         """
-         calculates the relative energy (to state 1) for all states and prints it in the log window
-         :return:
-         """
-         energies = list()
-         for tab_index in range(self.tabWidget.count()):
-             state = tab_index + 1
-             if self.tabWidget.widget(tab_index).currentItem():
-                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                 filename = file_path.split('/')[-1]
-                 energies.append(self.states[tab_index].get_energy(filename))
-                 self.append_text("State %d: %.4f kcal/mol (%s)" %
-                                  (state, 627.51*(energies[tab_index] - energies[0]), filename))
-             else:
-                 self.append_text("No files selected for state %d" % state)
+        """
+        calculates the relative energy (to state 1) for all states and prints it in the log window
+        :return:
+        """
+        energies = list()
+
+        for tab_index in range(self.tabWidget.count()):
+            state = tab_index + 1
+            if self.tabWidget.widget(tab_index).currentItem():
+                file_path = self.tabWidget.widget(tab_index).currentItem().text()
+                filename = file_path.split('/')[-1]
+                energies.append(self.states[tab_index].get_energy(filename))
+                self.append_text("State %d: %.4f kcal/mol (%s)" %
+                                 (state, 627.51*(energies[tab_index] - energies[0]), filename))
+            else:
+                self.append_text("No files selected for state %d" % state)
 
     def plot_scf(self):
         """
@@ -289,7 +269,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.append_text("%s has not converged successfully." % filename)
 
     def edit_file(self):
+        """
 
+        :return:
+        """
+        if not self.tabWidget.currentWidget().currentItem():
+            self.append_text("\n No file selected for editing!")
+            return
         filepath = self.tabWidget.currentWidget().currentItem().text()
 
         editor = FileEditor(self, filepath)

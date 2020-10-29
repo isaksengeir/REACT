@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import QDialog
 from UIs.FileEditor_Window import Ui_Dialog
 
+
 class FileEditor(QDialog):
     def __init__(self, parent, filepath):
         super().__init__(parent)
