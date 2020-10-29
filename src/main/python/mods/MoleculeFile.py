@@ -1,26 +1,8 @@
 from mods.GaussianFile import GaussianFile
+from mods.Atoms import Atom, GaussianAtom
 
 
-class GaussianAtom:
-    """
-    Class to store information for atoms.
-    Coordinates, mass, name, pdb name, type etc.
-    """
-    def __init__(self):
-        # Atom number to atom dictionary - only most common elements. Maybe complete at some point later ... maybe not.
-        self.atom_nr_atom = {1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F", 10: "Ne",
-                             11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
-                             20: "Ca", 24: "Cr", 25: "Mn", 26: "Fe", 27: "Co", 28: "Ni", 29: "Cu", 30: "Zn", 34: "Se",
-                             35: "Br", 36: "Kr", 53: "I"}
-        # atom = {index: int, name: C:str, X:float, Y:float, Z:float}
-        atom = dict()
-
-    @property
-    def get_coordinates(self):
-        pass
-
-
-class XYZFile(GaussianFile, GaussianAtom):
+class XYZFile(GaussianFile):
     def __init__(self, file_path):
         super().__init__(file_path)
         #Atom X Y Z
@@ -28,6 +10,7 @@ class XYZFile(GaussianFile, GaussianAtom):
         self.atoms = dict()
 
         print(self.file_path)
+        print(Atom.get_x)
 
 
 
