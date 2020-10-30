@@ -100,7 +100,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def check_convergence(self, file_path, item_index):
         filename = file_path.split('/')[-1]
-        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filename)
+        converged = self.states[self.tabWidget.currentIndex()].check_convergence(file_path)
         if converged is False:
             #self.tabWidget.currentWidget(item_index).setForeground(Qt.red)
             self.tabWidget.currentWidget().item(item_index).setForeground(Qt.red)
@@ -176,7 +176,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             print(f"added state {import_project[0]}, with files {import_project[1]}")
 
             tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
-            self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_filenames())
+            self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_all_gpaths())
 
         else:
             self.states.append(State()) 
@@ -221,7 +221,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         #this file --> State
-        state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filename)
+        state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filepath)
         #energy_kcal = superfile.connvert_to_kcal(energy_au) TODO ?
         energy_kcal = 627.51 * state_energy
 
@@ -241,7 +241,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.tabWidget.widget(tab_index).currentItem():
                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
                 filename = file_path.split('/')[-1]
-                energies.append(self.states[tab_index].get_energy(filename))
+                energies.append(self.states[tab_index].get_energy(file_path))
                 self.append_text("State %d: %.4f kcal/mol (%s)" %
                                  (state, 627.51*(energies[tab_index] - energies[0]), filename))
             else:
@@ -255,10 +255,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
 
-        scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filename)
+        scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filepath)
 
         #Check if this is geometry optimization or not (None if not):
-        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filename)
+        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filepath)
         plot = PlotStuff(scf_data, filename)
         if converged is None:
 
@@ -280,9 +280,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         filepath = self.tabWidget.currentWidget().currentItem().text()
 
+        xyz = XYZFile(filepath)
 
-        self.editor = FileEditor(self, filepath)
-        self.editor.show()
+        editor = FileEditor(self, filepath)
+        editor.show()
 
         self.states[self.tabWidget.currentIndex()].update_fileobject(filepath)
 

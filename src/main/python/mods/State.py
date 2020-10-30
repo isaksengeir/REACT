@@ -13,19 +13,11 @@ class State:
                            "pdb": PDBFile,
                            "xyz": XYZFile}
 
-        # filename (key) : file_path (value)
-        # TODO Bente - what happens if to filenames with the same name are added to the same state (different paths)
+        # filepath (key) : File object (value)
         self.gfiles = {}
         if file_paths:
             for filepath in file_paths:
                 self.add_gfiles(filepath)
-
-    def get_filenames(self):
-        """
-        Return: list with all filenames of current state.
-        """
-        # return [x for x in self.gfiles.keys()] --> to use when printing filename only in workspace, instead of the whole filepath
-        return [x.get_filepath() for x in self.gfiles.values()]
 
     def add_gfiles(self, filepath):
         """
@@ -40,7 +32,7 @@ class State:
         filename = filepath.split("/")[-1]
         filetype = filename.split(".")[-1]
 
-        self.gfiles[filename] = self.file_types[filetype](filepath)
+        self.gfiles[filepath] = self.file_types[filetype](filepath)
 
     def del_gfiles(self, files_to_del):
         """
@@ -49,43 +41,43 @@ class State:
 
         for f in files_to_del:
             try:
-                self.gfiles.pop(f.split("/")[-1])  # here f is the whole path, not only the filename.
+                self.gfiles.pop(f) 
             except KeyError:
-                print(f"File \"{f}\" not found")
+                print(f"File \"{f}\" not found. Please check if the file has been moved or deleted.")
 
     def get_all_gpaths(self):
         """
         return: list of all gaussian filpaths associated with a given state.
         """
         return [x.get_filepath() for x in self.gfiles.values()]
+        #return [x.get_filepath for x in self.gfiles.values()] because get_filepath is now a property (and not a method)?
 
-    def get_energy(self, filename):
+    def get_energy(self, filepath):
         """
         :return: final SCF Done value
         """
-        return self.gfiles[filename].get_energy
+        return self.gfiles[filepath].get_energy
 
-    def check_convergence(self, filename):
+    def check_convergence(self, filepath):
         """
         :param filename:
         :return: None (not geometry optimization), False (not converged) or True (converged)
         """
-        return self.gfiles[filename].check_convergence()
+        return self.gfiles[filepath].check_convergence()
 
-    def get_scf(self, filename):
+    def get_scf(self, filepath):
         """
         Get lists for SCF Done, and convergence values
         :param filename:
         :return:
         """
-        return self.gfiles[filename].get_scf_convergence
+        return self.gfiles[filepath].get_scf_convergence
 
     def update_fileobject(self, filepath):
         """
         Updates a GaussianFile object in the event a file has been edited.        
         """
-        filename = filepath.split("/")[-1]
-        self.gfiles[filename].update_fileobject()
+        self.gfiles[filepath].update_fileobject()
 
     def get_geometries(self, filepath):
         """
@@ -94,8 +86,7 @@ class State:
         :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
         """
         # Get list of GaussianAtom objects (per iteration):
-        filename = filepath.split('/')[-1]
-        gaussian_atoms = self.gfiles[filename].get_coordinates
+        gaussian_atoms = self.gfiles[filepath].get_coordinates
         molecules = list()
         for iteration in gaussian_atoms:
             molecule = GaussianMolecule(iteration).get_molecule
@@ -118,6 +109,14 @@ class State:
         molecule = self.get_geometries(filepath)[-1]
 
         return self.get_xyz_formatted(molecule)
+
+    def get_job_details(self, filepath):
+        """
+        :param filepath:
+        :return: a dictionary of job details.
+        """
+        return self.gfiles[filepath].get_job_details
+
 
 
 

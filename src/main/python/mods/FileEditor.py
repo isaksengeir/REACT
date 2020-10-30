@@ -37,10 +37,15 @@ class FileEditor(QtWidgets.QMainWindow):
         TODO
         :return:
         """
-        print("Hello")
         xyz = self.react.states[self.react.tabWidget.currentIndex()].get_final_xyz(self.filepath)
+        job_details = self.react.states[self.react.tabWidget.currentIndex()].get_job_details(self.filepath)
+
+        #new_input = InputFile(xyz,job_details)
+
         for line in xyz:
             self.ui.FileEditorBox.append(line)
+
+        print(job_details)
 
 
 # TODO save changes to file after editing!!! 

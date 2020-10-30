@@ -1,5 +1,6 @@
 import distutils.util
 from mods.Atoms import GaussianAtom
+import re
 
 
 class GaussianFile:
@@ -8,8 +9,24 @@ class GaussianFile:
             self.file_path = file_path
 
         # TODO Put in some defaults here for now:
-        self.job_details = dict()
-        self.set_default_settings()
+        self.job_details = {"basis set" : None,
+                            "DFT functional" : None,
+                            "modredundant" : True,
+                            "empiricaldispersion" : None,
+                            "job type": None
+        }
+        #self.set_default_settings()
+
+        #For each job details item, there is a list of known option (ex for basis sets there are b3lyp, m062x, etc)
+        # These options are saved as regular expression objects, which makes it easier to search for them in textfiles. 
+        self.job_type_regEx = [re.compile(p, re.IGNORECASE) for p in [ 'opt', 'freq']]
+        self.DFT_functional_regEx = [re.compile(p, re.IGNORECASE) for p in [' b3lyp','rb3lyp', 'm062x']]
+
+        #TODO '(' and ')' are metacharacters.. unfortunaly when assiging basis set to self.job_details, 
+        # we get "basis set" : '6-31g\(d,p\)' instead of "basis set" : '6-31g(d,p)' ...
+        self.basis_set_regEx = [re.compile(p, re.IGNORECASE) for p in ['6-31g\(d,p\)']]
+
+        #TODO how to handle modredudant and other keywords?
 
     def set_default_settings(self):
         """
@@ -35,7 +52,6 @@ class GaussianFile:
         Return: filepath for gaussianfile
         """
         return self.file_path
-
 
     def update_fileobject(self):
         """
@@ -131,9 +147,11 @@ class OutputFile(InputFile):
         # Read output on init to get key job details
         self.read_gaussian_out()
 
+        print(self.job_details)
+
     def read_gaussian_out(self):
         """
-        Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader.
+        Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
         """
         DFT_out = self.file_path
         with open(DFT_out) as f:
@@ -149,6 +167,27 @@ class OutputFile(InputFile):
                             line_value = type_(line.split()[split_int])
 
                         self.g_outdata[out_name] = line_value
+
+                #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
+                # could be rewritten in a way where we dont need a if-loop for each job detail item?
+
+                if not self.job_details["job type"]:
+                    for regEx in self.job_type_regEx:
+                        if regEx.search(line):
+                            self.job_details["job type"] = regEx.pattern
+
+
+                if not self.job_details["DFT functional"]:
+                    for regEx in self.DFT_functional_regEx:
+                        if regEx.search(line):
+                            self.job_details["DFT functional"] = regEx.pattern
+
+                if not self.job_details["basis set"]:
+                    for regEx in self.basis_set_regEx:
+                        if regEx.search(line):
+                            self.job_details["basis set"] = regEx.pattern
+
+
 
     def check_convergence(self):
         """
@@ -246,5 +285,13 @@ class OutputFile(InputFile):
                     atoms = list()
 
         return iter_atoms
+
+    @property
+    def get_job_details(self):
+        """
+        :return: job details
+        NB should this propery be moved to parent class? problem: uses the read_gaussian_out fuction. 
+        """
+        return self.job_details
 
 
