@@ -3,17 +3,39 @@ from mods.Atoms import GaussianAtom
 
 
 class GaussianFile:
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, file_path=None):
+        if file_path:
+            self.file_path = file_path
 
         # TODO Put in some defaults here for now:
-        self.job_details = dict
+        self.job_details = dict()
+        self.set_default_settings()
 
+    def set_default_settings(self):
+        """
+        TODO get settings from global settings (should be stored in a file, and read from there probably)
+        :return:
+        """
+        self.job_details["basis set"] = "6-31g(d,p)"
+        self.job_details["DFT functional"] = "b3lyp"
+        self.job_details["modredundant"] = True
+        self.job_details["empiricaldispersion"] = "gd3"
+
+    @property
+    def get_basis(self):
+        return self.job_details["basis set"]
+
+    @property
+    def get_dft_functional(self):
+        return self.job_details["DFT functional"]
+
+    @property
     def get_filepath(self):
         """
         Return: filepath for gaussianfile
         """
         return self.file_path
+
 
     def update_fileobject(self):
         """
@@ -155,6 +177,7 @@ class OutputFile(InputFile):
         """
         return self.g_outdata["SCF Done"]
 
+    @property
     def get_scf_convergence(self):
         """
         Reads output file and returns all SCF Done energies
@@ -191,10 +214,12 @@ class OutputFile(InputFile):
 
         return scf_data
 
-    def read_coordinates(self):
+    @property
+    def get_coordinates(self):
         """
-        Extract xyz from a gaussian output file
-        :return:
+        Extract xyz from a gaussian output file and creates GaussianAtom objects
+
+        :return: iter_atoms = [ [iteration 1], [iteration 2], .... ] where [iteration 1] = [GaussianAtom1, ....]
         """
         # list with GaussianAtom objects per geometry optimization --> iter_atoms[-1] is the final atom coordinates
         iter_atoms = list()
@@ -211,6 +236,7 @@ class OutputFile(InputFile):
                     if not line.split()[0].isdigit():
                         standard_orientation = False
                         get_coordinates = False
+
                         iter_atoms.append(atoms)
                     else:
                         atoms.append(GaussianAtom(line))

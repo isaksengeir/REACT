@@ -63,7 +63,7 @@ class State:
         """
         :return: final SCF Done value
         """
-        return self.gfiles[filename].get_energy()
+        return self.gfiles[filename].get_energy
 
     def check_convergence(self, filename):
         """
@@ -78,10 +78,7 @@ class State:
         :param filename:
         :return:
         """
-        return self.gfiles[filename].get_scf_convergence()
-
-    def get_xyx(self, filename):
-        pass
+        return self.gfiles[filename].get_scf_convergence
 
     def update_fileobject(self, filepath):
         """
@@ -90,12 +87,41 @@ class State:
         filename = filepath.split("/")[-1]
         self.gfiles[filename].update_fileobject()
 
-    def get_final_geometry(self, filepath):
+    def get_geometries(self, filepath):
         """
+        molecules is list of GaussianMolecule objects
+        :param filepath:
+        :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
+        """
+        # Get list of GaussianAtom objects (per iteration):
+        filename = filepath.split('/')[-1]
+        gaussian_atoms = self.gfiles[filename].get_coordinates
+        molecules = list()
+        for iteration in gaussian_atoms:
+            molecule = GaussianMolecule(iteration).get_molecule
+            molecules.append(molecule)
 
-        :param filename:
-        :return:
+        return molecules
+
+    def get_xyz_formatted(self, molecule):
         """
-        # Get list of GaussianAtoms:
-        gaussian_atoms = self.gfiles[filepath].read_coordinates()
-        gaussian_molecule = GaussianMolecule(gaussian_atoms)
+        :param molecule: = {1: {name: C, x:value, y: value, z: value}}
+        :return: xyz_formatted (list)
+        """
+        return XYZFile(atoms=molecule).get_formatted_xyz
+
+    def get_final_xyz(self, filepath):
+        """
+        :param filepath:
+        :return: a list of formated XYZ lines for guassian input files
+        """
+        molecule = self.get_geometries(filepath)[-1]
+
+        return self.get_xyz_formatted(molecule)
+
+
+
+
+
+
+    # TODO get basis set, functional, etc ...

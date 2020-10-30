@@ -18,14 +18,14 @@ class Atom:
         #atom can be passed to Atom class either as atomic number or atomic name:
         if atom.isdigit():
             self.atomnr = int(atom)
-            self.atomname = self.atomnr_atom[atom]
+            self.atomname = self.atomnr_atom[self.atomnr]
         else:
             self.atomnr = self.atom_atomnr[atom]
             self.atomname = atom
 
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
 
     @property
     def get_x(self):

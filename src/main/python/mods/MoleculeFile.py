@@ -2,16 +2,41 @@ from mods.GaussianFile import GaussianFile
 from mods.Atoms import GaussianAtom
 
 
-class XYZFile():
-    def __init__(self, atoms = None):
+class XYZFile(GaussianFile):
+    def __init__(self, atoms=None, filepath=None):
         #Atom X Y Z
         # atoms = {1: {name: C, x:value, y: value, z: value}} --> atoms[index][x]
         if atoms:
             self.atoms = atoms
         else:
-            self.atoms = dict()
+            # read_xyz and fill self.atoms TODO
+            self.atoms = self.read_xyz(filepath)
 
+
+        super().__init__()
+
+    @property
+    def get_molecule(self):
+        return self.atoms
+
+    @property
     def get_formatted_xyz(self):
+        molecule_xyz = list()
+
+        for i in sorted(self.atoms.keys()):
+            xyz_line = " %15s%14.8f%14.8f%14.8f" % (self.atoms[i]["name"].ljust(15),
+                                                    self.atoms[i]["x"], self.atoms[i]["y"], self.atoms[i]["z"])
+            molecule_xyz.append(xyz_line)
+
+        return molecule_xyz
+
+    def read_xyz(self, filepath):
+        """
+        :param filepath:
+        :return:
+        """
+        # TODO
+        return dict()
 
     def convert_to_pdb(self):
         """
@@ -28,7 +53,7 @@ class GaussianMolecule(XYZFile, GaussianAtom):
     def __init__(self, g_atoms):
         self.g_molecule = self.make_molecule(g_atoms)
 
-        super().__init__(self.g_molecule)
+        super().__init__(atoms=self.g_molecule)
 
     def make_molecule(self, g_atoms):
         molecule = dict()
@@ -41,7 +66,10 @@ class GaussianMolecule(XYZFile, GaussianAtom):
             molecule[atom_index]["y"] = atom.get_y
             molecule[atom_index]["z"] = atom.get_z
 
+        return molecule
+
     # TODO Gaussian molecule probably need some unique properties not present in XYZ file
+
 
 class PDBFile(GaussianFile):
     def __init__(self, file_path):
