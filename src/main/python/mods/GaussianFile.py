@@ -14,7 +14,8 @@ class GaussianFile:
                             "modredundant" : True,
                             "empiricaldispersion" : None,
                             "job type": None
-        }
+                            }
+
         #self.set_default_settings()
 
         #For each job details item, there is a list of known option (ex for basis sets there are b3lyp, m062x, etc)
@@ -176,7 +177,6 @@ class OutputFile(InputFile):
                         if regEx.search(line):
                             self.job_details["job type"] = regEx.pattern
 
-
                 if not self.job_details["DFT functional"]:
                     for regEx in self.DFT_functional_regEx:
                         if regEx.search(line):
@@ -186,10 +186,8 @@ class OutputFile(InputFile):
                     for regEx in self.basis_set_regEx:
                         if regEx.search(line):
                             self.job_details["basis set"] = regEx.pattern
-
-
-
-    def check_convergence(self):
+    @property
+    def is_converged(self):
         """
         Returns True if all 4 SCF convergence criterias are met - else False
         :return: None (not geometry optimization), False (not converged) or True (converged)
@@ -293,5 +291,22 @@ class OutputFile(InputFile):
         NB should this propery be moved to parent class? problem: uses the read_gaussian_out fuction. 
         """
         return self.job_details
+
+    @property
+    def has_solvent(self):
+        """
+        :return: solvent = True/False
+        """
+        solvent = False
+        if "Solvent" in self.g_outdata.keys():
+            solvent = True
+        return solvent
+
+    @property
+    def has_frequencies(self):
+        freq = False
+        if "Zero-point correction" in self.g_outdata.keys():
+            freq = True
+        return freq
 
 

@@ -8,6 +8,7 @@ from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from mods.FileEditor import FileEditor
+from mods.AnalyseCalc import AnalyseCalc
 from mods.ReactPlot import PlotStuff
 from mods.MoleculeFile import XYZFile
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
@@ -20,10 +21,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
-        self.setWindowTitle("REACT")
+        self.setWindowTitle("REACT - Main")
 
         self.states = []
         self.proj_name = 'new_project'
+
+        # Keep track of files to include for each state ... TODO implement this in States later instead?
+        # state (int): main: path, frequency: path, solvation: path, big basis: path
+        self.included_files = None
 
         self.add_state()
 
@@ -36,6 +41,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_add_file.clicked.connect(self.add_files_to_list)
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
         self.button_edit_file.clicked.connect(self.edit_file)
+        self.button_analyse_calc.clicked.connect(self.open_analyse)
 
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.plot_scf)
@@ -166,6 +172,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.states = new_pointers
 
+
     def add_state(self, import_project=False):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
@@ -286,6 +293,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         editor.show()
 
         self.states[self.tabWidget.currentIndex()].update_fileobject(filepath)
+
+    def open_analyse(self):
+        """
+
+        :return:
+        """
+        if not self.tabWidget.currentWidget().currentItem():
+            self.append_text("\n Nothing to analyse here ...")
+            return
+        analyse_window = AnalyseCalc(self)
+        analyse_window.show()
+
 
     def import_project(self):
         """

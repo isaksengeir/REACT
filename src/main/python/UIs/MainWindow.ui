@@ -10,6 +10,11 @@
     <height>436</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Courier</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -228,7 +233,7 @@ border: None;
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="button_settings">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -239,7 +244,7 @@ border: None;
              <string>Settings</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="pushButton_6">
+           <widget class="QPushButton" name="button_calc_setup">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -250,7 +255,7 @@ border: None;
              <string>Calculation setup</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="pushButton_5">
+           <widget class="QPushButton" name="button_create_cluster">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -261,7 +266,7 @@ border: None;
              <string>Create cluster</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="button_analyse_calc">
             <property name="minimumSize">
              <size>
               <width>0</width>

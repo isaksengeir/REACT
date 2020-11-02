@@ -63,7 +63,7 @@ class State:
         :param filename:
         :return: None (not geometry optimization), False (not converged) or True (converged)
         """
-        return self.gfiles[filepath].check_convergence()
+        return self.gfiles[filepath].is_converged
 
     def get_scf(self, filepath):
         """
@@ -116,6 +116,20 @@ class State:
         :return: a dictionary of job details.
         """
         return self.gfiles[filepath].get_job_details
+
+    def has_solvent(self, filepath):
+        """
+        :param filepath:
+        :return: bool
+        """
+        return self.gfiles[filepath].has_solvent
+
+    def has_frequencies(self, filepath):
+        """
+        :param filepath:
+        :return: bool
+        """
+        return self.gfiles[filepath].has_frequencies
 
 
 
