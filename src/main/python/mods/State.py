@@ -131,6 +131,33 @@ class State:
         """
         return self.gfiles[filepath].has_frequencies
 
+    def get_thermal_dg(self, filepath):
+        """
+        :param filepath:
+        :return:
+        """
+        return self.gfiles[filepath].get_thermal_dg
+
+    def get_thermal_dh(self, filepath):
+        """
+        :param filepath:
+        :return:
+        """
+        return self.gfiles[filepath].get_thermal_dh
+
+    def get_thermal_de(self, filepath):
+        """
+        :param filepath:
+        :return:
+        """
+        return self.gfiles[filepath].get_thermal_de
+
+    def get_zpe(self, filepath):
+        """
+        :param filepath:
+        :return:
+        """
+        return self.gfiles[filepath].get_thermal_zpe
 
 
 

@@ -1,8 +1,7 @@
 import sys
 import os
 import json
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets, QtGui
 import UIs.icons_rc
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
@@ -29,6 +28,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Keep track of files to include for each state ... TODO implement this in States later instead?
         # state (int): main: path, frequency: path, solvation: path, big basis: path
         self.included_files = None
+
+        # Since included files belong to project, and will be stored with project, we can only allow
+        # one instance of the analyse window... TODO if we want this different
+        self.analyse_window = None
 
         self.add_state()
 
@@ -109,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         converged = self.states[self.tabWidget.currentIndex()].check_convergence(file_path)
         if converged is False:
             #self.tabWidget.currentWidget(item_index).setForeground(Qt.red)
-            self.tabWidget.currentWidget().item(item_index).setForeground(Qt.red)
+            self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(100, 0, 0))
             self.append_text("\nWarning: %s seems to have not converged!" % filename)
 
     def delete_file_from_list(self):
@@ -299,11 +302,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         :return:
         """
+        if self.analyse_window:
+            self.append_text("\nAnalyse Calculation is already running. \nPerhaps the window is hidden?")
+            return
+
         if not self.tabWidget.currentWidget().currentItem():
             self.append_text("\n Nothing to analyse here ...")
             return
-        analyse_window = AnalyseCalc(self)
-        analyse_window.show()
+        self.analyse_window = AnalyseCalc(self)
+        self.analyse_window.show()
 
 
     def import_project(self):

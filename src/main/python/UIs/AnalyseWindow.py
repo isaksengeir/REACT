@@ -14,31 +14,129 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AnalyseWindow(object):
     def setupUi(self, AnalyseWindow):
         AnalyseWindow.setObjectName("AnalyseWindow")
-        AnalyseWindow.resize(376, 180)
+        AnalyseWindow.resize(360, 189)
+        AnalyseWindow.setIconSize(QtCore.QSize(24, 24))
         self.centralwidget = QtWidgets.QWidget(AnalyseWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(self.centralwidget)
-        self.frame.setGeometry(QtCore.QRect(10, 20, 351, 141))
+        self.frame.setGeometry(QtCore.QRect(10, 20, 331, 151))
+        self.frame.setStyleSheet("QListWidget{\n"
+"\n"
+"\n"
+"}\n"
+"QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.frame)
-        self.verticalLayout.setContentsMargins(2, 2, 2, 2)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.gridLayout = QtWidgets.QGridLayout()
+        self.widget = QtWidgets.QWidget(self.frame)
+        self.widget.setGeometry(QtCore.QRect(20, 5, 64, 26))
+        self.widget.setObjectName("widget")
+        self.gridLayout = QtWidgets.QGridLayout(self.widget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.button_set_file = QtWidgets.QPushButton(self.frame)
+        self.button_set_file = QtWidgets.QPushButton(self.widget)
+        self.button_set_file.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_set_file.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_set_file.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/arrow-plus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_set_file.setIcon(icon)
+        self.button_set_file.setIconSize(QtCore.QSize(24, 24))
+        self.button_set_file.setFlat(True)
         self.button_set_file.setObjectName("button_set_file")
         self.gridLayout.addWidget(self.button_set_file, 0, 0, 1, 1)
-        self.label = QtWidgets.QLabel(self.frame)
+        self.button_remove_file = QtWidgets.QPushButton(self.widget)
+        self.button_remove_file.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_remove_file.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_remove_file.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/arrow-minus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_remove_file.setIcon(icon1)
+        self.button_remove_file.setIconSize(QtCore.QSize(24, 24))
+        self.button_remove_file.setFlat(True)
+        self.button_remove_file.setObjectName("button_remove_file")
+        self.gridLayout.addWidget(self.button_remove_file, 0, 1, 1, 1)
+        self.widget1 = QtWidgets.QWidget(self.frame)
+        self.widget1.setGeometry(QtCore.QRect(96, 10, 226, 18))
+        self.widget1.setObjectName("widget1")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.widget1)
+        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.label = QtWidgets.QLabel(self.widget1)
         self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 1, 1, 1)
-        self.label_state = QtWidgets.QLabel(self.frame)
+        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
+        self.label_state = QtWidgets.QLabel(self.widget1)
         self.label_state.setMinimumSize(QtCore.QSize(20, 0))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.label_state.setFont(font)
         self.label_state.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_state.setStyleSheet("color:rgb(143, 23, 119)")
         self.label_state.setObjectName("label_state")
-        self.gridLayout.addWidget(self.label_state, 0, 2, 1, 1)
-        self.calctype = QtWidgets.QListWidget(self.frame)
+        self.gridLayout_2.addWidget(self.label_state, 0, 1, 1, 1)
+        self.splitter = QtWidgets.QSplitter(self.frame)
+        self.splitter.setGeometry(QtCore.QRect(5, 31, 315, 110))
+        self.splitter.setMinimumSize(QtCore.QSize(0, 110))
+        self.splitter.setStyleSheet("QSplitter {\n"
+"border: None;\n"
+"}")
+        self.splitter.setLineWidth(0)
+        self.splitter.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter.setHandleWidth(0)
+        self.splitter.setObjectName("splitter")
+        self.calctype = QtWidgets.QListWidget(self.splitter)
+        self.calctype.setMinimumSize(QtCore.QSize(92, 110))
+        self.calctype.setMaximumSize(QtCore.QSize(92, 110))
+        self.calctype.setStyleSheet("QListWidget {\n"
+"color: rgb(143, 23, 119);\n"
+"\n"
+"}\n"
+"\n"
+"QListWidget::item:hover{\n"
+"/*background-color: rgb(143,23,119);*/\n"
+"border: 1px solid rgb(143, 23, 119);\n"
+"border-style: outset;\n"
+"background-color: rgb(40,40,40);\n"
+"padding-left:5px;\n"
+"padding-right:-10px;\n"
+"\n"
+"}\n"
+"\n"
+"QListWidget::item:selected{\n"
+"color: rgb(20,20,20);\n"
+"background-color:rgb(98, 114, 164);\n"
+"padding-left:10px;\n"
+"padding-right:-10px;\n"
+"\n"
+"}\n"
+"\n"
+"QListWidget::item{\n"
+"border: 1px solid rgb(20,20,20);\n"
+"padding-right:-10px;\n"
+"}\n"
+"")
         self.calctype.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.calctype.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.calctype.setObjectName("calctype")
@@ -50,11 +148,29 @@ class Ui_AnalyseWindow(object):
         self.calctype.addItem(item)
         item = QtWidgets.QListWidgetItem()
         self.calctype.addItem(item)
-        self.gridLayout.addWidget(self.calctype, 1, 0, 1, 1)
-        self.calc_files = QtWidgets.QListWidget(self.frame)
+        self.calc_files = QtWidgets.QListWidget(self.splitter)
+        self.calc_files.setMinimumSize(QtCore.QSize(225, 110))
+        self.calc_files.setMaximumSize(QtCore.QSize(225, 110))
+        self.calc_files.setStyleSheet("QListWidget {\n"
+"color: rgb(220,220,220);\n"
+"}\n"
+"QListWidget::item:hover{\n"
+"/*background-color: rgb(143,23,119);*/\n"
+"\n"
+"background-color: None;\n"
+"\n"
+"\n"
+"}\n"
+"\n"
+"QListWidget::item{\n"
+"border: 1px solid rgb(20,20,20);\n"
+"}\n"
+"")
+        self.calc_files.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.calc_files.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.calc_files.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.calc_files.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.calc_files.setObjectName("calc_files")
-        self.gridLayout.addWidget(self.calc_files, 1, 1, 1, 2)
-        self.verticalLayout.addLayout(self.gridLayout)
         AnalyseWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(AnalyseWindow)
@@ -63,7 +179,7 @@ class Ui_AnalyseWindow(object):
     def retranslateUi(self, AnalyseWindow):
         _translate = QtCore.QCoreApplication.translate
         AnalyseWindow.setWindowTitle(_translate("AnalyseWindow", "MainWindow"))
-        self.button_set_file.setText(_translate("AnalyseWindow", "Set"))
+        self.button_remove_file.setShortcut(_translate("AnalyseWindow", "Ctrl+S"))
         self.label.setText(_translate("AnalyseWindow", "Included Calculation file(s) state"))
         self.label_state.setText(_translate("AnalyseWindow", "1"))
         __sortingEnabled = self.calctype.isSortingEnabled()
@@ -77,3 +193,4 @@ class Ui_AnalyseWindow(object):
         item = self.calctype.item(3)
         item.setText(_translate("AnalyseWindow", "Big basis:"))
         self.calctype.setSortingEnabled(__sortingEnabled)
+#import icons_rc
