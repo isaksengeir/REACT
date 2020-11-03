@@ -3,6 +3,7 @@ import os
 import json
 from PyQt5 import QtWidgets, QtGui
 import UIs.icons_rc
+import mods.common_functions as cf
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
@@ -214,7 +215,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return:
         """
         if date_time:
-            text = "%s\n%s" % (time.asctime(time.localtime(time.time())), text)
+            text = "\n%s\n%s" % (time.asctime(time.localtime(time.time())), text)
         self.textBrowser.appendPlainText(text)
         self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
 
@@ -233,7 +234,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #this file --> State
         state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filepath)
         #energy_kcal = superfile.connvert_to_kcal(energy_au) TODO ?
-        energy_kcal = 627.51 * state_energy
+
+        energy_kcal = cf.hartree_to_kcal(state_energy)
 
         self.append_text("\nFinal energy of %s:" % filename)
         self.append_text("%f a.u" % state_energy)
@@ -246,14 +248,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         energies = list()
 
+        self.append_text("Relative energies", date_time=True)
         for tab_index in range(self.tabWidget.count()):
             state = tab_index + 1
             if self.tabWidget.widget(tab_index).currentItem():
                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
                 filename = file_path.split('/')[-1]
                 energies.append(self.states[tab_index].get_energy(file_path))
-                self.append_text("State %d: %.4f kcal/mol (%s)" %
-                                 (state, 627.51*(energies[tab_index] - energies[0]), filename))
+                self.append_text("%sE(%d): %.4f kcal/mol (%s)" %
+                                 (cf.unicode_symbols["Delta"], state,
+                                  cf.hartree_to_kcal(energies[tab_index] - energies[0]), filename))
             else:
                 self.append_text("No files selected for state %d" % state)
 
