@@ -11,23 +11,27 @@ class GaussianFile:
         # TODO Put in some defaults here for now:
         self.job_details = {"basis set" : None,
                             "DFT functional" : None,
-                            "modredundant" : True,
                             "empiricaldispersion" : None,
-                            "job type": None
+                            "job type": None,
+                            "route" : None
                             }
 
         #self.set_default_settings()
 
         #For each job details item, there is a list of known option (ex for basis sets there are b3lyp, m062x, etc)
         # These options are saved as regular expression objects, which makes it easier to search for them in textfiles. 
-        self.job_type_regEx = [re.compile(p, re.IGNORECASE) for p in [ 'opt', 'freq']]
-        self.DFT_functional_regEx = [re.compile(p, re.IGNORECASE) for p in [' b3lyp','rb3lyp', 'm062x']]
 
-        #TODO '(' and ')' are metacharacters.. unfortunaly when assiging basis set to self.job_details, 
-        # we get "basis set" : '6-31g\(d,p\)' instead of "basis set" : '6-31g(d,p)' ...
-        self.basis_set_regEx = [re.compile(p, re.IGNORECASE) for p in ['6-31g\(d,p\)']]
+        #TODO how to handle multiple job type? ex: opt freq ?
+        #TODO for now, all optimization-related keywords (TS, modreduant..) are saved as part of 'job-type'. (could be a bad idea? ex: omit modredundant if no atoms are freezed?)
+        #TODO deal with geom=connectivity, or ignore it?
+        #TODO %chk, %mem, etc. retrive from output file, or just assign from default settings?
 
-        #TODO how to handle modredudant and other keywords?
+        self.job_details_regEx =  { "basis set" : [re.compile(p, re.IGNORECASE) for p in ['6-31g\(d,p\)']],
+                                    "DFT functional" : [re.compile(p, re.IGNORECASE) for p in [' b3lyp','rb3lyp', 'm062x']],
+                                    "job type" : [re.compile(p, re.IGNORECASE) for p in ['opt[^\s]*', 'freq[^\s]*']],
+                                    "empiricaldispersion" : [re.compile(p, re.IGNORECASE) for p in [ 'gd3']],
+                                    "route" : [re.compile(p, re.IGNORECASE) for p in ['#p', '#n' '#']]
+                                  }
 
     def set_default_settings(self):
         """
@@ -36,8 +40,18 @@ class GaussianFile:
         """
         self.job_details["basis set"] = "6-31g(d,p)"
         self.job_details["DFT functional"] = "b3lyp"
-        self.job_details["modredundant"] = True
+        #self.job_details["modredundant"] = True
         self.job_details["empiricaldispersion"] = "gd3"
+
+    @property
+    def get_routecard(self):
+        routecard = f'{self.job_details["route"]} {self.job_details["job type"]} {self.job_details["DFT functional"]}/{self.job_details["basis set"]}' 
+        
+        #TODO should be replaced by some loop accounting for all optional keywords
+        if self.job_details["empiricaldispersion"]:
+            routecard = routecard + f' empiricaldispersion={self.job_details["empiricaldispersion"]}'
+
+        return routecard
 
     @property
     def get_basis(self):
@@ -148,8 +162,6 @@ class OutputFile(InputFile):
         # Read output on init to get key job details
         self.read_gaussian_out()
 
-        print(self.job_details)
-
     def read_gaussian_out(self):
         """
         Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
@@ -170,22 +182,19 @@ class OutputFile(InputFile):
                         self.g_outdata[out_name] = line_value
 
                 #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
-                # could be rewritten in a way where we dont need a if-loop for each job detail item?
+                for job_detail_key in self.job_details.keys():
+                    self._regEx_job_detail_search(line, job_detail_key)
 
-                if not self.job_details["job type"]:
-                    for regEx in self.job_type_regEx:
-                        if regEx.search(line):
-                            self.job_details["job type"] = regEx.pattern
+    def _regEx_job_detail_search(self, string, job_detail_key):
+        '''
+        Private function used in read_gaussian_out(). 
+        '''
 
-                if not self.job_details["DFT functional"]:
-                    for regEx in self.DFT_functional_regEx:
-                        if regEx.search(line):
-                            self.job_details["DFT functional"] = regEx.pattern
+        if not self.job_details[job_detail_key]:
+            for regEx in self.job_details_regEx[job_detail_key]:
+                if regEx.search(string):
+                    self.job_details[job_detail_key] = regEx.search(string).group()
 
-                if not self.job_details["basis set"]:
-                    for regEx in self.basis_set_regEx:
-                        if regEx.search(line):
-                            self.job_details["basis set"] = regEx.pattern
     @property
     def is_converged(self):
         """

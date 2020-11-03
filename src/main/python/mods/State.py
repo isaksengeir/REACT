@@ -110,12 +110,12 @@ class State:
 
         return self.get_xyz_formatted(molecule)
 
-    def get_job_details(self, filepath):
+    def get_routecard(self, filepath):
         """
         :param filepath:
         :return: a dictionary of job details.
         """
-        return self.gfiles[filepath].get_job_details
+        return self.gfiles[filepath].get_routecard
 
     def has_solvent(self, filepath):
         """
@@ -158,6 +158,12 @@ class State:
         :return:
         """
         return self.gfiles[filepath].get_thermal_zpe
+
+    def create_GaussianInputFile(self, OutputFile=False):
+        '''
+        TODO we need to create a new GaussianFile object (beloning to current state) and add it to self.gfiles and table in main window
+        '''
+        pass
 
 
 
