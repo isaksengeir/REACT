@@ -9,7 +9,7 @@ from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from mods.FileEditor import FileEditor
 from mods.AnalyseCalc import AnalyseCalc
-from mods.ReactPlot import PlotStuff
+from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
 from mods.MoleculeFile import XYZFile
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import time
@@ -187,7 +187,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             print(f"added state {import_project[0]}, with files {import_project[1]}")
 
             tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
-            self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_all_gpaths())
+            self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_all_gpaths)
 
         else:
             self.states.append(State()) 
@@ -227,7 +227,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filepath = self.tabWidget.currentWidget().currentItem().text()
         filename = filepath.split('/')[-1]
 
-        if filename.split('.')[-1] != "out":
+        if filename.split('.')[-1] not in  ["out", "log"]:
             self.append_text("%s does not seem to be a Gaussian output file." % filename)
             return
 
@@ -253,11 +253,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             state = tab_index + 1
             if self.tabWidget.widget(tab_index).currentItem():
                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                filename = file_path.split('/')[-1]
-                energies.append(self.states[tab_index].get_energy(file_path))
-                self.append_text("%sE(%d): %.4f kcal/mol (%s)" %
-                                 (cf.unicode_symbols["Delta"], state,
-                                  cf.hartree_to_kcal(energies[tab_index] - energies[0]), filename))
+                if file_path.split(".")[-1] in ["out", "log"]:
+                    filename = file_path.split('/')[-1]
+                    energies.append(self.states[tab_index].get_energy(file_path))
+                    self.append_text("%sE(%d): %.4f kcal/mol (%s)" %
+                                     (cf.unicode_symbols["Delta"], state,
+                                      cf.hartree_to_kcal(energies[tab_index] - energies[0]), filename))
+                else:
+                    self.append_text("%s does not seem to be Gaussian output" % file_path)
             else:
                 self.append_text("No files selected for state %d" % state)
 
@@ -267,13 +270,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return:
         """
         filepath = self.tabWidget.currentWidget().currentItem().text()
+
+        # Can not plot? :
+        if filepath.split(".")[-1] not in ["out", "log"]:
+            return
+
         filename = filepath.split('/')[-1]
 
         scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filepath)
 
         #Check if this is geometry optimization or not (None if not):
         converged = self.states[self.tabWidget.currentIndex()].check_convergence(filepath)
-        plot = PlotStuff(scf_data, filename)
+        plot = PlotGdata(scf_data, filename)
         if converged is None:
 
             plot.plot_scf_done()
@@ -322,8 +330,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Import project-file and creates new state instances accordingly. Deletes all states in workplace.
         TODO import logfile
         """
-
-        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", os.getcwd(), "Project/JSON (*.json)")
+        workdir = "../resources/DFT_testfiles"
+        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", directory=workdir,
+                                                                 filter="Project/JSON (*.json)")
         
         #To avoid error if dialogwindow is opened, but no file is selected
         if proj_path == '':
@@ -371,7 +380,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         project = {}
 
         for state_index in range(len(self.states)):
-            project[state_index+1] = self.states[state_index].get_all_gpaths()
+            project[state_index+1] = self.states[state_index].get_all_gpaths
 
         new_file_path = os.getcwd() + '/' + self.proj_name
 

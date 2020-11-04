@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import numpy as np
 
 
-class PlotStuff():
-    def __init__(self, g_data, filename):
+class PlotStuff:
+    def __init__(self):
         super().__init__()
 
-        self.g_data = g_data
-        self.filename = filename
+
 
         #Init matplotlib.pyplot settings
         self.set_plot_settings()
@@ -75,10 +75,76 @@ class PlotStuff():
 
         mpl.rcParams["axes.formatter.useoffset"] = False
 
-
-
         mpl.rcParams["axes.prop_cycle"] = mpl.cycler('color', ['8f1777', '1f77b4', 'ff7f0e', '2ca02c', 'd62728',
                                                        '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
+
+
+class PlotEnergyDiagram(PlotStuff):
+    def __init__(self, ene_array):
+        super().__init__()
+
+        ene_array = self.check_array(ene_array)
+
+        self.make_energy_diagram(ene_array)
+
+    def check_array(self, ene_array):
+        """
+        Check if ene_array is list of lists. if not, make it so
+        :param ene_array:
+        :return: ene_array
+        """
+        if not any(isinstance(x, list) for x in ene_array):
+            ene_array = [ene_array]
+
+        return ene_array
+
+    def energy_rank(self, energies, marker_width=.5):
+        """
+        Takes a list of Y-values and returns lines for energy diagram
+        :param energies: array of Y-data (energies)
+        :param marker_width:
+        :return: energy diagram lines
+        """
+        y_data = np.repeat(energies, 2)
+        x_data = np.empty_like(y_data)
+        x_data[0::2] = np.arange(1, len(energies) + 1) - (marker_width/2)
+        x_data[1::2] = np.arange(1, len(energies) + 1) + (marker_width/2)
+        lines = list()
+        lines.append(plt.Line2D(x_data, y_data, lw=1, linestyle="dashed"))
+        for x in range(0, len(energies)*2, 2):
+            lines.append(plt.Line2D(x_data[x:x+2], y_data[x:x+2], lw=4, linestyle="solid"))
+        return lines
+
+    def make_energy_diagram(self, ene_array):
+        """
+
+        :param ene_array: [ [energies_plot1], [energies_plot2],...]
+        :return:
+        """
+        plots = list()
+
+        for energies in ene_array:
+            plots.extend(self.energy_rank(energies))
+
+        fig, ax = plt.subplots()
+
+        # Todo make automatic decission on Y and X bounds:
+        y_min, y_max, x_min, x_max = -10, 20, 0.5, 3.5
+
+        ax.set_ybound([y_min, y_max])
+        ax.set_xbound([x_min, x_max])
+
+        for plot in plots:
+            ax.add_artist(plot)
+
+        plt.show()
+
+
+class PlotGdata(PlotStuff):
+    def __init__(self, g_data, filename):
+        super().__init__()
+        self.g_data = g_data
+        self.filename = filename
 
     def plot_scf_done(self):
         """
