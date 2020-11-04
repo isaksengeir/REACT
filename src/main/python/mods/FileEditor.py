@@ -34,18 +34,21 @@ class FileEditor(QtWidgets.QMainWindow):
 
     def convert_out_to_inp(self):
         """
-        TODO
+        TODO: this function is good for testing, but I (Bente) think the code should be moved to a 'create_InputObject'
+        method, belonging to the State-class.
         :return:
         """
         xyz = self.react.states[self.react.tabWidget.currentIndex()].get_final_xyz(self.filepath)
-        job_details = self.react.states[self.react.tabWidget.currentIndex()].get_job_details(self.filepath)
+        routecard = self.react.states[self.react.tabWidget.currentIndex()].get_routecard(self.filepath)
 
-        #new_input = InputFile(xyz,job_details)
+        self.ui.FileEditorBox.append(routecard)
+
+        self.ui.FileEditorBox.append('\n')
 
         for line in xyz:
             self.ui.FileEditorBox.append(line)
 
-        print(job_details)
+        
 
 
 # TODO save changes to file after editing!!! 
