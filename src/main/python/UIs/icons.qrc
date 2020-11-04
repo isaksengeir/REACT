@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="24x24">
+    <file>../../resources/icons/plot_enediagram.png</file>
     <file>../../resources/icons/react_delta.png</file>
     <file>../../resources/icons/quick_delta_E.png</file>
     <file>../../resources/icons/quick_print_SCF.png</file>

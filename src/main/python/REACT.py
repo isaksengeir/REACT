@@ -50,6 +50,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
+        self.button_plot_ene_diagram.clicked.connect(self.plot_energy_diagram)
 
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
@@ -176,7 +177,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.states = new_pointers
 
-
     def add_state(self, import_project=False):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
@@ -241,28 +241,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("%f a.u" % state_energy)
         self.append_text("%.4f kcal/mol" % energy_kcal)
 
+    def get_relative_energies(self):
+        """
+        :return: energies dict[state] = "dE": float, "file":path
+        """
+        energies = list()
+        d_energies = dict()
+
+
+        for tab_index in range(self.tabWidget.count()):
+            if self.tabWidget.widget(tab_index).currentItem():
+                file_path = self.tabWidget.widget(tab_index).currentItem().text()
+                if file_path.split(".")[-1] in ["out", "log"]:
+                    energies.append(self.states[tab_index].get_energy(file_path))
+                    d_energies[tab_index + 1] = {"dE": energies[tab_index]-energies[0], "file": file_path}
+
+                else:
+                    self.append_text("%s does not seem to be Gaussian output" % file_path)
+            else:
+                self.append_text("No files selected for state %d" % (tab_index + 1))
+
+        return d_energies
+
     def print_relative_energy(self):
         """
         calculates the relative energy (to state 1) for all states and prints it in the log window
         :return:
         """
-        energies = list()
-
         self.append_text("Relative energies", date_time=True)
-        for tab_index in range(self.tabWidget.count()):
-            state = tab_index + 1
-            if self.tabWidget.widget(tab_index).currentItem():
-                file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                if file_path.split(".")[-1] in ["out", "log"]:
-                    filename = file_path.split('/')[-1]
-                    energies.append(self.states[tab_index].get_energy(file_path))
-                    self.append_text("%sE(%d): %.4f kcal/mol (%s)" %
-                                     (cf.unicode_symbols["Delta"], state,
-                                      cf.hartree_to_kcal(energies[tab_index] - energies[0]), filename))
-                else:
-                    self.append_text("%s does not seem to be Gaussian output" % file_path)
-            else:
-                self.append_text("No files selected for state %d" % state)
+
+        d_energies = self.get_relative_energies()
+
+        for state in sorted(d_energies.keys()):
+            self.append_text("%sE(%d): %.4f kcal/mol (%s)" % (cf.unicode_symbols["Delta"], state,
+                                                              cf.hartree_to_kcal(d_energies[state]["dE"]),
+                                                              d_energies[state]["file"].split("/")[-1]))
+
+    def plot_energy_diagram(self):
+        """
+
+        :return:
+        """
+        d_ene = self.get_relative_energies()
+
+        #Convert d_ene dict to list of energies in kcal/mol
+        d_ene = [cf.hartree_to_kcal(d_ene[x]["dE"]) for x in sorted(d_ene.keys())]
+
+        plot = PlotEnergyDiagram(d_ene)
 
     def plot_scf(self):
         """
@@ -282,8 +307,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Check if this is geometry optimization or not (None if not):
         converged = self.states[self.tabWidget.currentIndex()].check_convergence(filepath)
         plot = PlotGdata(scf_data, filename)
-        if converged is None:
 
+        if converged is None:
             plot.plot_scf_done()
             self.append_text("%s seem to not be a geometry optimisation ..." % filename)
         else:

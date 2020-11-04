@@ -818,6 +818,13 @@ border-color:rgb(143, 23, 119);</string>
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Quick launch</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="button_print_scf">
              <property name="minimumSize">
@@ -853,8 +860,8 @@ border-color:rgb(143, 23, 119);</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="button_print_relativeE">
+           <item row="0" column="2">
+            <widget class="QPushButton" name="button_plot_ene_diagram">
              <property name="minimumSize">
               <size>
                <width>24</width>
@@ -875,7 +882,7 @@ border-color:rgb(143, 23, 119);</string>
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/resources/icons/quick_delta_E.png</normaloff>:/24x24/resources/icons/quick_delta_E.png</iconset>
+               <normaloff>:/24x24/resources/icons/plot_enediagram.png</normaloff>:/24x24/resources/icons/plot_enediagram.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -888,14 +895,7 @@ border-color:rgb(143, 23, 119);</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Quick launch</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
+           <item row="0" column="3">
             <widget class="QPushButton" name="button_print_energy">
              <property name="minimumSize">
               <size>
@@ -918,6 +918,41 @@ border-color:rgb(143, 23, 119);</string>
              <property name="icon">
               <iconset resource="icons.qrc">
                <normaloff>:/24x24/resources/icons/quick_print_E.png</normaloff>:/24x24/resources/icons/quick_print_E.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QPushButton" name="button_print_relativeE">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/quick_delta_E.png</normaloff>:/24x24/resources/icons/quick_delta_E.png</iconset>
              </property>
              <property name="iconSize">
               <size>
