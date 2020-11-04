@@ -115,6 +115,27 @@ class PlotEnergyDiagram(PlotStuff):
             lines.append(plt.Line2D(x_data[x:x+2], y_data[x:x+2], lw=4, linestyle="solid"))
         return lines
 
+    def get_bounds(self, ene_array):
+        """
+
+        :return:
+        """
+        x_min = 0.5
+        x_max = 0
+        y_min = 0
+        y_max = 0
+
+        for plot in ene_array:
+            if len(plot) > x_max:
+                x_max = len(plot)
+            for ene in plot:
+                if ene > y_max:
+                    y_max = ene
+                if ene < y_min:
+                    y_min = ene
+
+        return x_min, x_max + 0.5, y_min - 1, y_max + 1
+
     def make_energy_diagram(self, ene_array):
         """
 
@@ -129,7 +150,7 @@ class PlotEnergyDiagram(PlotStuff):
         fig, ax = plt.subplots()
 
         # Todo make automatic decission on Y and X bounds:
-        y_min, y_max, x_min, x_max = -10, 20, 0.5, 3.5
+        x_min, x_max, y_min, y_max = self.get_bounds(ene_array)
 
         ax.set_ybound([y_min, y_max])
         ax.set_xbound([x_min, x_max])
