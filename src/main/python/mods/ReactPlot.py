@@ -149,7 +149,6 @@ class PlotEnergyDiagram(PlotStuff):
 
         fig, ax = plt.subplots()
 
-        # Todo make automatic decission on Y and X bounds:
         x_min, x_max, y_min, y_max = self.get_bounds(ene_array)
 
         ax.set_ybound([y_min, y_max])

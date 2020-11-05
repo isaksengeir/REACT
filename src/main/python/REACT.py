@@ -248,7 +248,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         energies = list()
         d_energies = dict()
 
-
         for tab_index in range(self.tabWidget.count()):
             if self.tabWidget.widget(tab_index).currentItem():
                 file_path = self.tabWidget.widget(tab_index).currentItem().text()
