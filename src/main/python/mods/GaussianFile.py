@@ -318,32 +318,6 @@ class OutputFile(InputFile):
             freq = True
         return freq
 
-    @property
-    def get_thermal_dg(self):
-        if self.has_frequencies:
-            return self.g_outdata["Thermal correction to Gibbs Free Energy"]
-        else:
-            return None
-
-    @property
-    def get_thermal_de(self):
-        if self.has_frequencies:
-            return self.g_outdata["Thermal correction to Energy"]
-        else:
-            return None
-
-    @property
-    def get_thermal_dh(self):
-        if self.has_frequencies:
-            return self.g_outdata["Thermal correction to Enthalpy"]
-        else:
-            return None
-
-    @property
-    def get_zpe(self):
-        if self.has_frequencies:
-            return self.g_outdata["Zero-point correction"]
-
 
 class FrequenciesOut(OutputFile):
     def __init__(self, file_path):
@@ -383,7 +357,33 @@ class FrequenciesOut(OutputFile):
         """
         :return:
         """
-        return self.has_frequencies
+        return self.freq
+
+    @property
+    def get_thermal_dg(self):
+        if self.has_frequencies:
+            return self.g_outdata["Thermal correction to Gibbs Free Energy"]
+        else:
+            return None
+
+    @property
+    def get_thermal_de(self):
+        if self.has_frequencies:
+            return self.g_outdata["Thermal correction to Energy"]
+        else:
+            return None
+
+    @property
+    def get_thermal_dh(self):
+        if self.has_frequencies:
+            return self.g_outdata["Thermal correction to Enthalpy"]
+        else:
+            return None
+
+    @property
+    def get_zpe(self):
+        if self.has_frequencies:
+            return self.g_outdata["Zero-point correction"]
 
 
 

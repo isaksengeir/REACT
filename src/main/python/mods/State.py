@@ -1,4 +1,4 @@
-from mods.GaussianFile import OutputFile, InputFile
+from mods.GaussianFile import OutputFile, InputFile, FrequenciesOut
 from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
 
 
@@ -33,6 +33,11 @@ class State:
         filetype = filename.split(".")[-1]
 
         self.gfiles[filepath] = self.file_types[filetype](filepath)
+
+        # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
+        if self.gfiles[filepath] is OutputFile:
+            if self.gfiles[filepath].has_frequencies:
+                self.gfiles[filepath] = FrequenciesOut(filepath)
 
     def del_gfiles(self, files_to_del):
         """
