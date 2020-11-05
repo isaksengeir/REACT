@@ -167,6 +167,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
         #thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
         new_pointers = []
+        new_included_files = dict()
 
         for tab_index in range(self.tabWidget.count()):
             state = self.tabWidget.tabText(tab_index)
@@ -174,8 +175,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             new_pointers.append(self.states[int(state) - 1])
             if state != str(tab_index+1):
                 self.tabWidget.setTabText(tab_index, str(tab_index+1))
+                # swap values of state and tab_index+1
+                if self.included_files:
+                    new_included_files[int(state)] = self.included_files[tab_index+1]
+
+            else:
+                if self.included_files:
+                    new_included_files[int(state)] = self.included_files[int(state)]
 
         self.states = new_pointers
+        self.included_files = new_included_files
 
     def add_state(self, import_project=False):
         """
