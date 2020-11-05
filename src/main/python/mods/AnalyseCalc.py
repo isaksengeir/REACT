@@ -75,7 +75,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
             #Check if freq or solv is included in the main file:
             if index > 0:
-                print("Index is above 0!")
                 if self.react.included_files[tab_index+1][index] == self.react.included_files[1][0]:
                     self.ui.calc_files.item(index).setForeground(QtGui.QColor(70, 70, 70))
 

@@ -344,3 +344,46 @@ class OutputFile(InputFile):
         if self.has_frequencies:
             return self.g_outdata["Zero-point correction"]
 
+
+class FrequenciesOut(OutputFile):
+    def __init__(self, file_path):
+        super().__init__(file_path)
+
+        self.file_path = file_path
+
+        self.freq = dict()
+
+        self.read_frequencies()
+
+    def read_frequencies(self):
+        """
+        Read Gaussian outpufile and store frequencies to self.freq[freq] = IR intensity (KM/Mole)
+        :return:
+        """
+        found_freq = False
+        with open(self.file_path, "r") as frq:
+            for line in frq:
+                if "Frequencies" in line:
+                    found_freq = True
+                    freq = float(line.split()[2])
+                if found_freq:
+                    if "IR Inten" in line:
+                        self.freq[frq] = float(line.split()[2])
+                        found_freq = False
+
+    @property
+    def get_img_frq(self):
+        """
+        :return: dictionary only with imaginary frequencies
+        """
+        return {k: v for k, v in self.freq if k < 0}
+
+    @property
+    def get_frequencies(self):
+        """
+        :return:
+        """
+        return self.has_frequencies
+
+
+
