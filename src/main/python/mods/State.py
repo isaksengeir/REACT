@@ -141,28 +141,35 @@ class State:
         :param filepath:
         :return:
         """
-        return self.gfiles[filepath].get_thermal_dg
+        if self.gfiles[filepath].has_frequencies:
+            return self.gfiles[filepath].get_thermal_dg
 
     def get_thermal_dh(self, filepath):
         """
         :param filepath:
         :return:
         """
-        return self.gfiles[filepath].get_thermal_dh
+        if self.gfiles[filepath].has_frequencies:
+            return self.gfiles[filepath].get_thermal_dh
 
     def get_thermal_de(self, filepath):
         """
         :param filepath:
         :return:
         """
-        return self.gfiles[filepath].get_thermal_de
+        if self.gfiles[filepath].has_frequencies:
+            return self.gfiles[filepath].get_thermal_de
 
     def get_zpe(self, filepath):
         """
         :param filepath:
         :return:
         """
-        return self.gfiles[filepath].get_thermal_zpe
+        if self.gfiles[filepath].has_frequencies:
+            return self.gfiles[filepath].get_thermal_zpe
+
+
+
 
     def create_GaussianInputFile(self, OutputFile=False):
         '''

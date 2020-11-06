@@ -2,7 +2,7 @@ from mods.GaussianFile import GaussianFile
 from mods.Atoms import GaussianAtom
 
 
-class XYZFile(GaussianFile):
+class XYZFile():
     def __init__(self, atoms=None, filepath=None):
         #Atom X Y Z
         # atoms = {1: {name: C, x:value, y: value, z: value}} --> atoms[index][x]
@@ -11,9 +11,6 @@ class XYZFile(GaussianFile):
         else:
             # read_xyz and fill self.atoms TODO
             self.atoms = self.read_xyz(filepath)
-
-
-        super().__init__()
 
     @property
     def get_molecule(self):
@@ -48,17 +45,18 @@ class XYZFile(GaussianFile):
 
 class GaussianMolecule(XYZFile, GaussianAtom):
     """
-    Takes a list of GaussianAtoms
+    Takes a list of GaussianAtom or Atom objects and creates a molecule
     """
     def __init__(self, g_atoms):
-        self.g_molecule = self.make_molecule(g_atoms)
+        self.g_atoms = g_atoms
+        self.g_molecule = self.make_molecule()
 
         super().__init__(atoms=self.g_molecule)
 
-    def make_molecule(self, g_atoms):
+    def make_molecule(self):
         molecule = dict()
-        for i in range(len(g_atoms)):
-            atom = g_atoms[i]
+        for i in range(len(self.g_atoms)):
+            atom = self.g_atoms[i]
             atom_index = atom.get_atom_index
             molecule[atom_index] = dict()
             molecule[atom_index]["name"] = atom.get_atom_name
@@ -71,7 +69,7 @@ class GaussianMolecule(XYZFile, GaussianAtom):
     # TODO Gaussian molecule probably need some unique properties not present in XYZ file
 
 
-class PDBFile(GaussianFile):
+class PDBFile(XYZFile):
     def __init__(self, file_path):
         super().__init__(file_path)
         #ATOM

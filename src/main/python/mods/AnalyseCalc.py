@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtGui
 from UIs.AnalyseWindow import Ui_AnalyseWindow
+import mods.common_functions as cf
 
 
 class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
@@ -82,6 +83,17 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.ui.calc_files.repaint()
         scrollbar = self.ui.calc_files.horizontalScrollBar()
         scrollbar.setValue(self.ui.calc_files.horizontalScrollBar().maximum())
+
+        self.update_absolute_values()
+
+    def update_absolute_values(self):
+        """
+
+        :return:
+        """
+
+        self.ui.list_absolute_val.insertItem(0, "%s" % cf.unicode_symbols["delta"])
+
 
     def set_file_included(self):
         """

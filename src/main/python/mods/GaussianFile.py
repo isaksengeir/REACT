@@ -1,5 +1,6 @@
 import distutils.util
 from mods.Atoms import GaussianAtom
+from mods.MoleculeFile import GaussianMolecule
 import re
 
 
@@ -73,6 +74,7 @@ class GaussianFile:
         TODO Called after file has been edited in text editor, should update object accordingly to changes in file. 
         """
         pass
+
 
 class InputFile(GaussianFile):
 
@@ -287,6 +289,7 @@ class OutputFile(InputFile):
                     else:
                         atoms.append(GaussianAtom(line))
 
+
                 if "Standard orientation" in line:
                     standard_orientation = True
                     atoms = list()
@@ -325,7 +328,11 @@ class FrequenciesOut(OutputFile):
 
         self.file_path = file_path
 
-        self.freq = dict()
+        # frequency : IR Intensity
+        self.freq_inten = dict()
+
+        # frequency : {atom nr: name, x:float, y: float, z:float}
+        self.freq_displacement = dict()
 
         self.read_frequencies()
 
@@ -335,6 +342,8 @@ class FrequenciesOut(OutputFile):
         :return:
         """
         found_freq = False
+        found_displacement = False
+        g_atoms = list()
         with open(self.file_path, "r") as frq:
             for line in frq:
                 if "Frequencies" in line:
@@ -342,22 +351,48 @@ class FrequenciesOut(OutputFile):
                     freq = float(line.split()[2])
                 if found_freq:
                     if "IR Inten" in line:
-                        self.freq[frq] = float(line.split()[2])
+                        self.freq_inten[frq] = float(line.split()[2])
                         found_freq = False
+
+                if found_displacement:
+                    if len(line.split()) > 5:
+                        g_line = "%s 0 %s" % (" ".join((line.split()[0:2])), " ".join(line.split()[2:5]))
+                        g_atoms.append(GaussianAtom(g_line))
+                    else:
+                        self.freq_displacement[freq] = GaussianMolecule(g_atoms=g_atoms)
+                        found_displacement = False
+                if "Atom  AN      X      Y      Z" in line:
+                    found_displacement = True
+
+        # __init__(atom_nr, x_coordinate, y_coordinate, z_coordinate)
 
     @property
     def get_img_frq(self):
         """
         :return: dictionary only with imaginary frequencies
         """
-        return {k: v for k, v in self.freq if k < 0}
+        return {k: v for k, v in self.freq_inten if k < 0}
 
     @property
     def get_frequencies(self):
         """
         :return:
         """
-        return self.freq
+        return self.freq_inten
+
+    @property
+    def get_freq_displacement(self):
+        """
+        :return:
+        """
+        return self.freq_displacement
+
+    @property
+    def get_img_displacement(self):
+        """
+        :return:
+        """
+        return {k: v for k, v in self.freq_displacement if k < 0}
 
     @property
     def get_thermal_dg(self):
@@ -385,5 +420,14 @@ class FrequenciesOut(OutputFile):
         if self.has_frequencies:
             return self.g_outdata["Zero-point correction"]
 
+    # Animate frequencies
+    # mset 1 -30 will create a 30 frame movie: states 1, 2, ... up through 30
+    # translate vector [,selection [,state [,camera [,object ]]]]
+    # vector = [x, y , z]
+    # --> translate [1,0,0], name ca, state i
+
+    # set movie_fps, 5 (higher = slower)
+    # load mol1.xyz, load mol2.xyx etc...
+    # join_states moviename, mol*, 0 (the 0 assumes identical input objects so bonds can vary)
 
 
