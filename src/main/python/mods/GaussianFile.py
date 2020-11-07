@@ -10,11 +10,11 @@ class GaussianFile:
             self.file_path = file_path
 
         # TODO Put in some defaults here for now:
-        self.job_details = {"basis set" : None,
-                            "DFT functional" : None,
-                            "empiricaldispersion" : None,
+        self.job_details = {"route" : None,
                             "job type": None,
-                            "route" : None
+                            "DFT functional" : None,
+                            "basis set" : None,
+                            "empiricaldispersion" : None
                             }
 
         #self.set_default_settings()
@@ -27,11 +27,11 @@ class GaussianFile:
         #TODO deal with geom=connectivity, or ignore it?
         #TODO %chk, %mem, etc. retrive from output file, or just assign from default settings?
 
-        self.job_details_regEx =  { "basis set" : [re.compile(p, re.IGNORECASE) for p in ['6-31g\(d,p\)']],
-                                    "DFT functional" : [re.compile(p, re.IGNORECASE) for p in [' b3lyp','rb3lyp', 'm062x']],
+        self.job_details_regEx =  { "route" : [re.compile(p, re.IGNORECASE) for p in ['#p', '#n' '#']],
                                     "job type" : [re.compile(p, re.IGNORECASE) for p in ['opt[^\s]*', 'freq[^\s]*']],
-                                    "empiricaldispersion" : [re.compile(p, re.IGNORECASE) for p in [ 'gd3']],
-                                    "route" : [re.compile(p, re.IGNORECASE) for p in ['#p', '#n' '#']]
+                                    "DFT functional" : [re.compile(p, re.IGNORECASE) for p in [' b3lyp','rb3lyp', 'm062x']],
+                                    "basis set" : [re.compile(p, re.IGNORECASE) for p in ['6-31g\(d,p\)']],
+                                    "empiricaldispersion" : [re.compile(p, re.IGNORECASE) for p in [ 'gd3']]
                                   }
 
     def set_default_settings(self):
@@ -45,12 +45,38 @@ class GaussianFile:
         self.job_details["empiricaldispersion"] = "gd3"
 
     @property
+    def get_job_details(self):
+        """
+        :return: job details
+        NB should this propery be moved to parent class? problem: uses the read_gaussian_out fuction. 
+        """
+        return self.job_details
+
+    @property
     def get_routecard(self):
-        routecard = f'{self.job_details["route"]} {self.job_details["job type"]} {self.job_details["DFT functional"]}/{self.job_details["basis set"]}' 
-        
-        #TODO should be replaced by some loop accounting for all optional keywords
-        if self.job_details["empiricaldispersion"]:
-            routecard = routecard + f' empiricaldispersion={self.job_details["empiricaldispersion"]}'
+        '''
+        :return: route card as one string.
+        TODO: some warning if essential details are missing. (#, functional and basisset?)
+        '''
+
+        essential_jobdetails = ["route", "job type", "DFT functional", "basis set"]
+        routecard = ''
+
+        for job_detail in self.job_details.items():
+            if job_detail[0] in essential_jobdetails and job_detail[1]:
+                routecard += ' ' + job_detail[1]
+                essential_jobdetails.remove(job_detail[0])
+
+            elif job_detail[1]:
+                routecard += ' ' + job_detail[0]+'='+job_detail[1]
+
+        try: 
+            essential_jobdetails.remove('job type')
+        except:
+            pass
+
+        if essential_jobdetails:
+            print(f'missing job details: {essential_jobdetails}')
 
         return routecard
 
@@ -74,6 +100,16 @@ class GaussianFile:
         TODO Called after file has been edited in text editor, should update object accordingly to changes in file. 
         """
         pass
+    
+    def _regEx_job_detail_search(self, string, job_detail_key):
+        '''
+        Private function used in read_gaussian_out() and read_gaussian_inp(). 
+        '''
+        if not self.job_details[job_detail_key]:
+            for regEx in self.job_details_regEx[job_detail_key]:
+
+                if regEx.search(string) and re.search('^ %', string) == None:
+                    self.job_details[job_detail_key] = regEx.search(string).group()
 
 
 class InputFile(GaussianFile):
@@ -108,9 +144,56 @@ class InputFile(GaussianFile):
         # solvent: default, Water, DMSO, Methanol, Ethanol ....
         # Eps: None (default for solvent), number (include read at top and eps=number at end of input file)
         job_options = {"Job type": "Energy"}
+        self.read_gaussian_inp()
+
+    def read_gaussian_inp(self):
+        """
+        Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
+        """
+        DFT_inp = self.file_path
+
+        with open(DFT_inp) as f:
+            for line in f:
+                #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
+                for job_detail_key in self.job_details.keys():
+                    self._regEx_job_detail_search(line, job_detail_key)
+
+        print(self.get_routecard)
+        print(self.get_coordinates)
 
 
-class OutputFile(InputFile):
+    @property
+    def get_coordinates(self):
+        """
+        Extract xyz from a gaussian input file and creates GaussianAtom objects
+
+        :return: atoms = [GaussianAtom1, ....]
+
+        TODO: not working yet!!
+        """
+        #reEg pattern to reconize charge-multiplicity line. \d* = any digit, any length, [13] = digit 1 or 3. ex. '-1 1' or '-500 3' 
+        charge_multiplicity_regEx = re.compile('\d* [13]')
+
+        atoms = list()
+
+        with open(self.file_path, 'r') as ginp:
+            get_coordinates = False
+            for line in ginp:
+                print(f'line is: {line}')
+
+                if get_coordinates:
+                    if line.isspace():
+                        break
+                    else:
+                        atoms.append(GaussianAtom(line))
+
+                if charge_multiplicity_regEx.search(line):
+                    get_coordinates = True
+
+        return atoms
+
+
+class OutputFile(GaussianFile):
 
     def __init__(self, file_path):
         super().__init__(file_path)
@@ -186,16 +269,6 @@ class OutputFile(InputFile):
                 #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
                 for job_detail_key in self.job_details.keys():
                     self._regEx_job_detail_search(line, job_detail_key)
-
-    def _regEx_job_detail_search(self, string, job_detail_key):
-        '''
-        Private function used in read_gaussian_out(). 
-        '''
-
-        if not self.job_details[job_detail_key]:
-            for regEx in self.job_details_regEx[job_detail_key]:
-                if regEx.search(string):
-                    self.job_details[job_detail_key] = regEx.search(string).group()
 
     @property
     def is_converged(self):
@@ -295,14 +368,6 @@ class OutputFile(InputFile):
                     atoms = list()
 
         return iter_atoms
-
-    @property
-    def get_job_details(self):
-        """
-        :return: job details
-        NB should this propery be moved to parent class? problem: uses the read_gaussian_out fuction. 
-        """
-        return self.job_details
 
     @property
     def has_solvent(self):

@@ -1,4 +1,4 @@
-from mods.GaussianFile import GaussianFile
+#from mods.GaussianFile import GaussianFile
 from mods.Atoms import GaussianAtom
 
 
