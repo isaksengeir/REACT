@@ -20,6 +20,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.react.tabWidget.tabBar().currentChanged.connect(self.update_state_included_files)
 
         # Initialise dict of included files if it does not exist:
+        self.energies = dict()
         state = self.react.tabWidget.currentIndex() + 1
         if not self.react.included_files or sum(len(x) for x in self.react.included_files[state].values()) < 4:
             self.init_included_files()
@@ -28,6 +29,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.update_state_included_files()
 
         self.ui.calctype.setCurrentRow(0)
+
+
+
 
     def init_included_files(self):
         """
@@ -84,16 +88,80 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         scrollbar = self.ui.calc_files.horizontalScrollBar()
         scrollbar.setValue(self.ui.calc_files.horizontalScrollBar().maximum())
 
+        self.update_energies()
         self.update_absolute_values()
+        self.update_relative_values()
+
+    def update_energies(self):
+        """
+
+        :return:
+        """
+        for state in self.react.included_files.keys():
+            if state not in self.energies.keys():
+                self.energies[state] = {0: False, 1: False, 2: False, 3: False}
+
+            for term in self.react.included_files[state].keys():
+                # Check if state term has file (file length for now)
+                if len(self.react.included_files[state][term]) > 2:
+                    filepath = self.react.included_files[state][term]
+                    state_object = self.react.states[state - 1]
+
+                    # Include 3 corrections from frequency calculation
+                    if term == 1:
+                        self.energies[state][term] = dict()
+                        self.energies[state][term]["dG"] = state_object.get_thermal_dg(filepath)
+                        self.energies[state][term]["dH"] = state_object.get_thermal_dh(filepath)
+                        self.energies[state][term]["dE"] = state_object.get_thermal_de(filepath)
+
+                    else:
+                        self.energies[state][term] = state_object.get_energy(filepath)
+                else:
+                    self.energies[state][term] = False
 
     def update_absolute_values(self):
         """
 
         :return:
         """
+        self.ui.text_state_values.clear()
+        self.ui.list_frequencies.clear()
+        self.update_energies()
+        D = cf.unicode_symbols["Delta"]
+        d = cf.unicode_symbols["delta"]
+        Dd = D+d
+        DD = D+D
 
-        self.ui.list_absolute_val.insertItem(0, "%s" % cf.unicode_symbols["delta"])
+        state = self.react.tabWidget.currentIndex() + 1
+        print(self.energies[state])
 
+        # If frequencies, insert them to list_frequencies:
+        if self.energies[state][1]:
+            insert_index = 0
+            print(self.react.included_files[state][1])
+            frequencies = self.react.states[state - 1].get_frequencies(str(self.react.included_files[state][1]))
+            self.ui.list_frequencies.insertItem(insert_index, " Frequency IR Intensity")
+            for freq in sorted(frequencies.keys()):
+                insert_index += 1
+                self.ui.list_frequencies.insertItem(insert_index, "%10.4f %10.4f" % (freq, frequencies[freq]))
+
+    def update_relative_values(self):
+        """
+
+        :return:
+        """
+        self.ui.text_relative_values.clear()
+
+        # Write header:
+        D = cf.unicode_symbols["Delta"]
+        d = cf.unicode_symbols["delta"]
+        Dd = D + d
+        DD = D + D
+
+        self.ui.text_relative_values.appendPlainText("%5s%14s%14s%14s%14s%14s%14s%14s%14s%14s" %
+                                                     ("State", D + "E(elec)", DD + "E(solv)", D + "E(big)", Dd + "G",
+                                                      Dd + "H",
+                                                      Dd + "E", D + "G", D + "H", D + "E",))
 
     def set_file_included(self):
         """

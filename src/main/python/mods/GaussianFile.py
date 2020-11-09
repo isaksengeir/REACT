@@ -405,6 +405,7 @@ class FrequenciesOut(OutputFile):
         found_freq = False
         found_displacement = False
         g_atoms = list()
+
         with open(self.file_path, "r") as frq:
             for line in frq:
                 if "Frequencies" in line:
@@ -412,7 +413,7 @@ class FrequenciesOut(OutputFile):
                     freq = float(line.split()[2])
                 if found_freq:
                     if "IR Inten" in line:
-                        self.freq_inten[frq] = float(line.split()[2])
+                        self.freq_inten[freq] = float(line.split()[3])
                         found_freq = False
 
                 if found_displacement:
@@ -439,6 +440,7 @@ class FrequenciesOut(OutputFile):
         """
         :return:
         """
+        print(self.freq_inten)
         return self.freq_inten
 
     @property
@@ -482,10 +484,6 @@ class FrequenciesOut(OutputFile):
             return self.g_outdata["Zero-point correction"]
 
     # Animate frequencies
-    # mset 1 -30 will create a 30 frame movie: states 1, 2, ... up through 30
-    # translate vector [,selection [,state [,camera [,object ]]]]
-    # vector = [x, y , z]
-    # --> translate [1,0,0], name ca, state i
 
     # set movie_fps, 5 (higher = slower)
     # load mol1.xyz, load mol2.xyx etc...
