@@ -1,5 +1,5 @@
 import distutils.util
-from mods.Atoms import GaussianAtom
+from mods.Atoms import GaussianAtom, Atom
 from mods.MoleculeFile import GaussianMolecule
 import re
 
@@ -145,6 +145,7 @@ class InputFile(GaussianFile):
         # Eps: None (default for solvent), number (include read at top and eps=number at end of input file)
         job_options = {"Job type": "Energy"}
         self.read_gaussian_inp()
+        self.get_coordinates
 
     def read_gaussian_inp(self):
         """
@@ -158,10 +159,6 @@ class InputFile(GaussianFile):
                 for job_detail_key in self.job_details.keys():
                     self._regEx_job_detail_search(line, job_detail_key)
 
-        print(self.get_routecard)
-        print(self.get_coordinates)
-
-
     @property
     def get_coordinates(self):
         """
@@ -169,27 +166,26 @@ class InputFile(GaussianFile):
 
         :return: atoms = [GaussianAtom1, ....]
 
-        TODO: not working yet!!
         """
-        #reEg pattern to reconize charge-multiplicity line. \d* = any digit, any length, [13] = digit 1 or 3. ex. '-1 1' or '-500 3' 
-        charge_multiplicity_regEx = re.compile('\d* [13]')
+        #reEg pattern to reconize charge-multiplicity line. [0-9] any digit, [13] = digit 1 or 3. ex. '-1 1' or '-500 3' 
+        charge_multiplicity_regEx = re.compile('[0-9] [13]')
 
         atoms = list()
 
         with open(self.file_path, 'r') as ginp:
             get_coordinates = False
             for line in ginp:
-                print(f'line is: {line}')
 
                 if get_coordinates:
                     if line.isspace():
                         break
                     else:
-                        atoms.append(GaussianAtom(line))
+                        atom_info = line.split()
+                        atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3]))
 
                 if charge_multiplicity_regEx.search(line):
                     get_coordinates = True
-
+        
         return atoms
 
 
