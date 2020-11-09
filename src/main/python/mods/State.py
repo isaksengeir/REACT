@@ -35,7 +35,7 @@ class State:
         self.gfiles[filepath] = self.file_types[filetype](filepath)
 
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
-        if self.gfiles[filepath] is OutputFile:
+        if isinstance(self.gfiles[filepath], OutputFile):
             if self.gfiles[filepath].has_frequencies:
                 self.gfiles[filepath] = FrequenciesOut(filepath)
 
@@ -167,6 +167,10 @@ class State:
         """
         if self.gfiles[filepath].has_frequencies:
             return self.gfiles[filepath].get_thermal_zpe
+
+    def get_frequencies(self, filepath):
+        if self.gfiles[filepath].has_frequencies:
+            return self.gfiles[filepath].get_frequencies
 
 
     def create_input_content(self, path):
