@@ -34,6 +34,8 @@ class GaussianFile:
                                     "empiricaldispersion" : [re.compile(p, re.IGNORECASE) for p in [ 'gd3']]
                                   }
 
+        self.charge_multiplicity = None
+
     def set_default_settings(self):
         """
         TODO get settings from global settings (should be stored in a file, and read from there probably)
@@ -51,6 +53,13 @@ class GaussianFile:
         NB should this propery be moved to parent class? problem: uses the read_gaussian_out fuction. 
         """
         return self.job_details
+
+    @property
+    def get_charge_multiplicity(self):
+        """
+        :return: tuple -> (charge, multiplicity)
+        """
+        return self.charge_multiplicity
 
     @property
     def get_routecard(self):
@@ -78,7 +87,8 @@ class GaussianFile:
         if essential_jobdetails:
             print(f'missing job details: {essential_jobdetails}')
 
-        return routecard
+        #first character in string is a whitespace, thus we remove it
+        return routecard[1:]
 
     @property
     def get_basis(self):
@@ -144,17 +154,28 @@ class InputFile(GaussianFile):
         # solvent: default, Water, DMSO, Methanol, Ethanol ....
         # Eps: None (default for solvent), number (include read at top and eps=number at end of input file)
         job_options = {"Job type": "Energy"}
+
+        #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
+        self.charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
+
         self.read_gaussian_inp()
         self.get_coordinates
 
     def read_gaussian_inp(self):
         """
-        Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
+        Reads through Gaussian input file, assigns values to self.job_details and self.charge_multiplicity
         """
         DFT_inp = self.file_path
 
         with open(DFT_inp) as f:
             for line in f:
+
+                if self.charge_multiplicity_regEx.search(line):
+                    temp = self.charge_multiplicity_regEx.search(line).group().split()
+                    self.charge_multiplicity = (temp[0], temp[1])
+                    #after charge/multiplicity line, all job details have been read -> break loop
+                    break
+
                 #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
                 for job_detail_key in self.job_details.keys():
                     self._regEx_job_detail_search(line, job_detail_key)
@@ -167,9 +188,6 @@ class InputFile(GaussianFile):
         :return: atoms = [GaussianAtom1, ....]
 
         """
-        #reEg pattern to reconize charge-multiplicity line. [0-9] any digit, [13] = digit 1 or 3. ex. '-1 1' or '-500 3' 
-        charge_multiplicity_regEx = re.compile('[0-9] [13]')
-
         atoms = list()
 
         with open(self.file_path, 'r') as ginp:
@@ -183,7 +201,7 @@ class InputFile(GaussianFile):
                         atom_info = line.split()
                         atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3]))
 
-                if charge_multiplicity_regEx.search(line):
+                if self.charge_multiplicity_regEx.search(line):
                     get_coordinates = True
         
         return atoms
@@ -237,6 +255,7 @@ class OutputFile(GaussianFile):
                               "RMS Displacement Converged?": (4, bool)}
                         }
 
+        self.charge_multiplicity_regEx = re.compile('Charge = -?\d+ Multiplicity = [13]')
         #This will store data from output file given by self.g_reader
         self.g_outdata = dict()
 
@@ -265,6 +284,11 @@ class OutputFile(GaussianFile):
                 #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
                 for job_detail_key in self.job_details.keys():
                     self._regEx_job_detail_search(line, job_detail_key)
+        
+                if not self.charge_multiplicity:
+                    if self.charge_multiplicity_regEx.search(line):
+                        temp = self.charge_multiplicity_regEx.search(line).group().split()
+                        self.charge_multiplicity = (temp[2],temp[5])
 
     @property
     def is_converged(self):

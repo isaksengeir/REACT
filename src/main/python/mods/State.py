@@ -169,17 +169,22 @@ class State:
             return self.gfiles[filepath].get_thermal_zpe
 
 
-
-
-    def create_GaussianInputFile(self, OutputFile=False):
+    def create_input_content(self, path):
         '''
-        TODO we need to create a new GaussianFile object (beloning to current state) and add it to self.gfiles and table in main window
+        Create inputfile content (not file), based on coordiantes from an outputfile or from *.xyz file, or from XYZfile object?
         '''
-        pass
+        
+        # if coordinates argument is a file associated with this state. NB works for inp/out only, what if file is *.xyz?
+        if self.gfiles[path]:
 
+            routecard = self.gfiles[path].get_routecard
+            charge_multiplicity = self.gfiles[path].get_charge_multiplicity
+            xyz = self.get_final_xyz(path)
 
+            content = routecard + '\n\n' + charge_multiplicity[0] + ' ' + charge_multiplicity[1] +  '\n'
 
+            for line in xyz:
+                content += line + '\n'
 
+            return content
 
-
-    # TODO get basis set, functional, etc ...

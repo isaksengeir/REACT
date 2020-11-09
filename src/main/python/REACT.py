@@ -58,7 +58,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Print welcome
         self.append_text("Welcome to REACT", True)
 
-    def add_files_to_list(self):
+    def add_files_to_list(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
         """
@@ -74,7 +74,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                       "Geometry files (*.pdb *.xyz)"
         title_ = "Import File"
 
-        files_path, type_ = self.import_files(title_, filter_type,path)
+        if paths:
+            files_path = paths
+        else:
+            files_path, type_ = self.import_files(title_, filter_type,path)
 
         #File names without path: TODO?
         #files_names = [x.split("/")[-1] for x in files_path]
@@ -341,6 +344,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         editor.show()
 
         self.states[self.tabWidget.currentIndex()].update_fileobject(filepath)
+
+    def create_input_content(self, filepath):
+        '''
+        :return: string -> content of new input file, based on outputfile given as argument
+        '''
+        return self.states[self.tabWidget.currentIndex()].create_input_content(filepath)
+
+
 
     def open_analyse(self):
         """

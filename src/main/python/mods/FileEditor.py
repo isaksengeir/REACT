@@ -29,8 +29,30 @@ class FileEditor(QtWidgets.QMainWindow):
             self.ui.FileEditorBox.setPlainText(text)
 
         elif self.filename.split(".")[-1] in ["out", "log"]:
-            # TODO read output file and get coordinates, basis set, etc....
-            self.convert_out_to_inp()
+
+            self.file_content = self.react.create_input_content(self.filepath)
+            
+            self.ui.OK_button.setText('Save')
+            self.setWindowTitle(self.filename.split('.')[0] + '_new.com')
+            self.ui.FileEditorBox.setPlainText(self.file_content)
+
+            self.ui.OK_button.clicked.connect(self.save_file_)
+        
+        self.ui.Cancel_button.clicked.connect(self.close)
+
+    def save_file_(self):
+
+        filepath, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save file", self.filepath.split('.')[0] + '_new.com', "Gaussian input files (*.com *.inp)")
+
+        if filepath == '':
+            return
+
+        with open(filepath, 'w') as f:
+            f.write(self.file_content)
+        
+        self.react.add_files_to_list([filepath])
+        self.setWindowTitle(filepath.split('/')[-1])
+
 
     def convert_out_to_inp(self):
         """
@@ -52,4 +74,3 @@ class FileEditor(QtWidgets.QMainWindow):
 
 
 # TODO save changes to file after editing!!! 
-# TODO if file is outputfile, make turn it in to a inputfile?
