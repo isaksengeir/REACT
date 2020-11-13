@@ -179,6 +179,10 @@ class Ui_AnalyseWindow(object):
         self.gridLayout_3.addWidget(self.frame, 0, 0, 1, 1)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setMaximumSize(QtCore.QSize(16777215, 151))
+        self.tabWidget.setStyleSheet("Qtabwidget {\n"
+"margin: 0px, 0px,0px,0px;\n"
+"\n"
+"}")
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -198,6 +202,7 @@ class Ui_AnalyseWindow(object):
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.tab_2)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.gridLayout_5 = QtWidgets.QGridLayout()
+        self.gridLayout_5.setSpacing(0)
         self.gridLayout_5.setObjectName("gridLayout_5")
         self.list_frequencies = QtWidgets.QListWidget(self.tab_2)
         font = QtGui.QFont()
@@ -207,6 +212,7 @@ class Ui_AnalyseWindow(object):
         self.list_frequencies.setObjectName("list_frequencies")
         self.gridLayout_5.addWidget(self.list_frequencies, 0, 0, 1, 1)
         self.gridLayout_4 = QtWidgets.QGridLayout()
+        self.gridLayout_4.setVerticalSpacing(0)
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.button_plot_frq = QtWidgets.QPushButton(self.tab_2)
         self.button_plot_frq.setObjectName("button_plot_frq")

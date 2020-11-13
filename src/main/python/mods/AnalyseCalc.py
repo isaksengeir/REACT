@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtGui
 from UIs.AnalyseWindow import Ui_AnalyseWindow
 import mods.common_functions as cf
+from mods.ReactPlot import SpectrumIR
 
 
 class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
@@ -15,6 +16,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         
         self.ui.button_set_file.clicked.connect(self.set_file_included)
         self.ui.button_remove_file.clicked.connect(self.remove_file_included)
+
+        self.ui.button_plot_frq.clicked.connect(self.plot_frequency)
 
         # Track State viewed in MainWindow:
         self.react.tabWidget.tabBar().currentChanged.connect(self.update_state_included_files)
@@ -144,6 +147,20 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
             for freq in sorted(frequencies.keys()):
                 insert_index += 1
                 self.ui.list_frequencies.insertItem(insert_index, "%10.4f %10.4f" % (freq, frequencies[freq]))
+
+    def plot_frequency(self):
+        """
+        :return:
+        """
+        state = self.react.tabWidget.currentIndex() + 1
+        if self.energies[state][1]:
+            frequencies = self.react.states[state - 1].get_frequencies(str(self.react.included_files[state][1]))
+            freq = list()
+            inten = list()
+            for x in sorted(frequencies.keys()):
+                freq.append(x)
+                inten.append(frequencies[x])
+            SpectrumIR(freq, inten)
 
     def update_relative_values(self):
         """

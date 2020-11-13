@@ -350,6 +350,12 @@ border: 1px solid rgb(20,20,20);
           <height>151</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">Qtabwidget {
+margin: 0px, 0px,0px,0px;
+
+}</string>
+        </property>
         <property name="currentIndex">
          <number>1</number>
         </property>
@@ -385,6 +391,9 @@ border: 1px solid rgb(20,20,20);
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <layout class="QGridLayout" name="gridLayout_5">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item row="0" column="0">
              <widget class="QListWidget" name="list_frequencies">
               <property name="font">
@@ -399,6 +408,12 @@ border: 1px solid rgb(20,20,20);
             </item>
             <item row="0" column="1">
              <layout class="QGridLayout" name="gridLayout_4">
+              <property name="horizontalSpacing">
+               <number>-1</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>0</number>
+              </property>
               <item row="0" column="0">
                <widget class="QPushButton" name="button_plot_frq">
                 <property name="text">

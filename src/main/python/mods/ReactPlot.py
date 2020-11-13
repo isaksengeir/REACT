@@ -79,6 +79,150 @@ class PlotStuff:
                                                        '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
 
 
+class SinglePlot(PlotStuff):
+    def __init__(self, x_data, y_data, x_title=None, y_title=None, plot_title=None):
+        super().__init__()
+
+        self.x_data = x_data
+        self.x_title = x_title
+
+        self.y_data = y_data
+        self.y_title = y_title
+
+        self.plot_title = plot_title
+
+        self.make_plot()
+
+    def make_plot(self):
+        """
+
+        :return:
+        """
+        fig = plt.figure()
+        plot = fig.add_subplot(1, 1, 1)
+        if self.plot_title:
+            plot.set_title(self.plot_title)
+        if self.y_title:
+            plot.set_ylabel(self.y_title)
+        if self.x_title:
+            plot.set_xlabel(self.x_title)
+
+        plot.plot(self.x_data, self.y_data)
+        plt.show()
+
+
+class SpectrumIR(SinglePlot):
+    """
+    The IR intensity I(IR) predicted by Gaussian is based on the napierian absorbance, Ae = ln(I0/I), and is printed in
+    units of (km mol–1) = (1000 m mol–1). To obtain the band area A based on the linear absorbance A = log10(I0/I) and
+    in units of (1000 cm mol–1) the intensity I(IR) must be divided by ln10 and multiplied by 100:
+    A = 100/ln10 ∙ I(IR) = 43.42945 ∙ I(IR).
+    """
+    def __init__(self, x_data, y_data, x_title=None, y_title=None, plot_title=None):
+
+        #self.x_data = x_data
+        #self.y_data = y_data
+
+        self.wavenrs, self.eps_nrs = self.make_multi_lorentzian(x_data, y_data)
+
+        # Normalise intensities
+        self.eps_nrs = [x / max(self.eps_nrs) for x in self.eps_nrs]
+
+        super().__init__(self.wavenrs, self.eps_nrs, x_title="Frequency", y_title="Intensity")
+
+    def lorentzian(self, ir, v, v0, w=20.):
+        """
+        eps(v) = (2A / pi) * (w / (4(v - v0)**2))
+            eps = molar absorption coefficient (L mol-1 cm-1) = (1000 cm2 mol-1)
+            A = area (L mol-1 cm-1 x cm-1) = (1000 cm mol-1)
+            v = wavenumber (cm-1)
+            v0 = Wavenumber at band center (cm-1)
+
+        The IR intensity I(IR) predicted by Gaussian is based on the napierian absorbance, Ae = ln(I0/I), and is printed
+        in units of (km mol–1) = (1000 m mol–1). To obtain the band area A based on the linear absorbance
+        A = log10(I0/I) and in units of (1000 cm mol–1) the intensity I(IR) must be divided by ln10 and
+        multiplied by 100: A = 100/ln10 ∙ I(IR) = 43.42945 ∙ I(IR).
+            --> (2A / pi) = 2 * 43.42945 * I(IR) / pi = 27.64804 * I(IR)
+
+        :param ir: IR intensity at band center
+        :param v: wavenumber (cm-1)
+        :param v0: Wavenumber at band center (cm-1)
+        :param w: full width at half height (cm-1)
+
+        :return: IR intensity at wavenumber, w (cm-1)
+        """
+
+        return 27.64804 * ir * (w / (4. * (v - v0) ** 2 + w ** 2))
+
+    def make_lorentzian_lineshape(self, v0, intensity, v_start, v_end, w=20):
+        """
+
+        Generates Lorentzian line-shape around wavenumber v0 with max intensity, intensity, starting from wavenumber
+        v_start up until wavenumber v_end.
+
+        :param v0: Wavenumber at band center (cm-1)
+        :param intensity: IR intensity at band center
+        :param v_start:
+        :param v_end:
+        :param w: full width at half height (cm-1)
+
+        :return: wavenumbers (list) and corresponding intensites (list)
+        """
+        wavenumbers = list()
+        intensities = list()
+
+        for v in range(v_start, v_end):
+            wavenumbers.append(v)
+            intensities.append(self.lorentzian(intensity, v, v0, w))
+
+        return wavenumbers, intensities
+
+    def make_multi_lorentzian(self, wavenumbers, intensities, w=20):
+        """
+
+        Combines several Lorentzian curves by adding overlaps to a IR spectrum-like continuous line-shape.
+
+        :param wavenumbers: Wavenumbers/frequencies from Gaussian frequency calculations
+        :param intensities: Intensities from Gaussian frequency calculations
+        :param w: full width at half height (cm-1)
+
+        :return: wavenumbers and amplitudes/intensities fitted to Lorentzian
+        """
+        wavenr_freq = dict()
+
+        for i in range(len(wavenumbers)):
+            if i == 0:
+                start = 0
+                end = 4000
+                #end = int(wavenumbers[i + 1] + 500)
+            elif i == len(wavenumbers) - 1:
+                #start = int(wavenumbers[i - 1])
+                start = 0
+                end = 4000
+                #end = int(wavenumbers[i] + 500)
+            else:
+                #start = int(wavenumbers[i - 1])
+                start = 0
+                #end = int(wavenumbers[i + 1] + 500)
+                end = 4000
+
+            intensity = intensities[i]
+            v0 = wavenumbers[i]
+
+            w_nrs, f = self.make_lorentzian_lineshape(v0, intensity, start, end, w)
+
+            # add Lorentzian wavenumber and intensities to additive multi-Lorentzian:
+            for j in range(len(w_nrs)):
+                if w_nrs[j] not in wavenr_freq.keys():
+                    wavenr_freq[w_nrs[j]] = f[j]
+                else:
+                    wavenr_freq[w_nrs[j]] += f[j]
+
+        w_nrs, amplitudes = zip(*sorted(wavenr_freq.items()))
+
+        return w_nrs, amplitudes
+
+
 class PlotEnergyDiagram(PlotStuff):
     def __init__(self, ene_array):
         super().__init__()

@@ -360,6 +360,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         if self.analyse_window:
             self.append_text("\nAnalyse Calculation is already running. \nPerhaps the window is hidden?")
+            self.analyse_window.raise_()
             return
 
         if not self.tabWidget.currentWidget().currentItem():
@@ -367,7 +368,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
         self.analyse_window = AnalyseCalc(self)
         self.analyse_window.show()
-
 
     def import_project(self):
         """
