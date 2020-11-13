@@ -464,7 +464,6 @@ class FrequenciesOut(OutputFile):
         """
         :return:
         """
-        print(self.freq_inten)
         return self.freq_inten
 
     @property

@@ -27,8 +27,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         state = self.react.tabWidget.currentIndex() + 1
         if not self.react.included_files or sum(len(x) for x in self.react.included_files[state].values()) < 4:
             self.init_included_files()
-        print(sum(len(x) for x in self.react.included_files.values()))
-        print(self.react.included_files[state].values())
         self.update_state_included_files()
 
         self.ui.calctype.setCurrentRow(0)
@@ -136,12 +134,10 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         DD = D+D
 
         state = self.react.tabWidget.currentIndex() + 1
-        print(self.energies[state])
 
         # If frequencies, insert them to list_frequencies:
         if self.energies[state][1]:
             insert_index = 0
-            print(self.react.included_files[state][1])
             frequencies = self.react.states[state - 1].get_frequencies(str(self.react.included_files[state][1]))
             self.ui.list_frequencies.insertItem(insert_index, " Frequency IR Intensity")
             for freq in sorted(frequencies.keys()):
