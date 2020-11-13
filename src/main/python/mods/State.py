@@ -49,6 +49,7 @@ class State:
                 self.gfiles.pop(f) 
             except KeyError:
                 print(f"File \"{f}\" not found. Please check if the file has been moved or deleted.")
+
     @property
     def get_all_gpaths(self):
         """

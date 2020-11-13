@@ -434,10 +434,13 @@ class FrequenciesOut(OutputFile):
             for line in frq:
                 if "Frequencies" in line:
                     found_freq = True
-                    freq = float(line.split()[2])
+                    freq = line.split()[2:5]
                 if found_freq:
                     if "IR Inten" in line:
-                        self.freq_inten[freq] = float(line.split()[3])
+                        int = line.split()[3:6]
+
+                        for i in range(len(freq)):
+                            self.freq_inten[float(freq[i])] = float(int[i])
                         found_freq = False
 
                 if found_displacement:
@@ -445,7 +448,8 @@ class FrequenciesOut(OutputFile):
                         g_line = "%s 0 %s" % (" ".join((line.split()[0:2])), " ".join(line.split()[2:5]))
                         g_atoms.append(GaussianAtom(g_line))
                     else:
-                        self.freq_displacement[freq] = GaussianMolecule(g_atoms=g_atoms)
+                        # TODO need to include all 3 sets here, not just the first:
+                        self.freq_displacement[freq[0]] = GaussianMolecule(g_atoms=g_atoms)
                         found_displacement = False
                 if "Atom  AN      X      Y      Z" in line:
                     found_displacement = True
