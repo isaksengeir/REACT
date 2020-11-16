@@ -140,11 +140,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         list_items = current_list.selectedItems()
 
         #delete files from state
-        self.states[self.tabWidget.currentIndex()].del_gfiles([x.text() for x in list_items])
+        tab_index = self.tabWidget.currentIndex()
+        self.states[tab_index].del_gfiles([x.text() for x in list_items])
 
         #Remove selected items from list:
         for item in list_items:
             current_list.takeItem(current_list.row(item))
+
+            # Remove from included_files if existing:
+            if self.included_files:
+                for type_ in self.included_files[tab_index+1].keys():
+                    if item.text() == self.included_files[tab_index + 1][type_]:
+                        self.included_files[tab_index+1][type_] = ""
+                        #Update analyse window, if active:
+                        if self.analyse_window:
+                            self.analyse_window.update_state_included_files()
 
     def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
         """

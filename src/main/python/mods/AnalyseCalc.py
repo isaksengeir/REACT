@@ -31,9 +31,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         self.ui.calctype.setCurrentRow(0)
 
-
-
-
     def init_included_files(self):
         """
         initialise dictionary with included files per state
@@ -144,20 +141,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                 insert_index += 1
                 self.ui.list_frequencies.insertItem(insert_index, "%10.4f %10.4f" % (freq, frequencies[freq]))
 
-    def plot_frequency(self):
-        """
-        :return:
-        """
-        state = self.react.tabWidget.currentIndex() + 1
-        if self.energies[state][1]:
-            frequencies = self.react.states[state - 1].get_frequencies(str(self.react.included_files[state][1]))
-            freq = list()
-            inten = list()
-            for x in sorted(frequencies.keys()):
-                freq.append(x)
-                inten.append(frequencies[x])
-            SpectrumIR(freq, inten)
-
     def update_relative_values(self):
         """
 
@@ -175,6 +158,20 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                                                      ("State", D + "E(elec)", DD + "E(solv)", D + "E(big)", Dd + "G",
                                                       Dd + "H",
                                                       Dd + "E", D + "G", D + "H", D + "E",))
+
+    def plot_frequency(self):
+        """
+        :return:
+        """
+        state = self.react.tabWidget.currentIndex() + 1
+        if self.energies[state][1]:
+            frequencies = self.react.states[state - 1].get_frequencies(str(self.react.included_files[state][1]))
+            freq = list()
+            inten = list()
+            for x in sorted(frequencies.keys()):
+                freq.append(x)
+                inten.append(frequencies[x])
+            SpectrumIR(freq, inten)
 
     def set_file_included(self):
         """

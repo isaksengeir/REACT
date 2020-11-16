@@ -7,8 +7,6 @@ class PlotStuff:
     def __init__(self):
         super().__init__()
 
-
-
         #Init matplotlib.pyplot settings
         self.set_plot_settings()
 
@@ -189,22 +187,10 @@ class SpectrumIR(SinglePlot):
         :return: wavenumbers and amplitudes/intensities fitted to Lorentzian
         """
         wavenr_freq = dict()
+        start = 0
+        end = int(max(wavenumbers)) + 500
 
         for i in range(len(wavenumbers)):
-            if i == 0:
-                start = 0
-                end = 4000
-                #end = int(wavenumbers[i + 1] + 500)
-            elif i == len(wavenumbers) - 1:
-                #start = int(wavenumbers[i - 1])
-                start = 0
-                end = 4000
-                #end = int(wavenumbers[i] + 500)
-            else:
-                #start = int(wavenumbers[i - 1])
-                start = 0
-                #end = int(wavenumbers[i + 1] + 500)
-                end = 4000
 
             intensity = intensities[i]
             v0 = wavenumbers[i]
