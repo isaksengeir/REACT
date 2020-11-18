@@ -14,6 +14,7 @@ class GaussianFile:
                             "job type": None,
                             "DFT functional" : None,
                             "basis set" : None,
+                            "scrf" : None,
                             "empiricaldispersion" : None
                             }
 
@@ -31,8 +32,10 @@ class GaussianFile:
                                     "job type" : [re.compile(p, re.IGNORECASE) for p in ['opt[^\s]*', 'freq[^\s]*']],
                                     "DFT functional" : [re.compile(p, re.IGNORECASE) for p in [' b3lyp','rb3lyp', 'm062x']],
                                     "basis set" : [re.compile(p, re.IGNORECASE) for p in ['6-31g\(d,p\)']],
+                                    "scrf" : [re.compile(p, re.IGNORECASE) for p in ['scrf[^\s]*'] ],
                                     "empiricaldispersion" : [re.compile(p, re.IGNORECASE) for p in [ 'gd3']]
                                   }
+        self.modredudant_text = ''
 
         self.charge_multiplicity = None
 
@@ -54,7 +57,7 @@ class GaussianFile:
         """
         return self.job_details
 
-    @property
+    @property 
     def get_charge_multiplicity(self):
         """
         :return: tuple -> (charge, multiplicity)
@@ -267,6 +270,9 @@ class OutputFile(GaussianFile):
         Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
         """
         DFT_out = self.file_path
+
+        found_all_jobdetails = False 
+
         with open(DFT_out) as f:
             for line in f:
                 #Check if line contains any self.g_reader keys:
@@ -281,14 +287,28 @@ class OutputFile(GaussianFile):
 
                         self.g_outdata[out_name] = line_value
 
-                #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
-                for job_detail_key in self.job_details.keys():
-                    self._regEx_job_detail_search(line, job_detail_key)
-        
-                if not self.charge_multiplicity:
-                    if self.charge_multiplicity_regEx.search(line):
-                        temp = self.charge_multiplicity_regEx.search(line).group().split()
-                        self.charge_multiplicity = (temp[2],temp[5])
+                
+                if not found_all_jobdetails:  
+
+                    if ' Cycle   1' in line:
+                        found_all_jobdetails = True
+
+                    #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
+                    for job_detail_key in self.job_details.keys():
+                        self._regEx_job_detail_search(line, job_detail_key)
+
+                    if 'The following ModRedundant input section has been read:' in line:
+                        while True: 
+                            temp = next(f)
+                            if temp.isspace(): 
+                                break 
+                            else:  
+                                self.modredudant_text += temp 
+
+                    if not self.charge_multiplicity:
+                        if self.charge_multiplicity_regEx.search(line):
+                            temp = self.charge_multiplicity_regEx.search(line).group().split()
+                            self.charge_multiplicity = (temp[2],temp[5])
 
     @property
     def is_converged(self):
