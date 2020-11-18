@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>704</width>
-    <height>349</height>
+    <width>743</width>
+    <height>403</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,6 +21,57 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="0" column="0">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="5">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="unit_hartree">
+        <property name="text">
+         <string>Hartree</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QRadioButton" name="unit_kcal">
+        <property name="text">
+         <string>kcal/mol</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QRadioButton" name="unit_kj">
+        <property name="text">
+         <string>kJ/mol</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="spacing">
@@ -357,7 +408,7 @@ margin: 0px, 0px,0px,0px;
 }</string>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -374,7 +425,7 @@ margin: 0px, 0px,0px,0px;
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
+              <family>Courier</family>
              </font>
             </property>
             <property name="readOnly">
@@ -456,13 +507,16 @@ margin: 0px, 0px,0px,0px;
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QPlainTextEdit" name="text_relative_values">
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>Courier</family>
             </font>
+           </property>
+           <property name="lineWrapMode">
+            <enum>QPlainTextEdit::NoWrap</enum>
            </property>
            <property name="readOnly">
             <bool>true</bool>

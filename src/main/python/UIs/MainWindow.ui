@@ -49,6 +49,45 @@ color:rgb(98, 114, 164);
 border: 0px;
 }
 
+QRadioButton{
+color: rgb(98, 114, 164);
+
+}
+
+QRadioButton::indicator::unchecked {
+    background-color: rgb(30,30,30);
+}
+
+
+QRadioButton::indicator:unchecked:hover {
+   background-color: rgb(143,23,119);
+}
+
+QRadioButton::indicator::checked {
+    background-color:  rgb(98, 114, 164);
+}
+
+QRadioButton::indicator:checked:hover {
+    background-color: rgb(143,23,119);
+}
+
+/*
+
+QRadioButton::indicator:unchecked:pressed {
+    image: url(:/images/radiobutton_unchecked_pressed.png);
+}
+
+
+
+
+
+QRadioButton::indicator:checked:pressed {
+    image: url(:/images/radiobutton_checked_pressed.png);
+}
+
+*/
+
+
 /* IMPORTANT: 8&lt; Add the code above here 8&lt; */
 QTabBar::tab:selected {
 /* expand/overlap to the left and right by 4px */

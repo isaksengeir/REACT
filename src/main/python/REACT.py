@@ -152,7 +152,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 for type_ in self.included_files[tab_index+1].keys():
                     if item.text() == self.included_files[tab_index + 1][type_]:
                         self.included_files[tab_index+1][type_] = ""
-                        #Update analyse window, if active:
+                        # Update analyse window, if active:
                         if self.analyse_window:
                             self.analyse_window.update_state_included_files()
 
@@ -162,7 +162,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
-        #TODO this can be removed at some point - it is not readable on mac either. This is because of the DontUseNativeDialog (which will be removed)
+        # TODO this can be removed at some point - it is not readable on mac either. This is because of the
+        #  DontUseNativeDialog (which will be removed)
         if 'linux' in sys.platform:
             files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
         else:
