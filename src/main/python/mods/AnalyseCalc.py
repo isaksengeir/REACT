@@ -195,13 +195,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         Dd = D + d
         DD = D + D
 
-        header = "State %1sE(elec)" % D
-
-        # Include solvation correction?
-        solvation = False
-        if self.has_solvation.count(True) > 1 and self.energies[1][2]:
-            header += "%2sE(solv)" % Dd
-            solvation = True
+        header = "State"
 
         # Include big basis correction?
         big = False
@@ -209,10 +203,20 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
             header += "  %1sE(big)" % D
             big = True
 
+        header += " %1sE(main)" % D
+
+        # Include solvation correction?
+        solvation = False
+        if self.has_solvation.count(True) > 1 and self.energies[1][2]:
+            header += " %2sE(solv)" % Dd
+            solvation = True
+
+
+
         # Include frequencies?
         freq = False
         if self.has_frequencies.count(True) > 1 and self.energies[1][1]:
-            header += "%9s%9s%9s%9s%9s%9s" % (Dd + "G", Dd + "H", Dd + "E", D + "G", D + "H", D + "E")
+            header += "%8s %8s %8s %8s %8s %8s" % (Dd + "G", Dd + "H", Dd + "E", D + "G", D + "H", D + "E")
             freq = True
 
         self.ui.text_relative_values.appendPlainText(header)
@@ -220,6 +224,13 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         # Update relative energies:
         for state in self.energies.keys():
             energies = "%5d" % state
+            dbig = 0
+
+            if big:
+                if self.energies[state][3]:
+                    dbig = (self.energies[state][3] - self.energies[1][3]) * self.unit
+                energies += "%9.2f" % dbig
+
             d_el = 0
             if self.energies[state][0]:
                 d_el = (self.energies[state][0] - self.energies[1][0]) * self.unit
@@ -230,13 +241,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                 if self.energies[state][2] and self.energies[state][0]:
                     dd_solv = ((self.energies[state][2]-self.energies[state][0]) -
                                (self.energies[1][2]-self.energies[1][0])) * self.unit
-                energies += "%9.2f" % dd_solv
+                energies += "%10.2f" % dd_solv
 
-            dbig = 0
-            if big:
-                if self.energies[state][3]:
-                    dbig = (self.energies[state][3] - self.energies[1][3]) * self.unit
-                energies += "%9.2f" % dbig
+
 
             if freq:
                 ddg = 0
@@ -258,7 +265,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                     de = d_el + dd_solv + dde
                     dh = d_el + dd_solv + ddh
 
-                energies += "%9.2f %9.2f %9.2f %9.2f %9.2f %9.2f" % (ddg, ddh, dde, dg, dh, de)
+                energies += "%8.2f %8.2f %8.2f %8.2f %8.2f %8.2f" % (ddg, ddh, dde, dg, dh, de)
 
             self.ui.text_relative_values.appendPlainText(energies)
 
