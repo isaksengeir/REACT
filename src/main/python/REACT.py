@@ -9,6 +9,7 @@ from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from mods.FileEditor import FileEditor
 from mods.AnalyseCalc import AnalyseCalc
+from mods.GlobalSettings import GlobalSettings
 from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
 from mods.MoleculeFile import XYZFile
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
@@ -46,6 +47,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
         self.button_edit_file.clicked.connect(self.edit_file)
         self.button_analyse_calc.clicked.connect(self.open_analyse)
+        self.button_settings.clicked.connect(self.open_settings)
 
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.plot_scf)
@@ -362,7 +364,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         '''
         return self.states[self.tabWidget.currentIndex()].create_input_content(filepath)
 
-
+    def open_settings(self):
+        Settings = GlobalSettings(self)
+        Settings.show()
 
     def open_analyse(self):
         """
