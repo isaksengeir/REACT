@@ -22,6 +22,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         self.ui.button_plot_frq.clicked.connect(self.plot_frequency)
 
+        self.ui.button_plot_energies.clicked.connect(self.plot_energies)
+
         # Track State viewed in MainWindow:
         self.react.tabWidget.tabBar().currentChanged.connect(self.update_state_included_files)
 
@@ -105,10 +107,11 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.update_energies()
         self.update_absolute_values()
         self.update_relative_values()
+        self.update_checkboxes()
 
     def update_energies(self):
         """
-
+        Add energies to states. If they do not exist, they are False.
         :return:
         """
         for state in self.react.included_files.keys():
@@ -132,6 +135,54 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                         self.energies[state][term] = state_object.get_energy(filepath)
                 else:
                     self.energies[state][term] = False
+
+    def get_relative_energies(self):
+        """
+
+        :return:
+        """
+        de = dict()
+
+        for state in sorted(self.energies.keys()):
+            de[state] = dict()
+            for term in self.energies[state].keys():
+                # main or big basis:
+                if self.energies[state][term] and self.energies[1][term]:
+                    if term == 0:
+                        de[state]["main"] = self.energies[state][term] - self.energies[1][term]
+                    # Frequencies = compute gibbs, enthalpy, energy in addition ...
+                    elif term == 1:
+                        # Relative thermal corrections to Gibbs, Enthalpy and Energy:
+                        de[state]["ddG"] = self.energies[state][term]["dG"] - self.energies[1][term]["dG"]
+                        de[state]["ddH"] = self.energies[state][term]["dH"] - self.energies[1][term]["dH"]
+                        de[state]["ddE"] = self.energies[state][term]["dE"] - self.energies[1][term]["dE"]
+
+                        # Gibbs, Enthalpy and Energy with thermal corrections:
+                        de[state]["dG"] = de[state]["main"] + de[state]["ddG"]
+                        de[state]["dH"] = de[state]["main"] + de[state]["ddH"]
+                        de[state]["dE"] = de[state]["main"] + de[state]["ddE"]
+
+                    # Solvation correction:
+                    elif term == 2:
+                        solv_1 = self.energies[1][2] - self.energies[1][0]
+                        solv_state = self.energies[state][2] - self.energies[state][0]
+                        de[state]["ddSolv"] = solv_state - solv_1
+
+                        # Update Gibbs, Enthalpy and Energy with solvation correction:
+                        if "dG" in de[state].keys():
+                            for delta in ["dG", "dH", "dE"]:
+                                de[state][delta] += de[state]["ddSolv"]
+
+                    # Big basis correction:
+                    elif term == 3:
+                        de[state]["big"] = self.energies[state][term] - self.energies[1][term]
+
+                        # Update Gibbs, Enthalpy and Energy with using big basis:
+                        if "dG" in de[state].keys():
+                            for delta in ["dG", "dH", "dE"]:
+                                de[state][delta] += (de[state]["big"] - de[state]["main"])
+
+        return de
 
     def update_absolute_values(self):
         """
@@ -189,6 +240,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
             self.ui.text_relative_values.appendPlainText("Relative energies to state 1...\nAdd files to calculate.")
             return
 
+        rel_ene = self.get_relative_energies()
+
         # Generate the relevant header:
         D = cf.unicode_symbols["Delta"]
         d = cf.unicode_symbols["delta"]
@@ -197,54 +250,53 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         header = "State"
 
-        # Include big basis correction?
         big = False
-        if self.has_big_basis.count(True) > 1 and self.energies[1][3]:
-            header += "  %1sE(big)" % D
+        # Include big basis correction?
+        if "big" in rel_ene[1].keys():
             big = True
+            header += "  %1sE(big)" % D
 
         header += " %1sE(main)" % D
 
         # Include solvation correction?
         solvation = False
-        if self.has_solvation.count(True) > 1 and self.energies[1][2]:
-            header += " %2sE(solv)" % Dd
+        if "ddSolv" in rel_ene[1].keys():
             solvation = True
-
-
+            header += " %2sE(solv)" % Dd
 
         # Include frequencies?
         freq = False
-        if self.has_frequencies.count(True) > 1 and self.energies[1][1]:
-            header += "%8s %8s %8s %8s %8s %8s" % (Dd + "G", Dd + "H", Dd + "E", D + "G", D + "H", D + "E")
+        if "dG" in rel_ene[1].keys():
             freq = True
+            header += "%8s %8s %8s %8s %8s %8s" % (Dd + "G", Dd + "H", Dd + "E", D + "G", D + "H", D + "E")
 
         self.ui.text_relative_values.appendPlainText(header)
 
-        # Update relative energies:
-        for state in self.energies.keys():
+        # insert relative energies to UI with correct unit:
+        for state in rel_ene.keys():
             energies = "%5d" % state
-            dbig = 0
 
+            # If big basis - put this first, so that everything connected to main comes after main.
+            dbig = 0
             if big:
-                if self.energies[state][3]:
-                    dbig = (self.energies[state][3] - self.energies[1][3]) * self.unit
+                if "big" in rel_ene[state].keys():
+                    dbig = rel_ene[state]["big"] * self.unit
                 energies += "%9.2f" % dbig
 
+            # Electronic energies of main file:
             d_el = 0
-            if self.energies[state][0]:
-                d_el = (self.energies[state][0] - self.energies[1][0]) * self.unit
+            if "main" in rel_ene[state].keys():
+                d_el = rel_ene[state]["main"] * self.unit
             energies += "%9.2f" % d_el
 
+            # Change in solvation energy:
             dd_solv = 0
             if solvation:
-                if self.energies[state][2] and self.energies[state][0]:
-                    dd_solv = ((self.energies[state][2]-self.energies[state][0]) -
-                               (self.energies[1][2]-self.energies[1][0])) * self.unit
+                if "ddSolv" in rel_ene[state].keys():
+                    dd_solv = rel_ene[state]["ddSolv"] * self.unit
                 energies += "%10.2f" % dd_solv
 
-
-
+            # Insert corrections from frequency calculations and calculate ∆G, ∆H and ∆E:
             if freq:
                 ddg = 0
                 dde = 0
@@ -252,22 +304,79 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                 de = 0
                 dh = 0
                 dg = 0
-                if self.energies[state][1]:
-                    ddg = (self.energies[state][1]["dG"] - self.energies[1][1]["dG"]) * self.unit
-                    dde = (self.energies[state][1]["dE"] - self.energies[1][1]["dE"]) * self.unit
-                    ddh = (self.energies[state][1]["dH"] - self.energies[1][1]["dH"]) * self.unit
+                if "dG" in rel_ene[state].keys():
+                    ddg = rel_ene[state]["ddG"] * self.unit
+                    dde = rel_ene[state]["ddE"] * self.unit
+                    ddh = rel_ene[state]["ddH"] * self.unit
 
-                    # Use electronic energies from big basis, if they exist:
-                    if big and abs(dbig) != 0:
-                        d_el = dbig
-
-                    dg = d_el + dd_solv + ddg
-                    de = d_el + dd_solv + dde
-                    dh = d_el + dd_solv + ddh
+                    dg = rel_ene[state]["dG"] * self.unit
+                    de = rel_ene[state]["dE"] * self.unit
+                    dh = rel_ene[state]["dH"] * self.unit
 
                 energies += "%8.2f %8.2f %8.2f %8.2f %8.2f %8.2f" % (ddg, ddh, dde, dg, dh, de)
 
             self.ui.text_relative_values.appendPlainText(energies)
+
+    def update_checkboxes(self):
+        """
+        :return:
+        """
+        boxes = {0: [self.ui.checkBox_main],
+                 1: [self.ui.checkBox_gibbs, self.ui.checkBox_energy, self.ui.checkBox_enthalpy],
+                 2: [self.ui.checkBox_solvation],
+                 3: [self.ui.checkBox_big]}
+
+        checked = 0
+
+        for term in sorted(boxes.keys()):
+            if self.has_energy_terms(term).count(True) > 1 and self.energies[1][term]:
+                for box in boxes[term]:
+                    if box.isChecked():
+                        checked += 1
+                    if not box.isCheckable():
+                        box.setCheckable(True)
+            else:
+                for box in boxes[term]:
+                    if box.isCheckable():
+                        box.setChecked(False)
+                        box.setCheckable(False)
+        # If no boxes are checked - check the main box, if possible:
+        if self.ui.checkBox_main.isCheckable():
+            self.ui.checkBox_main.setChecked(True)
+
+    def plot_energies(self):
+        """
+        :return:
+        """
+        # TODO
+        pass
+
+    def has_energy_terms(self, term=0):
+        """
+        Check if all states have energy terms...
+        0: main
+        1: frequencies
+        2: Solvent
+        3: big basis
+        :return: True/False list(states)
+        """
+        has_it = list()
+
+        for state in sorted(self.energies.keys()):
+            if not self.energies[state][term]:
+                has_it.append(False)
+            else:
+                has_it.append(True)
+
+        return has_it
+
+    @property
+    def has_main(self):
+        """
+        Check if all states have frequencies...
+        :return: True/False
+        """
+        return self.has_energy_terms(0)
 
     @property
     def has_frequencies(self):
@@ -275,16 +384,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         Check if all states have frequencies...
         :return: True/False
         """
-        freq = list()
-
-
-        for state in sorted(self.energies.keys()):
-            if not self.energies[state][1]:
-                freq.append(False)
-            else:
-                freq.append(True)
-
-        return freq
+        return self.has_energy_terms(1)
 
     @property
     def has_solvation(self):
@@ -292,15 +392,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         Check if all states have solvation ....
         :return: True/False
         """
-        solv = list()
-
-        for state in self.energies.keys():
-            if not self.energies[state][2]:
-                solv.append(False)
-            else:
-                solv.append(True)
-
-        return solv
+        return self.has_energy_terms(2)
 
     @property
     def has_big_basis(self):
@@ -308,15 +400,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                 Check if all states have big basis correction ....
                 :return: True/False
                 """
-        big = list()
-
-        for state in self.energies.keys():
-            if not self.energies[state][3]:
-                big.append(False)
-            else:
-                big.append(True)
-
-        return big
+        return self.has_energy_terms(3)
 
     def plot_frequency(self):
         """
