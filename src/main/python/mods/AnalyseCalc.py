@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtGui
 from UIs.AnalyseWindow import Ui_AnalyseWindow
 import mods.common_functions as cf
-from mods.ReactPlot import SpectrumIR
+from mods.ReactPlot import SpectrumIR, PlotEnergyDiagram
 
 
 class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
@@ -167,6 +167,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                         solv_1 = self.energies[1][2] - self.energies[1][0]
                         solv_state = self.energies[state][2] - self.energies[state][0]
                         de[state]["ddSolv"] = solv_state - solv_1
+                        de[state]["dSolv"] = solv_state
 
                         # Update Gibbs, Enthalpy and Energy with solvation correction:
                         if "dG" in de[state].keys():
@@ -348,8 +349,46 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         """
         :return:
         """
-        # TODO
-        pass
+        # What terms to include?
+        boxes = {0: [self.ui.checkBox_main],
+                 1: [self.ui.checkBox_gibbs, self.ui.checkBox_energy, self.ui.checkBox_enthalpy],
+                 2: [self.ui.checkBox_solvation],
+                 3: [self.ui.checkBox_big]}
+
+        box_labels = {self.ui.checkBox_main: "main",
+                      self.ui.checkBox_big: "big",
+                      self.ui.checkBox_solvation: "solv",
+                      self.ui.checkBox_gibbs: "%sG" % cf.unicode_symbols["Delta"],
+                      self.ui.checkBox_energy: "%sE" % cf.unicode_symbols["Delta"],
+                      self.ui.checkBox_enthalpy: "%sH" % cf.unicode_symbols["Delta"]}
+
+        rel_keys = {self.ui.checkBox_main: "main",
+                    self.ui.checkBox_big: "big",
+                    self.ui.checkBox_solvation: "dSolv",
+                    self.ui.checkBox_gibbs: "dG",
+                    self.ui.checkBox_energy: "dE",
+                    self.ui.checkBox_enthalpy: "dH"}
+
+        rel_ene = self.get_relative_energies()
+        plots = list()
+        legends = list()
+        print(rel_ene)
+        for i in sorted(boxes.keys()):
+            for box in boxes[i]:
+                if box.isChecked():
+                    legends.append(box_labels[box])
+                    energies = list()
+                    term = rel_keys[box]
+                    for state in rel_ene.keys():
+                        ene = 0
+                        if term in rel_ene[state].keys():
+                            ene = rel_ene[state][term] * self.unit
+                        energies.append(ene)
+                    plots.append(energies)
+
+        PlotEnergyDiagram(ene_array=plots, legends=legends,x_title="State", y_title="Relative Energy", plot_legend=True)
+
+
 
     def has_energy_terms(self, term=0):
         """

@@ -117,10 +117,6 @@ class SpectrumIR(SinglePlot):
     A = 100/ln10 ∙ I(IR) = 43.42945 ∙ I(IR).
     """
     def __init__(self, x_data, y_data, x_title=None, y_title=None, plot_title=None):
-
-        #self.x_data = x_data
-        #self.y_data = y_data
-
         self.wavenrs, self.eps_nrs = self.make_multi_lorentzian(x_data, y_data)
 
         # Normalise intensities
@@ -210,7 +206,13 @@ class SpectrumIR(SinglePlot):
 
 
 class PlotEnergyDiagram(PlotStuff):
-    def __init__(self, ene_array):
+    def __init__(self, ene_array, legends=None, x_title=None, y_title=None, plot_title=None, plot_legend=False):
+        self.x_title = x_title
+        self.y_title = y_title
+        self.plot_title = plot_title
+        self.plot_legend = plot_legend
+        self.legends = legends
+
         super().__init__()
 
         ene_array = self.check_array(ene_array)
@@ -228,7 +230,7 @@ class PlotEnergyDiagram(PlotStuff):
 
         return ene_array
 
-    def energy_rank(self, energies, marker_width=.5):
+    def energy_rank(self, energies, marker_width=.5, color='r'):
         """
         Takes a list of Y-values and returns lines for energy diagram
         :param energies: array of Y-data (energies)
@@ -240,9 +242,9 @@ class PlotEnergyDiagram(PlotStuff):
         x_data[0::2] = np.arange(1, len(energies) + 1) - (marker_width/2)
         x_data[1::2] = np.arange(1, len(energies) + 1) + (marker_width/2)
         lines = list()
-        lines.append(plt.Line2D(x_data, y_data, lw=1, linestyle="dashed"))
+        lines.append(plt.Line2D(x_data, y_data, lw=1, linestyle="dashed", color=color))
         for x in range(0, len(energies)*2, 2):
-            lines.append(plt.Line2D(x_data[x:x+2], y_data[x:x+2], lw=4, linestyle="solid"))
+            lines.append(plt.Line2D(x_data[x:x+2], y_data[x:x+2], lw=4, linestyle="solid", color=color))
         return lines
 
     def get_bounds(self, ene_array):
@@ -272,20 +274,51 @@ class PlotEnergyDiagram(PlotStuff):
         :param ene_array: [ [energies_plot1], [energies_plot2],...]
         :return:
         """
+        # Collect artists Line2D:
         plots = list()
 
-        for energies in ene_array:
-            plots.extend(self.energy_rank(energies))
+        # Custom legends:
+        legend_elements = list()
 
+        # Make figure and axis:
         fig, ax = plt.subplots()
+
+        # Make energy diagrams:
+        for i in range(len(ene_array)):
+            # Need to manually assign colors:
+            color = plt.rcParams['axes.prop_cycle'].by_key()['color'][i]
+            label = str(i+1)
+            if self.legends:
+                label = self.legends[i]
+            legend_elements.append(plt.Line2D([0], [0], color=color, lw=3, label=label))
+            plots.append( self.energy_rank(energies=ene_array[i], marker_width=.5, color=color))
+        print(plots)
 
         x_min, x_max, y_min, y_max = self.get_bounds(ene_array)
 
+        # Make integer X-ticks only for number of included states:
+        ax.set_xticks(np.arange(1, x_max, step=1))
+
+        # Add custom legend:
+        if self.plot_legend:
+            ax.legend(handles=legend_elements, loc="upper right")
+            # Add one more tick to make space for custom legend:
+            x_max += 1
+
+        # Set boundary of X- and Y-axes
         ax.set_ybound([y_min, y_max])
         ax.set_xbound([x_min, x_max])
 
-        for plot in plots:
-            ax.add_artist(plot)
+        for i in range(len(plots)):
+            for plot in plots[i]:
+                ax.add_artist(plot)
+
+        if self.plot_title:
+            ax.set_title(self.plot_title)
+        if self.y_title:
+            ax.set_ylabel(self.y_title)
+        if self.x_title:
+            ax.set_xlabel(self.x_title)
 
         plt.show()
 

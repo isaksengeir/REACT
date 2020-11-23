@@ -311,7 +311,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Convert d_ene dict to list of energies in kcal/mol
         d_ene = [cf.hartree_to_kcal(d_ene[x]["dE"]) for x in sorted(d_ene.keys())]
 
-        plot = PlotEnergyDiagram(d_ene)
+        plot = PlotEnergyDiagram(d_ene, x_title="State", y_title="Relative energy", plot_legend=False)
 
     def plot_scf(self):
         """
