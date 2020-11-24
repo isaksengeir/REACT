@@ -12,6 +12,7 @@ from mods.AnalyseCalc import AnalyseCalc
 from mods.GlobalSettings import GlobalSettings
 from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
 from mods.MoleculeFile import XYZFile
+from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import time
 import concurrent.futures
@@ -26,6 +27,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.states = []
         self.proj_name = 'new_project'
+        
+        #bool to keep track of unsaved changes to project.  False=no changes, True=changes to project
+        self.unsaved_proj = False
 
         # Keep track of files to include for each state ... TODO implement this in States later instead?
         # state (int): main: path, frequency: path, solvation: path, big basis: path
@@ -56,6 +60,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
+        self.button_create_cluster.clicked.connect(self.create_cluster)
 
         #Print welcome
         self.append_text("Welcome to REACT", True)
@@ -384,6 +389,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.analyse_window = AnalyseCalc(self)
         self.analyse_window.show()
 
+    def create_cluster(self):
+        """
+        """
+        dialog = DialogMessage(self, "Create Cluster not yet available:(")
+        dialog.exec_()
+
     def import_project(self):
         """
         Import project-file and creates new state instances accordingly. Deletes all states in workplace.
@@ -397,10 +408,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if proj_path == '':
             return
         
-        if bool(self.states) == True:
-            pass 
-            #TODO raise some warning that workspace is not empty, save project before closing?
-        
+        if self.unsaved_proj:
+            #TODO set self.unsaved_proj = True when approriate
+            #when Save is clicked: signal = 1, else signal = 0. 
+            #TODO save project when signal == 1, else: discard project
+            dialog = DialogSaveProject(self)
+            signal = dialog.exec_()
+            
         #delete states currently in workspace
         self.states.clear()
         self.tabWidget.clear()
@@ -417,29 +431,44 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             #TODO set settings
         except:
             pass
+        
+        try:
+            states = proj.pop('states')
+            
+            for state in states.items():
+                self.add_state(state)
+                
+        except: 
+            pass
 
-        for state in proj.items():
+        try:
+            self.included_files = proj.pop('included files')
+        except:
+            pass
 
-            self.add_state(state)
-
-        print(f"project looks like this{proj}")
-        print(f"new self.states looks like this:{self.states}")
 
     def save_project(self):
         """
         exports a JSON file including all states and list of associated gaussian files
-        data = {1 : [file1,file2,..],
-                2 : [file1,file2,..]
+        data = { 'states: {1 : [file1,file2,..],
+                           2 : [file1,file2,..]
+                           },
+                  'included files' : self.included_files
                 }
+
         TODO add a 'Settings' item to JSON file (working path..)
         TODO save logfile 
         TODO remember items colored red ? and recolor them when loading the project?
         """
 
         project = {}
+        states = {}
 
         for state_index in range(len(self.states)):
-            project[state_index+1] = self.states[state_index].get_all_gpaths
+            states[state_index+1] = self.states[state_index].get_all_gpaths
+        
+        project['states'] = states
+        project['included files'] = self.included_files 
 
         new_file_path = os.getcwd() + '/' + self.proj_name
 
