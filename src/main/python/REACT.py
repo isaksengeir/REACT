@@ -2,6 +2,7 @@ import sys
 import os
 import json
 from PyQt5 import QtWidgets, QtGui
+from mods.SplashScreen import SplashScreen
 import UIs.icons_rc
 import mods.common_functions as cf
 from UIs.MainWindow import Ui_MainWindow
@@ -21,7 +22,13 @@ import concurrent.futures
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
+
+        # SPLASH
+        self.splash = SplashScreen(self)
+        self.splash.show()
+
         super(MainWindow, self).__init__(*args, **kwargs)
+
         self.setupUi(self)
         self.setWindowTitle("REACT - Main")
 
@@ -30,6 +37,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         #bool to keep track of unsaved changes to project.  False=no changes, True=changes to project
         self.unsaved_proj = False
+
+
 
         # Keep track of files to include for each state ... TODO implement this in States later instead?
         # state (int): main: path, frequency: path, solvation: path, big basis: path
@@ -316,7 +325,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Convert d_ene dict to list of energies in kcal/mol
         d_ene = [cf.hartree_to_kcal(d_ene[x]["dE"]) for x in sorted(d_ene.keys())]
 
-        plot = PlotEnergyDiagram(d_ene)
+        plot = PlotEnergyDiagram(d_ene, x_title="State", y_title="Relative energy", plot_legend=False)
 
     def plot_scf(self):
         """
@@ -493,7 +502,7 @@ appctxt = ApplicationContext()
 
 #Create window and show
 window = MainWindow()
-window.show()
+#window.show()
 
 #Invoke appctxt.app.exec_()
 exit_code = appctxt.app.exec_()
