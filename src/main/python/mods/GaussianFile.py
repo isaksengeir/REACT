@@ -2,6 +2,8 @@ import distutils.util
 from mods.Atoms import GaussianAtom, Atom
 from mods.MoleculeFile import GaussianMolecule
 import re
+import mmap
+import time
 
 
 class GaussianFile:
@@ -308,7 +310,7 @@ class OutputFile(GaussianFile):
                     if not self.charge_multiplicity:
                         if self.charge_multiplicity_regEx.search(line):
                             temp = self.charge_multiplicity_regEx.search(line).group().split()
-                            self.charge_multiplicity = (temp[2],temp[5])
+                            self.charge_multiplicity = (temp[2], temp[5])
 
     @property
     def is_converged(self):
@@ -428,6 +430,7 @@ class OutputFile(GaussianFile):
 
 
 class FrequenciesOut(OutputFile):
+
     def __init__(self, file_path):
         super().__init__(file_path)
 
@@ -439,6 +442,7 @@ class FrequenciesOut(OutputFile):
         # frequency : {atom nr: name, x:float, y: float, z:float}
         self.freq_displacement = dict()
 
+
         self.read_frequencies()
 
     def read_frequencies(self):
@@ -446,33 +450,40 @@ class FrequenciesOut(OutputFile):
         Read Gaussian outpufile and store frequencies to self.freq[freq] = IR intensity (KM/Mole)
         :return:
         """
+        start = time.time()
         found_freq = False
-        found_displacement = False
-        g_atoms = list()
 
         with open(self.file_path, "r") as frq:
             for line in frq:
                 if "Frequencies" in line:
                     found_freq = True
-                    freq = line.split()[2:5]
+                    freq = [float(i) for i in line.split()[2:5]]
+
                 if found_freq:
                     if "IR Inten" in line:
-                        int = line.split()[3:6]
-
-                        for i in range(len(freq)):
-                            self.freq_inten[float(freq[i])] = float(int[i])
+                        intensities = [float(i) for i in line.split()[3:6]]
+                        self.freq_inten.update(zip(freq, intensities))
                         found_freq = False
+        print("READ FREQ Time executed:", time.time() - start, "s")
 
-                if found_displacement:
-                    if len(line.split()) > 5:
-                        g_line = "%s 0 %s" % (" ".join((line.split()[0:2])), " ".join(line.split()[2:5]))
-                        g_atoms.append(GaussianAtom(g_line))
-                    else:
-                        # TODO need to include all 3 sets here, not just the first:
-                        self.freq_displacement[freq[0]] = GaussianMolecule(g_atoms=g_atoms)
-                        found_displacement = False
-                if "Atom  AN      X      Y      Z" in line:
-                    found_displacement = True
+    def get_displacement(self, frequency):
+        """
+        Make GaussianMolecule with displacements for X,Y,Z for all atoms as "coordinates"
+        :param frequency:
+        :return: TODO
+        """
+        # found_displacement = False
+        # g_atoms = list()
+                #if found_displacement:
+                #    if len(line.split()) > 5:
+                #        g_line = "%s 0 %s" % (" ".join((line.split()[0:2])), " ".join(line.split()[2:5]))
+                #        g_atoms.append(GaussianAtom(g_line))
+                #    else:
+                #        # TODO need to include all 3 sets here, not just the first:
+                #        self.freq_displacement[freq[0]] = GaussianMolecule(g_atoms=g_atoms)
+                #        found_displacement = False
+                #if "Atom  AN      X      Y      Z" in line:
+                #    found_displacement = True
 
         # __init__(atom_nr, x_coordinate, y_coordinate, z_coordinate)
 

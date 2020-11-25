@@ -1,5 +1,7 @@
 from mods.GaussianFile import OutputFile, InputFile, FrequenciesOut
 from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
+import concurrent.futures
+import time
 
 
 class State:
@@ -15,9 +17,12 @@ class State:
 
         # filepath (key) : File object (value)
         self.gfiles = {}
+
+        start = time.time()
         if file_paths:
-            for filepath in file_paths:
-                self.add_gfiles(filepath)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                [executor.submit(self.add_gfiles, f) for f in file_paths]
+        print("self.add_gfiles Time executed:", time.time() - start, "s")
 
     def add_gfiles(self, filepath):
         """

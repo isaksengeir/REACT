@@ -74,6 +74,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Print welcome
         self.append_text("Welcome to REACT", True)
 
+    def add_files_to_list_old(self, paths=False):
+        """
+        Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
+        """
+        # Add state tab if not any exists...
+        if self.tabWidget.currentIndex() < 0:
+            self.append_text("No states exist - files must be assigned to a state.", True)
+            self.append_text("Auto-creating state 1 - files will be added there")
+            self.add_state(import_project=False)
+
+        #path = os.getcwd()  # wordkdir TODO set this as global at some point
+        path = "../resources/DFT_testfiles"
+        filter_type = "Gaussian output files (*.out);; Gaussian input files (*.com *.inp);; " \
+                      "Geometry files (*.pdb *.xyz)"
+        title_ = "Import File"
+
+        if paths:
+            files_path = paths
+        else:
+            files_path, type_ = self.import_files(title_, filter_type,path)
+
+        start = time.time()
+
+        #add new file to current state TODO this takes some time for large files...
+        #with concurrent.futures.ThreadPoolExecutor() as executor:
+        #    [executor.submit(self.add_file_to_state, filepath) for filepath in files_path]
+
+        #Insert new items at the end of the list
+        items_insert_index = self.tabWidget.currentWidget().count()
+
+        #Insert files/filenames to project table:
+        for file in files_path:
+            self.tabWidget.currentWidget().insertItem(items_insert_index, file)
+            self.add_file_to_state(file)
+            #self.tabWidget.currentWidget().insertItem(items_insert_index, file)
+            # Check if output file and if it has converged:
+            if file.split(".")[-1] == "out":
+                self.check_convergence(file, items_insert_index)
+            items_insert_index += 1
+
+        print("Time executed IMPORT:", time.time() - start, "s")
+
+        #Move horizontall scrollbar according to text
+        self.tabWidget.currentWidget().repaint()
+        scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
+        scrollbar.setValue(self.tabWidget.currentWidget().horizontalScrollBar().maximum())
+
     def add_files_to_list(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
@@ -95,8 +142,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             files_path, type_ = self.import_files(title_, filter_type,path)
 
-        #File names without path: TODO?
-        #files_names = [x.split("/")[-1] for x in files_path]
+        start = time.time()
 
         #add new file to current state TODO this takes some time for large files...
         #with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -106,7 +152,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         items_insert_index = self.tabWidget.currentWidget().count()
 
         #Insert files/filenames to project table:
-        #TODO using entire path of file - maybe best this way?
         for file in files_path:
             self.tabWidget.currentWidget().insertItem(items_insert_index, file)
             self.add_file_to_state(file)
@@ -115,6 +160,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if file.split(".")[-1] == "out":
                 self.check_convergence(file, items_insert_index)
             items_insert_index += 1
+
+        print("Time executed IMPORT:", time.time() - start, "s")
 
         #Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
@@ -216,12 +263,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states = new_pointers
         self.included_files = new_included_files
 
-    def add_state(self, import_project=False):
+    def add_state(self, import_project=None):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
         if import_project:
-            #TODO code assumes that states are numbered correctly
+            # TODO code assumes that states are numbered correctly
             self.states.append(State(import_project[1]))
             print(f"added state {import_project[0]}, with files {import_project[1]}")
 
@@ -412,7 +459,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         workdir = "../resources/DFT_testfiles"
         proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", directory=workdir,
                                                                  filter="Project/JSON (*.json)")
-        
+        print("Trying to import project ...")
         #To avoid error if dialogwindow is opened, but no file is selected
         if proj_path == '':
             return
