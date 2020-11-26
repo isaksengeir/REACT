@@ -2,7 +2,7 @@ import sys
 import os
 import json
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import QThreadPool
+from PyQt5.QtCore import QThreadPool, QTimer
 from mods.SplashScreen import SplashScreen
 import UIs.icons_rc
 import mods.common_functions as cf
@@ -78,6 +78,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("Welcome to REACT", True)
 
         # Set progressbar to full:
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_progressbar)
         self.update_progressbar(100)
 
         # Threads for jobs take take time:
@@ -163,9 +165,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Start thread first:
         worker = Worker(self.thread_add_files, files_path, items_insert_index)
         #worker.signals.result.connect(self.print_result)
-        #worker.signals.finished.connect(self.thread_complete)
+        worker.signals.finished.connect(self.thread_complete)
         worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker)
+        self.timer.start(10)
 
         # Insert files/filenames to project table:
         for file in files_path:
@@ -206,19 +209,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             args = progress_stuff[func]
             func(*args)
 
-    def update_progressbar(self, val):
+    def update_progressbar(self, val=None):
         """
         :param val:
         :return:
         """
+        if not val:
+            val = self.progressBar.value()
+            val += 1
+
         if val < 100:
             self.progressBar.setTextVisible(True)
         else:
             self.progressBar.setTextVisible(False)
+            self.timer.stop()
 
         with Lock():
             self.progressBar.setValue(int(val))
-
 
     def print_result(self, result):
         return result
