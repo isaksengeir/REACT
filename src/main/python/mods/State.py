@@ -41,8 +41,12 @@ class State:
 
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
         if isinstance(self.gfiles[filepath], OutputFile):
+
             if self.gfiles[filepath].has_frequencies:
                 self.gfiles[filepath] = FrequenciesOut(filepath)
+            #return self.check_convergence(filepath)
+
+        return None
 
     def del_gfiles(self, files_to_del):
         """

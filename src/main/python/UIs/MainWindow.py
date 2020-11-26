@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(686, 436)
+        MainWindow.resize(750, 436)
         font = QtGui.QFont()
         font.setFamily("Courier")
         MainWindow.setFont(font)
@@ -22,11 +22,6 @@ class Ui_MainWindow(object):
 "QMainWindow{\n"
 "background-color:rgb(20, 20, 20);\n"
 "color: rgb(98, 114, 164);\n"
-"}\n"
-"\n"
-"\n"
-"QDialog{\n"
-"background-color:rgb(20, 20, 20);\n"
 "}\n"
 "\n"
 "\n"
@@ -204,7 +199,12 @@ class Ui_MainWindow(object):
 "    padding-bottom:1px;\n"
 "}\n"
 "QListView::item:hover{\n"
-"background-color: rgb(143,23,119);\n"
+"/*background-color: rgb(143,23,119);*/\n"
+"border: 1px solid rgb(143, 23, 119);\n"
+"border-style: outset;\n"
+"background-color: rgb(40,40,40);\n"
+"padding-left:5px;\n"
+"padding-right:-10px;\n"
 "}\n"
 "\n"
 "QListView::item:selected{\n"
@@ -232,25 +232,20 @@ class Ui_MainWindow(object):
 "border: None;\n"
 "}\n"
 "\n"
-"QCheckBox{\n"
-"color: rgb(220, 220, 220);\n"
+"QProgressBar {\n"
+"    \n"
+"    /*background-color: rgb(98, 114, 164);*/\n"
+"    background-color: rgb(20,20,20);\n"
+"    color: rgb(200, 200, 200);\n"
+"    border-style: none;\n"
+"    border-radius: 10px;\n"
+"    text-align: center;\n"
 "}\n"
-"\n"
-"QLineEdit{\n"
-"color: rgb(220, 220, 220);\n"
-"background-color: rgb(20,20,20);\n"
-"border: None;\n"
+"QProgressBar::chunk{\n"
+"    border-radius: 10px;\n"
+"    /*background-color: qlineargradient(spread:pad, x1:0, y1:0.511364, x2:1, y2:0.523, stop:0 rgba(254, 121, 199, 255), stop:1 rgba(170, 85, 255, 255));*/\n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));\n"
 "}\n"
-"\n"
-"QComboBox{\n"
-"color: rgb(220, 220, 220);\n"
-"background-color: rgb(20,20,20);\n"
-"}\n"
-"\n"
-"QTextBrowser{\n"
-"    border: 1px solid black;\n"
-"}\n"
-"\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -293,6 +288,22 @@ class Ui_MainWindow(object):
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_3.setObjectName("frame_3")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.frame_3)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.gridLayout_4 = QtWidgets.QGridLayout()
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        spacerItem = QtWidgets.QSpacerItem(150, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_4.addItem(spacerItem, 0, 0, 1, 1)
+        self.progressBar = QtWidgets.QProgressBar(self.frame_3)
+        self.progressBar.setMinimumSize(QtCore.QSize(300, 0))
+        self.progressBar.setSizeIncrement(QtCore.QSize(0, 0))
+        self.progressBar.setProperty("value", 100)
+        self.progressBar.setTextVisible(False)
+        self.progressBar.setObjectName("progressBar")
+        self.gridLayout_4.addWidget(self.progressBar, 0, 1, 1, 1)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_4.addItem(spacerItem1, 0, 2, 1, 1)
+        self.verticalLayout_4.addLayout(self.gridLayout_4)
         self.gridLayout.addWidget(self.frame_3, 2, 0, 1, 3)
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setMinimumSize(QtCore.QSize(500, 50))
@@ -305,16 +316,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem2)
         self.label = QtWidgets.QLabel(self.frame_2)
         self.label.setMinimumSize(QtCore.QSize(0, 0))
         self.label.setText("")
         self.label.setPixmap(QtGui.QPixmap(":/logos/resources/icons/logo_blue.png"))
         self.label.setObjectName("label")
         self.horizontalLayout_3.addWidget(self.label)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem1)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem3)
         self.verticalLayout_7.addLayout(self.horizontalLayout_3)
         self.gridLayout.addWidget(self.frame_2, 0, 0, 1, 3)
         self.frame_5 = QtWidgets.QFrame(self.centralwidget)
@@ -427,8 +438,8 @@ class Ui_MainWindow(object):
         self.button_delete_state.setFlat(True)
         self.button_delete_state.setObjectName("button_delete_state")
         self.horizontalLayout_2.addWidget(self.button_delete_state)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem4)
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
         self.gridLayout_2 = QtWidgets.QGridLayout()
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -449,10 +460,10 @@ class Ui_MainWindow(object):
         self.button_delete_file.setFlat(True)
         self.button_delete_file.setObjectName("button_delete_file")
         self.gridLayout_2.addWidget(self.button_delete_file, 2, 1, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem3, 4, 1, 1, 1)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem4, 0, 1, 1, 1)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem5, 4, 1, 1, 1)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem6, 0, 1, 1, 1)
         self.button_add_file = QtWidgets.QPushButton(self.frame_4)
         self.button_add_file.setMinimumSize(QtCore.QSize(24, 24))
         self.button_add_file.setMaximumSize(QtCore.QSize(24, 24))

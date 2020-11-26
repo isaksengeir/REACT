@@ -2,6 +2,7 @@ import sys
 import os
 import json
 from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import QThreadPool
 from mods.SplashScreen import SplashScreen
 import UIs.icons_rc
 import mods.common_functions as cf
@@ -15,8 +16,9 @@ from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
 from mods.MoleculeFile import XYZFile
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
+from mods.ThreadWorkers import Worker
 import time
-import concurrent.futures
+
 #methods --> Classes --> Modules --> Packages
 
 
@@ -71,8 +73,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_open_project.clicked.connect(self.import_project)
         self.button_create_cluster.clicked.connect(self.create_cluster)
 
-        #Print welcome
+        # Print welcome
         self.append_text("Welcome to REACT", True)
+
+        # Set progressbar to full:
+        self.update_progressbar(100)
+
+        # Threads for jobs take take time:
+        self.threadpool = QThreadPool()
+
+        # TODO put this some place in the UI bottom ?
+        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
 
     def add_files_to_list_old(self, paths=False):
         """
@@ -142,31 +153,75 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             files_path, type_ = self.import_files(title_, filter_type,path)
 
-        start = time.time()
+        if len(files_path) < 1:
+            return
 
-        #add new file to current state TODO this takes some time for large files...
-        #with concurrent.futures.ThreadPoolExecutor() as executor:
-        #    [executor.submit(self.add_file_to_state, filepath) for filepath in files_path]
-
-        #Insert new items at the end of the list
+        # Where to start inserting files in project list:
         items_insert_index = self.tabWidget.currentWidget().count()
 
-        #Insert files/filenames to project table:
+        # Start thread first:
+        worker = Worker(self.thread_add_files, files_path, items_insert_index)
+        worker.signals.result.connect(self.print_result)
+        worker.signals.finished.connect(self.thread_complete)
+        worker.signals.progress.connect(self.progress_fn)
+        self.threadpool.start(worker)
+
+        # Insert files/filenames to project table:
         for file in files_path:
             self.tabWidget.currentWidget().insertItem(items_insert_index, file)
-            self.add_file_to_state(file)
-            #self.tabWidget.currentWidget().insertItem(items_insert_index, file)
-            # Check if output file and if it has converged:
-            if file.split(".")[-1] == "out":
-                self.check_convergence(file, items_insert_index)
+            self.tabWidget.currentWidget().item(items_insert_index).setForeground(QtGui.QColor(80, 80, 80))
             items_insert_index += 1
 
-        print("Time executed IMPORT:", time.time() - start, "s")
-
-        #Move horizontall scrollbar according to text
+        # Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
         scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
         scrollbar.setValue(self.tabWidget.currentWidget().horizontalScrollBar().maximum())
+
+    def thread_add_files(self, file_paths, item_index, progress_callback, results_callback):
+        """
+        :param file_paths:
+        :param item_index: index where to start insertion of files in list
+        :param progress_callback:
+        :return:
+        """
+        # set progressbar to 1:
+        self.update_progressbar(1)
+        for n in range(len(file_paths)):
+            file = file_paths[n]
+            self.states[self.tabWidget.currentIndex()].add_gfiles(file)
+
+            progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
+                                    self.check_convergence: (file, item_index)})
+            item_index += 1
+
+        return "Done"
+
+    def progress_fn(self, progress_stuff):
+        """
+        :param progress_stuff: {function : arguments}
+        :return:
+        """
+        for func in progress_stuff.keys():
+            args = progress_stuff[func]
+            func(*args)
+
+    def update_progressbar(self, val):
+        """
+        :param val:
+        :return:
+        """
+        if val < 100:
+            self.progressBar.setTextVisible(True)
+        else:
+            self.progressBar.setTextVisible(False)
+        self.progressBar.setValue(int(val))
+
+
+    def print_result(self, result):
+        return result
+
+    def thread_complete(self):
+        print("THREAD COMPLETE!")
 
     def add_file_to_state(self, filepath):
         """
@@ -174,14 +229,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return:
         """
         self.states[self.tabWidget.currentIndex()].add_gfiles(filepath)
+        #
 
     def check_convergence(self, file_path, item_index):
         filename = file_path.split('/')[-1]
-        converged = self.states[self.tabWidget.currentIndex()].check_convergence(file_path)
-        if converged is False:
-            #self.tabWidget.currentWidget(item_index).setForeground(Qt.red)
-            self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(100, 0, 0))
-            self.append_text("\nWarning: %s seems to have not converged!" % filename)
+
+        if filename.split(".")[-1] not in ["out", "log"]:
+            self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(98, 114, 164))
+        else:
+            converged = self.states[self.tabWidget.currentIndex()].check_convergence(file_path)
+
+            if isinstance(converged, bool) and not converged:
+                self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(195, 82, 52))
+                self.append_text("\nWarning: %s seems to have not converged!" % filename)
+            elif isinstance(converged, bool) and converged:
+                self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(117, 129, 104))
+            elif not isinstance(converged, bool):
+                self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(117, 129, 104))
 
     def delete_file_from_list(self):
         """
@@ -493,6 +557,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
             for state in states.items():
                 self.add_state(state)
+                insert_index = 0
+                for file in state[1]:
+                    self.check_convergence(file, insert_index)
+                    insert_index += 1
                 
         except: 
             pass
@@ -500,8 +568,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             self.included_files = proj.pop('included files')
         except:
+            print("Failure in importing self.included_files")
             pass
-
 
     def save_project(self):
         """

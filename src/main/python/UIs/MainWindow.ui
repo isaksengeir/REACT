@@ -200,7 +200,12 @@ QListView::item {
 	padding-bottom:1px;
 }
 QListView::item:hover{
-background-color: rgb(143,23,119);
+/*background-color: rgb(143,23,119);*/
+border: 1px solid rgb(143, 23, 119);
+border-style: outset;
+background-color: rgb(40,40,40);
+padding-left:5px;
+padding-right:-10px;
 }
 
 QListView::item:selected{
@@ -379,8 +384,20 @@ QProgressBar::chunk{
            </item>
            <item row="0" column="1">
             <widget class="QProgressBar" name="progressBar">
+             <property name="minimumSize">
+              <size>
+               <width>300</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="value">
-              <number>0</number>
+              <number>100</number>
              </property>
              <property name="textVisible">
               <bool>false</bool>

@@ -289,9 +289,7 @@ class OutputFile(GaussianFile):
 
                         self.g_outdata[out_name] = line_value
 
-                
-                if not found_all_jobdetails:  
-
+                if not found_all_jobdetails:
                     if ' Cycle   1' in line:
                         found_all_jobdetails = True
 
@@ -450,7 +448,7 @@ class FrequenciesOut(OutputFile):
         Read Gaussian outpufile and store frequencies to self.freq[freq] = IR intensity (KM/Mole)
         :return:
         """
-        start = time.time()
+        # start = time.time()
         found_freq = False
 
         with open(self.file_path, "r") as frq:
@@ -464,7 +462,7 @@ class FrequenciesOut(OutputFile):
                         intensities = [float(i) for i in line.split()[3:6]]
                         self.freq_inten.update(zip(freq, intensities))
                         found_freq = False
-        print("READ FREQ Time executed:", time.time() - start, "s")
+        # print("READ FREQ Time executed:", time.time() - start, "s")
 
     def get_displacement(self, frequency):
         """
