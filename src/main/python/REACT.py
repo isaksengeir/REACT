@@ -17,6 +17,7 @@ from mods.MoleculeFile import XYZFile
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from mods.ThreadWorkers import Worker
+from threading import Lock
 import time
 
 #methods --> Classes --> Modules --> Packages
@@ -161,8 +162,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Start thread first:
         worker = Worker(self.thread_add_files, files_path, items_insert_index)
-        worker.signals.result.connect(self.print_result)
-        worker.signals.finished.connect(self.thread_complete)
+        #worker.signals.result.connect(self.print_result)
+        #worker.signals.finished.connect(self.thread_complete)
         worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker)
 
@@ -214,7 +215,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.progressBar.setTextVisible(True)
         else:
             self.progressBar.setTextVisible(False)
-        self.progressBar.setValue(int(val))
+
+        with Lock():
+            self.progressBar.setValue(int(val))
 
 
     def print_result(self, result):
@@ -233,14 +236,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def check_convergence(self, file_path, item_index, tab_index=None):
         filename = file_path.split('/')[-1]
-        print(tab_index)
         if tab_index is None:
             tab_index = self.tabWidget.currentIndex()
             tab_widget = self.tabWidget.currentWidget()
         else:
-            print("assigning tab_widget")
             tab_widget = self.tabWidget.widget(tab_index)
-
 
         if filename.split(".")[-1] not in ["out", "log"]:
             tab_widget.item(item_index).setForeground(QtGui.QColor(98, 114, 164))
