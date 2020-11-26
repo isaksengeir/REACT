@@ -231,21 +231,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states[self.tabWidget.currentIndex()].add_gfiles(filepath)
         #
 
-    def check_convergence(self, file_path, item_index):
+    def check_convergence(self, file_path, item_index, tab_index=None):
         filename = file_path.split('/')[-1]
+        print(tab_index)
+        if tab_index is None:
+            tab_index = self.tabWidget.currentIndex()
+            tab_widget = self.tabWidget.currentWidget()
+        else:
+            print("assigning tab_widget")
+            tab_widget = self.tabWidget.widget(tab_index)
+
 
         if filename.split(".")[-1] not in ["out", "log"]:
-            self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(98, 114, 164))
+            tab_widget.item(item_index).setForeground(QtGui.QColor(98, 114, 164))
         else:
-            converged = self.states[self.tabWidget.currentIndex()].check_convergence(file_path)
+            converged = self.states[tab_index].check_convergence(file_path)
 
             if isinstance(converged, bool) and not converged:
-                self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(195, 82, 52))
+                tab_widget.item(item_index).setForeground(QtGui.QColor(195, 82, 52))
                 self.append_text("\nWarning: %s seems to have not converged!" % filename)
             elif isinstance(converged, bool) and converged:
-                self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(117, 129, 104))
+                tab_widget.item(item_index).setForeground(QtGui.QColor(117, 129, 104))
             elif not isinstance(converged, bool):
-                self.tabWidget.currentWidget().item(item_index).setForeground(QtGui.QColor(117, 129, 104))
+                tab_widget.item(item_index).setForeground(QtGui.QColor(117, 129, 104))
 
     def delete_file_from_list(self):
         """
@@ -337,7 +345,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             print(f"added state {import_project[0]}, with files {import_project[1]}")
 
             tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
-            self.tabWidget.widget(tab_index).insertItems(-1, self.states[tab_index].get_all_gpaths)
+            files = self.states[tab_index].get_all_gpaths
+            self.tabWidget.widget(tab_index).insertItems(-1, files)
+            insert_index = 0
+            for file in self.states[tab_index].get_all_gpaths:
+                self.check_convergence(file, insert_index, tab_index)
+                insert_index += 1
 
         else:
             self.states.append(State()) 
@@ -554,15 +567,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         try:
             states = proj.pop('states')
-            
+
             for state in states.items():
                 self.add_state(state)
-                insert_index = 0
-                for file in state[1]:
-                    self.check_convergence(file, insert_index)
-                    insert_index += 1
-                
-        except: 
+
+        except:
+            print("I fucked up :( ")
             pass
 
         try:
