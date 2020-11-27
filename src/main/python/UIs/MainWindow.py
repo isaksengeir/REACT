@@ -246,6 +246,16 @@ class Ui_MainWindow(object):
 "    /*background-color: qlineargradient(spread:pad, x1:0, y1:0.511364, x2:1, y2:0.523, stop:0 rgba(254, 121, 199, 255), stop:1 rgba(170, 85, 255, 255));*/\n"
 "    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));\n"
 "}\n"
+"QLineEdit{\n"
+"color: rgb(220, 220, 220);\n"
+"background-color: rgb(20,20,20);\n"
+"border: None;\n"
+"}\n"
+"QComboBox{\n"
+"color: rgb(220, 220, 220);\n"
+"background-color: rgb(20,20,20);\n"
+"}\n"
+"\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
