@@ -70,7 +70,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
+           <family>Courier</family>
           </font>
          </property>
          <property name="sizeAdjustPolicy">

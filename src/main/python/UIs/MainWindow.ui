@@ -518,6 +518,11 @@ QProgressBar::chunk{
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
           <widget class="QPlainTextEdit" name="textBrowser">
+           <property name="font">
+            <font>
+             <family>Courier</family>
+            </font>
+           </property>
            <property name="lineWrapMode">
             <enum>QPlainTextEdit::NoWrap</enum>
            </property>

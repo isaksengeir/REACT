@@ -86,7 +86,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.threadpool = QThreadPool()
 
         # TODO put this some place in the UI bottom ?
-        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+        self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
     def add_files_to_list_old(self, paths=False):
         """

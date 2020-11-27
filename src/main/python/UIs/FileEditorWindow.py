@@ -37,7 +37,7 @@ class Ui_FileEditorWindow(object):
         self.FileEditorBox.setMinimumSize(QtCore.QSize(0, 0))
         self.FileEditorBox.setMaximumSize(QtCore.QSize(16777215, 16777215))
         font = QtGui.QFont()
-        font.setFamily("Arial")
+        font.setFamily("Courier")
         self.FileEditorBox.setFont(font)
         self.FileEditorBox.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.FileEditorBox.setObjectName("FileEditorBox")
