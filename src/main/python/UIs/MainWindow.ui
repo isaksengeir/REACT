@@ -287,19 +287,18 @@ background-color: rgb(20,20,20);
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
-         <property name="leftMargin">
-          <number>3</number>
-         </property>
-         <property name="rightMargin">
-          <number>3</number>
-         </property>
          <item>
           <widget class="QSplitter" name="splitter">
            <property name="styleSheet">
-            <string notr="true">QSplitter{border: 0px;}</string>
+            <string notr="true">QFrame {
+border: None;
+}</string>
            </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
+           </property>
+           <property name="handleWidth">
+            <number>0</number>
            </property>
            <widget class="QPushButton" name="button_settings">
             <property name="minimumSize">
@@ -346,6 +345,17 @@ background-color: rgb(20,20,20);
             </property>
             <property name="text">
              <string>Analyse calculation</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="button_plotter">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Plotter</string>
             </property>
            </widget>
           </widget>
