@@ -182,23 +182,29 @@ class State:
         if self.gfiles[filepath].has_frequencies:
             return self.gfiles[filepath].get_frequencies
 
-
     def create_input_content(self, path):
         '''
         Create inputfile content (not file), based on coordiantes from an outputfile or from *.xyz file, or from XYZfile object?
         '''
         
         # if coordinates argument is a file associated with this state. NB works for inp/out only, what if file is *.xyz?
-        if self.gfiles[path]:
 
+        gaussian_filetypes = ["out", "inp", "com"]
+        if path.split(".")[-1] in gaussian_filetypes:
             routecard = self.gfiles[path].get_routecard
             charge_multiplicity = self.gfiles[path].get_charge_multiplicity
             xyz = self.get_final_xyz(path)
 
+
+            #TODO doesn't work if any of these variables are of NoneType!
             content = routecard + '\n\n' + charge_multiplicity[0] + ' ' + charge_multiplicity[1] +  '\n'
 
             for line in xyz:
                 content += line + '\n'
 
-            return content
+        elif path.split(".")[-1] == "xyz":
+            # content = self.gfiles[path].get_formatted_xyz gives error?
+            #TODO get global settings, get coordinates, make inputfile content
+            content = "Empty since this hasn't been implemented yet..."
 
+        return content

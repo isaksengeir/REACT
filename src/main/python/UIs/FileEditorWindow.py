@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_FileEditorWindow(object):
     def setupUi(self, FileEditorWindow):
         FileEditorWindow.setObjectName("FileEditorWindow")
-        FileEditorWindow.resize(431, 332)
+        FileEditorWindow.resize(408, 305)
         self.centralwidget = QtWidgets.QWidget(FileEditorWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -39,12 +39,16 @@ class Ui_FileEditorWindow(object):
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.frame_2)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.buttonBox = QtWidgets.QDialogButtonBox(self.frame_2)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Save)
-        self.buttonBox.setObjectName("buttonBox")
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame_2)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.cancel_button = QtWidgets.QPushButton(self.frame_2)
+        self.cancel_button.setObjectName("cancel_button")
+        self.horizontalLayout.addWidget(self.cancel_button)
+        self.save_button = QtWidgets.QPushButton(self.frame_2)
+        self.save_button.setObjectName("save_button")
+        self.horizontalLayout.addWidget(self.save_button)
         self.gridLayout.addWidget(self.frame_2, 1, 0, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
         FileEditorWindow.setCentralWidget(self.centralwidget)
@@ -55,3 +59,5 @@ class Ui_FileEditorWindow(object):
     def retranslateUi(self, FileEditorWindow):
         _translate = QtCore.QCoreApplication.translate
         FileEditorWindow.setWindowTitle(_translate("FileEditorWindow", "MainWindow"))
+        self.cancel_button.setText(_translate("FileEditorWindow", "Cancel"))
+        self.save_button.setText(_translate("FileEditorWindow", "Save"))

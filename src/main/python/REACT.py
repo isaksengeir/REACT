@@ -138,6 +138,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def add_files_to_list(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
+        TODO: need to check if files exist in list from before! If file exist, 
+        delete old and add again, since the user might have edited the file
+        outside the app or using FileEditorWindow.
+
         """
         # Add state tab if not any exists...
         if self.tabWidget.currentIndex() < 0:
@@ -496,12 +500,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         filepath = self.tabWidget.currentWidget().currentItem().text()
 
-        xyz = XYZFile(filepath)
-
         editor = FileEditor(self, filepath)
         editor.show()
-
-        self.states[self.tabWidget.currentIndex()].update_fileobject(filepath)
 
     def create_input_content(self, filepath):
         '''
