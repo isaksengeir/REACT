@@ -35,10 +35,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle("REACT - Main")
 
+        # Global settings
+        self.workdir = os.getcwd()
+        self.DFT_settings = {}
+        self.Ui_stylemode = 1
+
         self.states = []
         self.proj_name = 'new_project'
         
-        #bool to keep track of unsaved changes to project.  False=no changes, True=changes to project
+        # bool to keep track of unsaved changes to project.
         self.unsaved_proj = False
 
 
@@ -50,6 +55,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Since included files belong to project, and will be stored with project, we can only allow
         # one instance of the analyse window... TODO if we want this different
         self.analyse_window = None
+
+        # Bool allows only one instance of settings window at the time.
+        self.settings_window = None
 
         self.add_state()
 
@@ -510,8 +518,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         return self.states[self.tabWidget.currentIndex()].create_input_content(filepath)
 
     def open_settings(self):
-        Settings = GlobalSettings(self)
-        Settings.show()
+
+        if self.settings_window:
+            self.append_text("\nSettings window is already running."
+                             "\nPerhaps the window is hidden?")
+            self.settings_window.raise_()
+        else:
+            self.settings_window = GlobalSettings(self)
+            self.settings_window.show()
 
     def open_analyse(self):
         """
