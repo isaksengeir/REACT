@@ -14,272 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AnyPlotter(object):
     def setupUi(self, AnyPlotter):
         AnyPlotter.setObjectName("AnyPlotter")
-        AnyPlotter.resize(575, 455)
-        AnyPlotter.setStyleSheet("\n"
-"QMainWindow{\n"
-"background-color:rgb(20, 20, 20);\n"
-"color: rgb(98, 114, 164);\n"
-"}\n"
-"\n"
-"\n"
-"QScrollBar{\n"
-"/*background-color:rgb(56,58,89);*/\n"
-"background-color:rgb(30,30,30);\n"
-"}\n"
-"\n"
-"QFrame{\n"
-"/*background-color: rgb(56,58,89);*/\n"
-"background-color: rgb(30,30,30);\n"
-"/*border: 2px solid rgb(220,220,220);*/\n"
-"/*border: 2px solid rgb(143, 23, 119);*/\n"
-"border: 2px solid rgb(98, 114, 164);\n"
-"/*border: 2px solid rgb(56,58,89);*/\n"
-"\n"
-"\n"
-"border-radius:10px;\n"
-"\n"
-"}\n"
-"\n"
-"QLabel{\n"
-"color:rgb(98, 114, 164);\n"
-"border: 0px;\n"
-"}\n"
-"\n"
-"QRadioButton{\n"
-"color: rgb(98, 114, 164);\n"
-"\n"
-"}\n"
-"\n"
-"QRadioButton::indicator::unchecked {\n"
-"    background-color: rgb(30,30,30);\n"
-"}\n"
-"\n"
-"\n"
-"QRadioButton::indicator:unchecked:hover {\n"
-"   background-color: rgb(143,23,119);\n"
-"}\n"
-"\n"
-"QRadioButton::indicator::checked {\n"
-"    background-color:  rgb(98, 114, 164);\n"
-"}\n"
-"\n"
-"QRadioButton::indicator:checked:hover {\n"
-"    background-color: rgb(143,23,119);\n"
-"}\n"
-"\n"
-"/*\n"
-"\n"
-"QRadioButton::indicator:unchecked:pressed {\n"
-"    image: url(:/images/radiobutton_unchecked_pressed.png);\n"
-"}\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"QRadioButton::indicator:checked:pressed {\n"
-"    image: url(:/images/radiobutton_checked_pressed.png);\n"
-"}\n"
-"\n"
-"*/\n"
-"\n"
-"\n"
-"/* IMPORTANT: 8< Add the code above here 8< */\n"
-"QTabBar::tab:selected {\n"
-"/* expand/overlap to the left and right by 4px */\n"
-"margin-left: -4px;\n"
-"margin-right: -4px;\n"
-"}\n"
-"QTabBar::tab:first:selected {\n"
-"margin-left: 0; /* the first selected tab has nothing to overlap with on the left */\n"
-"}\n"
-"QTabBar::tab:last:selected {\n"
-"margin-right: 0; /* the last selected tab has nothing to overlap with on the right */\n"
-"}\n"
-"QTabBar::tab:only-one {\n"
-"margin: 0; /* if there is only one tab, we don\'t want overlapping margins */\n"
-"}\n"
-"\n"
-"QTabWidget::pane { /* The tab widget frame */\n"
-"/*border-top: 2px solid #C2C7CB;*/\n"
-"\n"
-"/*border-top:4px solid rgb(56,58,89);*/\n"
-"border-top:4px solid rgb(30,30,30);\n"
-"}\n"
-"\n"
-"QTabWidget::tab-bar {\n"
-"left: 5px; /* move to the right by 5px */\n"
-"}\n"
-"\n"
-"/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */\n"
-"QTabBar::tab {\n"
-"/*border: 2px solid rgb(98, 114, 164);\n"
-"\n"
-"border-bottom-color: rgb(98, 114, 164);*/\n"
-"border: 2px solid rgb(40, 40, 40);\n"
-"\n"
-"border-bottom-color: rgb(143, 23, 119);\n"
-"border-top-left-radius: 4px;\n"
-"border-top-right-radius: 4px;\n"
-"min-width: 8ex;\n"
-"padding: 2px;\n"
-"color:rgb(143, 23, 119);\n"
-"\n"
-"}\n"
-"\n"
-"QTabBar::tab:selected, QTabBar::tab:hover {\n"
-"/*background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #fafafa, stop: 0.4 #f4f4f4, stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);*/\n"
-"background-color:rgb(42,42,42);\n"
-"}\n"
-"\n"
-"QTabBar::tab:selected {\n"
-"/*border-color: #9B9B9B;*/\n"
-"\n"
-"    border-color: rgb(143, 23, 119);\n"
-"    border-bottom-color:  rgb(143,23,119);\n"
-"    border-width: 3px;\n"
-"    color:rgb(20,20,20);\n"
-"    background-color: rgb(143,23,119);\n"
-"\n"
-"}\n"
-"QTabBar::tab:!selected {\n"
-"margin-top: 2px; /* make non-selected tabs look smaller */\n"
-"}\n"
-"\n"
-"\n"
-"QPushButton {\n"
-"    /*background-color:rgb(98, 114, 164);*/\n"
-"    background-color: rgb(30,30,30);\n"
-"    color: rgb(143,23,119);\n"
-"    \n"
-"\n"
-"}\n"
-"\n"
-"QPushButton:hover\n"
-"{\n"
-"       background-color: rgb(40, 40, 40);\n"
-"    /*color:rgb(20,20,20);*/\n"
-"    border-style: outset;\n"
-"    border-width: 2px;\n"
-"    border-color: rgb(143,23,119);\n"
-"\n"
-"}\n"
-"QPushButton:pressed\n"
-"{\n"
-"    color: rgb(143, 23, 119);\n"
-"    background-color: rgb(20, 20, 20);\n"
-"}\n"
-"\n"
-"QTableView{\n"
-"border:None;\n"
-"}\n"
-"\n"
-"QListWidget{\n"
-"border:None;\n"
-"margin-top:5px;\n"
-"margin-left:5px;\n"
-"margin-right:5px;\n"
-"\n"
-"\n"
-"background-color: rgb(30,30,30);\n"
-"\n"
-"color:rgb(98, 114, 164);\n"
-"\n"
-"}\n"
-"\n"
-"/* Works for both QListView and QListWidget */\n"
-"QListView::item {\n"
-"    /* Won\'t work without borders set */\n"
-"    padding-left:1px;\n"
-"    padding-right:10px;\n"
-"    padding-top:1px;\n"
-"    padding-bottom:1px;\n"
-"}\n"
-"QListView::item:hover{\n"
-"/*background-color: rgb(143,23,119);*/\n"
-"border: 1px solid rgb(143, 23, 119);\n"
-"border-style: outset;\n"
-"background-color: rgb(40,40,40);\n"
-"padding-left:5px;\n"
-"padding-right:-10px;\n"
-"}\n"
-"\n"
-"QListView::item:selected{\n"
-"color: rgb(20,20,20);\n"
-"background-color:rgb(98, 114, 164);\n"
-"padding-left:10px;\n"
-"padding-right:-10px;\n"
-"\n"
-"}\n"
-"\n"
-"QPlainTextEdit{\n"
-"border: None;\n"
-"color:rgb(98, 114, 164);\n"
-"}\n"
-"\n"
-"\n"
-"QFileDialog{\n"
-"background-color:rgb(30,30,30);\n"
-"border: 0px;\n"
-"color: rgb(98,114,164);\n"
-"}\n"
-"\n"
-"QTextEdit{\n"
-"color: rgb(98, 114, 164);\n"
-"border: None;\n"
-"}\n"
-"\n"
-"QProgressBar {\n"
-"    \n"
-"    /*background-color: rgb(98, 114, 164);*/\n"
-"    background-color: rgb(20,20,20);\n"
-"    color: rgb(200, 200, 200);\n"
-"    border-style: none;\n"
-"    border-radius: 10px;\n"
-"    text-align: center;\n"
-"}\n"
-"QProgressBar::chunk{\n"
-"    border-radius: 10px;\n"
-"    /*background-color: qlineargradient(spread:pad, x1:0, y1:0.511364, x2:1, y2:0.523, stop:0 rgba(254, 121, 199, 255), stop:1 rgba(170, 85, 255, 255));*/\n"
-"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));\n"
-"}\n"
-"\n"
-"QTableWidget{\n"
-"color:rgb(220,220,220);\n"
-"\n"
-"}\n"
-"\n"
-"QComboBox{\n"
-"background-color: rgb(30,30,30);\n"
-"color: rgb(143,23,119);\n"
-"padding: 1px 18px 1px 3px;\n"
-"selection-color: rgb(98, 114, 164);\n"
-"padding: 1px 0px 1px 3px\n"
-"\n"
-"}\n"
-"\n"
-"QComboBox::drop-down {\n"
-"color: rgb(220,220,220);\n"
-"border-color:white;\n"
-"}\n"
-"\n"
-"QComboBox QAbstractItemView {\n"
-"    border: 2px solid rgb(30,30,30);\n"
-"    color: rgb(220,220,220);\n"
-"    border-radius: 0px;\n"
-"    selection-background-color: rgb(70,70,70);\n"
-"    selection-color: rgb(70,70,70);\n"
-"    backround-color: rgb(70,70,70);\n"
-"}\n"
-"\n"
-"\n"
-"QSpinBox {\n"
-"background-color: rgb(30,30,30);\n"
-"color: rgb(220,220,220);\n"
-"/*border: 2px solid rgb(98, 114, 164);*/\n"
-"border: None;\n"
-"\n"
-"}")
+        AnyPlotter.resize(358, 306)
+        AnyPlotter.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(AnyPlotter)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -299,7 +35,7 @@ class Ui_AnyPlotter(object):
         self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 1)
         self.spinBox_rows = QtWidgets.QSpinBox(self.frame)
         self.spinBox_rows.setMaximum(99999)
-        self.spinBox_rows.setProperty("value", 10)
+        self.spinBox_rows.setProperty("value", 3)
         self.spinBox_rows.setObjectName("spinBox_rows")
         self.gridLayout_2.addWidget(self.spinBox_rows, 0, 1, 1, 1)
         self.label_2 = QtWidgets.QLabel(self.frame)
@@ -307,16 +43,31 @@ class Ui_AnyPlotter(object):
         self.gridLayout_2.addWidget(self.label_2, 0, 2, 1, 1)
         self.spinBox_columns = QtWidgets.QSpinBox(self.frame)
         self.spinBox_columns.setMaximum(99999)
-        self.spinBox_columns.setProperty("value", 10)
+        self.spinBox_columns.setProperty("value", 1)
         self.spinBox_columns.setObjectName("spinBox_columns")
         self.gridLayout_2.addWidget(self.spinBox_columns, 0, 3, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem, 0, 4, 1, 1)
         self.gridLayout_3.addLayout(self.gridLayout_2, 0, 0, 1, 1)
         self.tableWidget = QtWidgets.QTableWidget(self.frame)
-        self.tableWidget.setRowCount(10)
-        self.tableWidget.setColumnCount(10)
+        self.tableWidget.setStyleSheet("")
+        self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
+        self.tableWidget.setShowGrid(True)
+        self.tableWidget.setGridStyle(QtCore.Qt.DashLine)
+        self.tableWidget.setCornerButtonEnabled(False)
+        self.tableWidget.setRowCount(5)
+        self.tableWidget.setColumnCount(1)
         self.tableWidget.setObjectName("tableWidget")
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setVerticalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.tableWidget.setVerticalHeaderItem(1, item)
+        self.tableWidget.horizontalHeader().setVisible(True)
+        self.tableWidget.horizontalHeader().setCascadingSectionResizes(False)
+        self.tableWidget.verticalHeader().setVisible(True)
+        self.tableWidget.verticalHeader().setCascadingSectionResizes(False)
+        self.tableWidget.verticalHeader().setDefaultSectionSize(30)
+        self.tableWidget.verticalHeader().setMinimumSectionSize(21)
         self.gridLayout_3.addWidget(self.tableWidget, 1, 0, 1, 1)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
@@ -344,6 +95,10 @@ class Ui_AnyPlotter(object):
         AnyPlotter.setWindowTitle(_translate("AnyPlotter", "MainWindow"))
         self.label_3.setText(_translate("AnyPlotter", "Rows"))
         self.label_2.setText(_translate("AnyPlotter", "Columns:"))
+        item = self.tableWidget.verticalHeaderItem(0)
+        item.setText(_translate("AnyPlotter", "Colour"))
+        item = self.tableWidget.verticalHeaderItem(1)
+        item.setText(_translate("AnyPlotter", "Title(s)"))
         self.plot_type.setItemText(0, _translate("AnyPlotter", "Energy diagram"))
         self.plot_type.setItemText(1, _translate("AnyPlotter", "Line"))
         self.button_plot.setText(_translate("AnyPlotter", "Plot"))

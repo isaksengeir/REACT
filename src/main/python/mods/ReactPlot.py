@@ -335,9 +335,6 @@ class PlotGdata(PlotStuff):
         :param energies:
         :return:
         """
-        #plt.plot(self.g_data["SCF Done"])
-        #plt.ylabel('Energy (a.u.)')
-        #plt.xlabel('Iteration')
         fig = plt.figure()
         scf_data1 = fig.add_subplot(1, 1, 1)
         scf_data1.set_title("Energy")
@@ -387,7 +384,6 @@ class PlotGdata(PlotStuff):
         force.plot(list(range(1, len(self.g_data["RMS     Force"])+1)), self.g_data["RMS     Force"], label="RMS")
         plt.legend()
 
-
         displ = fig.add_subplot(2,4,(7,8))
         displ.set_title("Displacement")
         displ.set_ylabel("Angstrom")
@@ -395,13 +391,9 @@ class PlotGdata(PlotStuff):
                    self.g_data["Maximum Displacement"], label="Maximum")
         displ.plot(list(range(1, len(self.g_data["RMS     Displacement"])+1)),
                    self.g_data["RMS     Displacement"], label="RMS")
-        #Angstrom
-
 
         plt.legend()
 
         fig.suptitle(self.filename)
-
-        #plt.tight_layout()
 
         plt.show()

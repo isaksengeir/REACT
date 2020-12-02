@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import Qt
 from UIs.AnalyseWindow import Ui_AnalyseWindow
 import mods.common_functions as cf
 from mods.ReactPlot import SpectrumIR, PlotEnergyDiagram
@@ -6,7 +7,7 @@ from mods.ReactPlot import SpectrumIR, PlotEnergyDiagram
 
 class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
     def __init__(self, parent):
-        super(AnalyseCalc, self).__init__(parent)
+        super(AnalyseCalc, self).__init__(parent, Qt.WindowStaysOnTopHint)
 
         self.react = parent
 
