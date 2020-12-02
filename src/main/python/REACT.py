@@ -36,10 +36,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("REACT - Main")
 
         # Global settings
-        self.workdir = os.getcwd()
-        self.DFT_settings = {}
-        self.Ui_stylemode = 1
-
+        self.settings = {"workdir": os.getcwd(),
+                         "DFT": {},
+                         "Ui": 1,
+                         "log": ""
+                         }
         self.states = []
         self.proj_name = 'new_project'
         
@@ -207,7 +208,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.states[self.tabWidget.currentIndex()].add_gfiles(file)
 
             progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
-                                    self.check_convergence: (file, item_index)})
+                                    self.check_convergence: (file, item_index,
+                                    self.tabWidget.currentIndex())})
             item_index += 1
 
         return "Done"
@@ -249,6 +251,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         :param filepath:
         :return:
+        redundant?
         """
         self.states[self.tabWidget.currentIndex()].add_gfiles(filepath)
         #
@@ -372,10 +375,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 insert_index += 1
 
         else:
-            self.states.append(State()) 
+            self.states.append(State())
 
             state = self.tabWidget.count() + 1
             self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
+            self.tabWidget.setCurrentWidget(self.tabWidget.widget(state-1))
 
     def delete_state(self):
         """
@@ -554,10 +558,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Import project-file and creates new state instances accordingly. Deletes all states in workplace.
         TODO import logfile
         """
-        workdir = "../resources/DFT_testfiles"
-        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project", directory=workdir,
-                                                                 filter="Project/JSON (*.json)")
-        print("Trying to import project ...")
+        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project",
+                                                                 self.settings['workdir'], filter="Project (*.rxt)")
+
         #To avoid error if dialogwindow is opened, but no file is selected
         if proj_path == '':
             return
@@ -573,61 +576,62 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states.clear()
         self.tabWidget.clear()
 
-        self.proj_name = proj_path.split("/")[-1]  
-  
-        self.label_projectname.setText(self.proj_name.replace('.json', ''))
+        self.proj_name = proj_path.split("/")[-1]        
+        self.workdir = proj_path.replace(self.proj_name, "")
+        self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
 
         with open(proj_path, 'r') as proj_file:
             proj = json.load(proj_file)
 
-        try:
-            settings = proj.pop('Settings')
-            #TODO set settings
-        except:
-            pass
-        
-        try:
-            states = proj.pop('states')
+        for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
+            self._import_project_pop_and_assign(proj, key)
 
-            for state in states.items():
-                self.add_state(state)
-
-        except:
-            print("I fucked up :( ")
-            pass
+    def _import_project_pop_and_assign(self, project, key):
 
         try:
-            self.included_files = proj.pop('included files')
+            proj_item = project.pop(key)
+
+            if key == 'states':
+                for state in proj_item.items():
+                    self.add_state()
+                    self.add_files_to_list(state[1])
+
+                    # each state has to be completely loaded before moving on to text,
+                    # to ensure the multithreading assigns files to correct state. 
+                    self.threadpool.waitForDone()
+            if key == 'included files':
+                    self.included_files = proj_item
+            else:
+                    self.settings[key] = proj_item
         except:
-            print("Failure in importing self.included_files")
-            pass
+            self.append_text(f'Failed to load "{key}" from "{self.proj_name}"')
 
     def save_project(self):
         """
-        exports a JSON file including all states and list of associated gaussian files
-        data = { 'states: {1 : [file1,file2,..],
-                           2 : [file1,file2,..]
-                           },
-                  'included files' : self.included_files
-                }
-
-        TODO add a 'Settings' item to JSON file (working path..)
-        TODO save logfile 
-        TODO remember items colored red ? and recolor them when loading the project?
+        exports a *.rxt (identical to JSON) file containing:
+        project = {'states'        : {1: [file1,file2,..],
+                                      2: [file1,file2,..]
+                                      },
+                   'included files': self.included_files,
+                   'settings'      : self.settings,
+                   'log'           : self.log
+                   }
         """
-
         project = {}
         states = {}
 
-        for state_index in range(len(self.states)):
+        for state_index in range(len(self.states)):      
             states[state_index+1] = self.states[state_index].get_all_gpaths
         
-        project['states'] = states
-        project['included files'] = self.included_files 
+        project["states"] = states
+        project["included files"] = self.included_files 
+        project["workdir"] = self.settings["workdir"]
+        project["DFT"] = self.settings["DFT"]
+        project["log"] = self.settings["log"]
 
-        new_file_path = os.getcwd() + '/' + self.proj_name
+        temp_filepath = os.getcwd() + '/' + self.proj_name
 
-        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", new_file_path, "JSON (*.json)")
+        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", temp_filepath, "REACT project (*.rxt)")
 
         if proj_path == '':
             return
@@ -635,7 +639,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.proj_name = proj_path.split("/")[-1]  
         
         #change project name title in workspace
-        new_proj_title = proj_path.split('/')[-1].replace('.json', '')    
+        new_proj_title = proj_path.split('/')[-1].replace('.rxt', '')    
         self.label_projectname.setText(new_proj_title)
 
         with open(proj_path, 'w') as f:
