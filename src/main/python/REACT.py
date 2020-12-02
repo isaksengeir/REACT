@@ -13,7 +13,7 @@ from mods.FileEditor import FileEditor
 from mods.AnalyseCalc import AnalyseCalc
 from mods.GlobalSettings import GlobalSettings
 from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
-from mods.MoleculeFile import XYZFile
+from mods.Plotter import Plotter
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from mods.ThreadWorkers import Worker
@@ -81,6 +81,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
         self.button_create_cluster.clicked.connect(self.create_cluster)
+
+        self.button_plotter.clicked.connect(self.open_plotter)
 
         # Print welcome
         self.append_text("Welcome to REACT", True)
@@ -226,17 +228,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :param val:
         :return:
         """
-        if not val:
-            val = self.progressBar.value()
-            val += 1
-
-        if val < 100:
-            self.progressBar.setTextVisible(True)
-        else:
-            self.progressBar.setTextVisible(False)
-            self.timer.stop()
-
         with Lock():
+            if not val:
+                val = self.progressBar.value()
+                val += 1
+
+            if val < 100:
+                self.progressBar.setTextVisible(True)
+            else:
+                self.progressBar.setTextVisible(False)
+                self.timer.stop()
+
             self.progressBar.setValue(int(val))
 
     def print_result(self, result):
@@ -548,6 +550,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         dialog = DialogMessage(self, "Create Cluster not yet available:(")
         dialog.exec_()
+
+    def open_plotter(self):
+        """
+
+        :return:
+        """
+
+        self.plotter = Plotter(self)
+        self.plotter.show()
 
     def import_project(self):
         """

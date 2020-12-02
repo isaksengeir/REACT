@@ -6,279 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>575</width>
-    <height>455</height>
+    <width>358</width>
+    <height>306</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">
-QMainWindow{
-background-color:rgb(20, 20, 20);
-color: rgb(98, 114, 164);
-}
-
-
-QScrollBar{
-/*background-color:rgb(56,58,89);*/
-background-color:rgb(30,30,30);
-}
-
-QFrame{
-/*background-color: rgb(56,58,89);*/
-background-color: rgb(30,30,30);
-/*border: 2px solid rgb(220,220,220);*/
-/*border: 2px solid rgb(143, 23, 119);*/
-border: 2px solid rgb(98, 114, 164);
-/*border: 2px solid rgb(56,58,89);*/
-
-
-border-radius:10px;
-
-}
-
-QLabel{
-color:rgb(98, 114, 164);
-border: 0px;
-}
-
-QRadioButton{
-color: rgb(98, 114, 164);
-
-}
-
-QRadioButton::indicator::unchecked {
-    background-color: rgb(30,30,30);
-}
-
-
-QRadioButton::indicator:unchecked:hover {
-   background-color: rgb(143,23,119);
-}
-
-QRadioButton::indicator::checked {
-    background-color:  rgb(98, 114, 164);
-}
-
-QRadioButton::indicator:checked:hover {
-    background-color: rgb(143,23,119);
-}
-
-/*
-
-QRadioButton::indicator:unchecked:pressed {
-    image: url(:/images/radiobutton_unchecked_pressed.png);
-}
-
-
-
-
-
-QRadioButton::indicator:checked:pressed {
-    image: url(:/images/radiobutton_checked_pressed.png);
-}
-
-*/
-
-
-/* IMPORTANT: 8&lt; Add the code above here 8&lt; */
-QTabBar::tab:selected {
-/* expand/overlap to the left and right by 4px */
-margin-left: -4px;
-margin-right: -4px;
-}
-QTabBar::tab:first:selected {
-margin-left: 0; /* the first selected tab has nothing to overlap with on the left */
-}
-QTabBar::tab:last:selected {
-margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
-}
-QTabBar::tab:only-one {
-margin: 0; /* if there is only one tab, we don't want overlapping margins */
-}
-
-QTabWidget::pane { /* The tab widget frame */
-/*border-top: 2px solid #C2C7CB;*/
-
-/*border-top:4px solid rgb(56,58,89);*/
-border-top:4px solid rgb(30,30,30);
-}
-
-QTabWidget::tab-bar {
-left: 5px; /* move to the right by 5px */
-}
-
-/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
-QTabBar::tab {
-/*border: 2px solid rgb(98, 114, 164);
-
-border-bottom-color: rgb(98, 114, 164);*/
-border: 2px solid rgb(40, 40, 40);
-
-border-bottom-color: rgb(143, 23, 119);
-border-top-left-radius: 4px;
-border-top-right-radius: 4px;
-min-width: 8ex;
-padding: 2px;
-color:rgb(143, 23, 119);
-
-}
-
-QTabBar::tab:selected, QTabBar::tab:hover {
-/*background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #fafafa, stop: 0.4 #f4f4f4, stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);*/
-background-color:rgb(42,42,42);
-}
-
-QTabBar::tab:selected {
-/*border-color: #9B9B9B;*/
-
-	border-color: rgb(143, 23, 119);
-	border-bottom-color:  rgb(143,23,119);
-	border-width: 3px;
-	color:rgb(20,20,20);
-	background-color: rgb(143,23,119);
-
-}
-QTabBar::tab:!selected {
-margin-top: 2px; /* make non-selected tabs look smaller */
-}
-
-
-QPushButton {
-	/*background-color:rgb(98, 114, 164);*/
-	background-color: rgb(30,30,30);
-	color: rgb(143,23,119);
-	
-
-}
-
-QPushButton:hover
-{
-   	background-color: rgb(40, 40, 40);
-	/*color:rgb(20,20,20);*/
-	border-style: outset;
-	border-width: 2px;
-	border-color: rgb(143,23,119);
-
-}
-QPushButton:pressed
-{
-	color: rgb(143, 23, 119);
-	background-color: rgb(20, 20, 20);
-}
-
-QTableView{
-border:None;
-}
-
-QListWidget{
-border:None;
-margin-top:5px;
-margin-left:5px;
-margin-right:5px;
-
-
-background-color: rgb(30,30,30);
-
-color:rgb(98, 114, 164);
-
-}
-
-/* Works for both QListView and QListWidget */
-QListView::item {
-    /* Won't work without borders set */
-	padding-left:1px;
-	padding-right:10px;
-	padding-top:1px;
-	padding-bottom:1px;
-}
-QListView::item:hover{
-/*background-color: rgb(143,23,119);*/
-border: 1px solid rgb(143, 23, 119);
-border-style: outset;
-background-color: rgb(40,40,40);
-padding-left:5px;
-padding-right:-10px;
-}
-
-QListView::item:selected{
-color: rgb(20,20,20);
-background-color:rgb(98, 114, 164);
-padding-left:10px;
-padding-right:-10px;
-
-}
-
-QPlainTextEdit{
-border: None;
-color:rgb(98, 114, 164);
-}
-
-
-QFileDialog{
-background-color:rgb(30,30,30);
-border: 0px;
-color: rgb(98,114,164);
-}
-
-QTextEdit{
-color: rgb(98, 114, 164);
-border: None;
-}
-
-QProgressBar {
-	
-	/*background-color: rgb(98, 114, 164);*/
-	background-color: rgb(20,20,20);
-	color: rgb(200, 200, 200);
-	border-style: none;
-	border-radius: 10px;
-	text-align: center;
-}
-QProgressBar::chunk{
-	border-radius: 10px;
-	/*background-color: qlineargradient(spread:pad, x1:0, y1:0.511364, x2:1, y2:0.523, stop:0 rgba(254, 121, 199, 255), stop:1 rgba(170, 85, 255, 255));*/
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));
-}
-
-QTableWidget{
-color:rgb(220,220,220);
-
-}
-
-QComboBox{
-background-color: rgb(30,30,30);
-color: rgb(143,23,119);
-padding: 1px 18px 1px 3px;
-selection-color: rgb(98, 114, 164);
-padding: 1px 0px 1px 3px
-
-}
-
-QComboBox::drop-down {
-color: rgb(220,220,220);
-border-color:white;
-}
-
-QComboBox QAbstractItemView {
-    border: 2px solid rgb(30,30,30);
-	color: rgb(220,220,220);
-	border-radius: 0px;
-    selection-background-color: rgb(70,70,70);
-	selection-color: rgb(70,70,70);
-	backround-color: rgb(70,70,70);
-}
-
-
-QSpinBox {
-background-color: rgb(30,30,30);
-color: rgb(220,220,220);
-/*border: 2px solid rgb(98, 114, 164);*/
-border: None;
-
-}</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -308,7 +44,7 @@ border: None;
               <number>99999</number>
              </property>
              <property name="value">
-              <number>10</number>
+              <number>3</number>
              </property>
             </widget>
            </item>
@@ -325,7 +61,7 @@ border: None;
               <number>99999</number>
              </property>
              <property name="value">
-              <number>10</number>
+              <number>1</number>
              </property>
             </widget>
            </item>
@@ -346,31 +82,58 @@ border: None;
          </item>
          <item row="1" column="0">
           <widget class="QTableWidget" name="tableWidget">
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustIgnored</enum>
+           </property>
+           <property name="showGrid">
+            <bool>true</bool>
+           </property>
+           <property name="gridStyle">
+            <enum>Qt::DashLine</enum>
+           </property>
+           <property name="cornerButtonEnabled">
+            <bool>false</bool>
+           </property>
            <property name="rowCount">
-            <number>10</number>
+            <number>5</number>
            </property>
            <property name="columnCount">
-            <number>10</number>
+            <number>1</number>
            </property>
+           <attribute name="horizontalHeaderVisible">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="horizontalHeaderCascadingSectionResizes">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>true</bool>
+           </attribute>
+           <attribute name="verticalHeaderCascadingSectionResizes">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderDefaultSectionSize">
+            <number>30</number>
+           </attribute>
+           <attribute name="verticalHeaderMinimumSectionSize">
+            <number>21</number>
+           </attribute>
+           <row>
+            <property name="text">
+             <string>Colour</string>
+            </property>
+           </row>
+           <row>
+            <property name="text">
+             <string>Title(s)</string>
+            </property>
+           </row>
            <row/>
            <row/>
            <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <column/>
-           <column/>
-           <column/>
-           <column/>
-           <column/>
-           <column/>
-           <column/>
-           <column/>
-           <column/>
            <column/>
           </widget>
          </item>
