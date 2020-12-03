@@ -289,7 +289,11 @@ QComboBox QAbstractItemView {
 	selection-color: rgb(70,70,70);
 	background-color: rgb(70,70,70);
 }
-
+QLineEdit{
+color: rgb(220, 220, 220);
+background-color: rgb(20,20,20);
+border: None;
+}
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">

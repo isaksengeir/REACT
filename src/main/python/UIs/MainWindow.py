@@ -288,7 +288,11 @@ class Ui_MainWindow(object):
 "    selection-color: rgb(70,70,70);\n"
 "    background-color: rgb(70,70,70);\n"
 "}\n"
-"\n"
+"QLineEdit{\n"
+"color: rgb(220, 220, 220);\n"
+"background-color: rgb(20,20,20);\n"
+"border: None;\n"
+"}\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
