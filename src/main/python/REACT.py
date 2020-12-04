@@ -38,8 +38,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Global settings
         self.settings = {"workdir": os.getcwd(),
                          "DFT": {},
-                         "Ui": 1,
-                         "log": ""
+                         "Ui": 1
                          }
         self.states = []
         self.proj_name = 'new_project'
@@ -363,6 +362,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
+
+        # NBNB: this no functions calls this function with import_project arg
+        # (we can delete this whole if-statement)
         if import_project:
             # TODO code assumes that states are numbered correctly
             self.states.append(State(import_project[1]))
@@ -586,6 +588,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #delete states currently in workspace
         self.states.clear()
         self.tabWidget.clear()
+        self.textBrowser.clear()
 
         self.proj_name = proj_path.split("/")[-1]        
         self.workdir = proj_path.replace(self.proj_name, "")
@@ -612,6 +615,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.threadpool.waitForDone()
             if key == 'included files':
                     self.included_files = proj_item
+            if key == 'log':
+                    self.textBrowser.appendPlainText(proj_item)
             else:
                     self.settings[key] = proj_item
         except:
@@ -625,11 +630,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                       },
                    'included files': self.included_files,
                    'settings'      : self.settings,
-                   'log'           : self.log
+                   'log'           : self.textBrowser.toPlainText()
                    }
         """
         project = {}
         states = {}
+
+        self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
 
         for state_index in range(len(self.states)):      
             states[state_index+1] = self.states[state_index].get_all_gpaths
@@ -638,7 +645,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         project["included files"] = self.included_files 
         project["workdir"] = self.settings["workdir"]
         project["DFT"] = self.settings["DFT"]
-        project["log"] = self.settings["log"]
+        project["log"] = self.textBrowser.toPlainText()
 
         temp_filepath = os.getcwd() + '/' + self.proj_name
 
