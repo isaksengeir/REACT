@@ -543,7 +543,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.analyse_window.raise_()
             return
 
-        if not self.tabWidget.currentWidget().currentItem():
+        if not self.tabWidget.currentWidget().currentItem() and not self.included_files:
             self.append_text("\n Nothing to analyse here ...")
             return
         self.analyse_window = AnalyseCalc(self)
@@ -592,7 +592,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
 
         with open(proj_path, 'r') as proj_file:
-            proj = json.load(proj_file)
+            proj = json.load(proj_file, object_hook=self.json_hook_int_please)
 
         for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
             self._import_project_pop_and_assign(proj, key)
@@ -656,6 +656,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         with open(proj_path, 'w') as f:
             json.dump(project, f)
 
+    def json_hook_int_please(self, obj):
+        """
+        Used as object hook when calling json.load()
+        Will convert a key-object of type str into type int, if possible
+        """
+        new_dict = {}
+        for k, v in obj.items():
+
+            if isinstance(v,dict):
+                new_dict_sub = {}
+                for k_sub, v_sub in v.items():
+                    try: 
+                        new_k_sub = int(k_sub)
+                        new_dict_sub[new_k_sub] = v[k_sub]
+                    except ValueError:
+                        new_dict_sub[k] = v[k_sub]
+
+            try: 
+                new_k = int(k)
+                new_dict[new_k] = obj[k]
+            except ValueError:
+                new_dict[k] = obj[k]
+            
+        return new_dict
 
 
 #Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
