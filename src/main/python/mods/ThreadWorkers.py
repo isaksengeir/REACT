@@ -1,7 +1,4 @@
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
-
-#from PyQt5.QtCore import
-
 import sys
 import traceback
 
@@ -36,9 +33,6 @@ class Worker(QRunnable):
     """
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
-
-        # self.threadpool = QThreadPool()
-        # print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
 
         # Store constructor arguments (re-used for processing)
         self.fn = fn

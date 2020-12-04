@@ -182,8 +182,16 @@ QTableWidget {
 color: rgb(98, 114, 164);
 padding: 5px;
 border-color: rgb(143, 23, 119);
+selection-background-color: transparent;
 
 }
+
+
+QTableWidget::item:selected{
+border: 1px solid rgb(143, 23, 119);
+border-style: outset;
+}
+
 
 QTableView QTableCornerButton::section {
     background: rgb(30,30,30);
@@ -289,11 +297,7 @@ QComboBox QAbstractItemView {
 	selection-color: rgb(70,70,70);
 	background-color: rgb(70,70,70);
 }
-QLineEdit{
-color: rgb(220, 220, 220);
-background-color: rgb(20,20,20);
-border: None;
-}
+
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">

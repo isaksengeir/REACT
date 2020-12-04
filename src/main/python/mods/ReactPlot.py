@@ -206,12 +206,14 @@ class SpectrumIR(SinglePlot):
 
 
 class PlotEnergyDiagram(PlotStuff):
-    def __init__(self, ene_array, legends=None, x_title=None, y_title=None, plot_title=None, plot_legend=False):
+    def __init__(self, ene_array, legends=None, x_title=None, y_title=None, plot_title=None, plot_legend=False,
+                 line_colors=None):
         self.x_title = x_title
         self.y_title = y_title
         self.plot_title = plot_title
         self.plot_legend = plot_legend
         self.legends = legends
+        self.line_colors = line_colors
 
         super().__init__()
 
@@ -285,11 +287,16 @@ class PlotEnergyDiagram(PlotStuff):
 
         # Make energy diagrams:
         for i in range(len(ene_array)):
-            # Need to manually assign colors:
+            # Need to manually assign colors for this type of Line2D plot:
             color = plt.rcParams['axes.prop_cycle'].by_key()['color'][i]
+            if self.line_colors:
+                color = self.line_colors[i]
+
+            # Label lines:
             label = str(i+1)
             if self.legends:
                 label = self.legends[i]
+
             legend_elements.append(plt.Line2D([0], [0], color=color, lw=3, label=label))
             plots.append( self.energy_rank(energies=ene_array[i], marker_width=.5, color=color))
         print(plots)
