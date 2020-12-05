@@ -38,8 +38,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Global settings
         self.settings = {"workdir": os.getcwd(),
                          "DFT": {},
-                         "Ui": 1,
-                         "log": ""
+                         "Ui": 1
                          }
         self.states = []
         self.proj_name = 'new_project'
@@ -363,6 +362,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
+
+        # NBNB: this no functions calls this function with import_project arg
+        # (we can delete this whole if-statement)
         if import_project:
             # TODO code assumes that states are numbered correctly
             self.states.append(State(import_project[1]))
@@ -543,7 +545,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.analyse_window.raise_()
             return
 
-        if not self.tabWidget.currentWidget().currentItem():
+        if not self.tabWidget.currentWidget().currentItem() and not self.included_files:
             self.append_text("\n Nothing to analyse here ...")
             return
         self.analyse_window = AnalyseCalc(self)
@@ -586,13 +588,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #delete states currently in workspace
         self.states.clear()
         self.tabWidget.clear()
+        self.textBrowser.clear()
 
         self.proj_name = proj_path.split("/")[-1]        
         self.workdir = proj_path.replace(self.proj_name, "")
         self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
 
         with open(proj_path, 'r') as proj_file:
-            proj = json.load(proj_file)
+            proj = json.load(proj_file, object_hook=self.json_hook_int_please)
 
         for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
             self._import_project_pop_and_assign(proj, key)
@@ -612,6 +615,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.threadpool.waitForDone()
             if key == 'included files':
                     self.included_files = proj_item
+            if key == 'log':
+                    self.textBrowser.appendPlainText(proj_item)
             else:
                     self.settings[key] = proj_item
         except:
@@ -625,11 +630,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                       },
                    'included files': self.included_files,
                    'settings'      : self.settings,
-                   'log'           : self.log
+                   'log'           : self.textBrowser.toPlainText()
                    }
         """
         project = {}
         states = {}
+
+        self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
 
         for state_index in range(len(self.states)):      
             states[state_index+1] = self.states[state_index].get_all_gpaths
@@ -638,7 +645,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         project["included files"] = self.included_files 
         project["workdir"] = self.settings["workdir"]
         project["DFT"] = self.settings["DFT"]
-        project["log"] = self.settings["log"]
+        project["log"] = self.textBrowser.toPlainText()
 
         temp_filepath = os.getcwd() + '/' + self.proj_name
 
@@ -656,6 +663,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         with open(proj_path, 'w') as f:
             json.dump(project, f)
 
+    def json_hook_int_please(self, obj):
+        """
+        Used as object hook when calling json.load()
+        Will convert a key-object of type str into type int, if possible
+        """
+        new_dict = {}
+        for k, v in obj.items():
+
+            if isinstance(v,dict):
+                new_dict_sub = {}
+                for k_sub, v_sub in v.items():
+                    try: 
+                        new_k_sub = int(k_sub)
+                        new_dict_sub[new_k_sub] = v[k_sub]
+                    except ValueError:
+                        new_dict_sub[k] = v[k_sub]
+
+            try: 
+                new_k = int(k)
+                new_dict[new_k] = obj[k]
+            except ValueError:
+                new_dict[k] = obj[k]
+            
+        return new_dict
 
 
 #Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
