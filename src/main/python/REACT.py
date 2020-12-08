@@ -396,6 +396,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if tab_index < 0:
             return
 
+        # Delete from self.included_files
+        if self.included_files:
+            self.included_files[tab_index+1] = {0: "", 1: "", 2: "", 3: ""}
+            if self.analyse_window:
+                self.analyse_window.update_state_included_files()
+
         self.tabWidget.widget(tab_index).deleteLater()
         print(self.tabWidget.currentWidget())
 
