@@ -37,7 +37,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Global settings
         self.settings = {"workdir": os.getcwd(),
-                         "DFT": {},
+                         "DFT": {'functional'         : 'B3LYP',
+                                 'basis'              : {'6-31G': {'pol1': 'd', 'pol2': 'p', 'diff': None}},
+                                 'empiricaldispersion': 'gd3',
+                                 'additonal keys'     : None,
+                                 'link 0'             : None,
+                                 'opt keys'           : ['noeigentest', 'calcfc']
+                                 },
                          "Ui": 1
                          }
         self.states = []
@@ -165,7 +171,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                       "Geometry files (*.pdb *.xyz)"
         title_ = "Import File"
 
-        if paths:
+        if isinstance(paths, list):
             files_path = paths
         else:
             files_path, type_ = self.import_files(title_, filter_type,path)
@@ -397,7 +403,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         self.tabWidget.widget(tab_index).deleteLater()
-        print(self.tabWidget.currentWidget())
+        self.states.pop(tab_index)
 
     def append_text(self, text=str(), date_time=False):
         """

@@ -29,8 +29,13 @@ class GlobalSettings(QtWidgets.QMainWindow):
                                                      'pol2': ['p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
                                                      'diff': ['+', '++']}
                                           },
-                            'empiricaldispersion': ['gd3']
+                            'empiricaldispersion': ['None','gd3']
                             }
+
+        self.ui.funct_comboBox.addItems(self.DFT_options['Functional'])
+        self.ui.basis1_comboBox.addItems([x for x in self.DFT_options['Basis set']])
+        self.ui.empiri_comboBox.addItems(self.DFT_options['empiricaldispersion'])
+
 
     def closeEvent(self, event):
         """
@@ -38,3 +43,4 @@ class GlobalSettings(QtWidgets.QMainWindow):
         :param event:
         """
         self.react.settings_window = None
+
