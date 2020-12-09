@@ -101,6 +101,9 @@
          </item>
          <item row="1" column="0">
           <widget class="QTableWidget" name="tableWidget">
+           <property name="contextMenuPolicy">
+            <enum>Qt::DefaultContextMenu</enum>
+           </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>

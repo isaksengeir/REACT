@@ -1,17 +1,26 @@
-from PyQt5 import QtWidgets
+
+from PyQt5.QtWidgets import QMainWindow, QMenu, QTableWidgetItem, QApplication
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+
+
+from PyQt5.QtGui import QColor, QClipboard
 from UIs.AnyPlot import Ui_AnyPlotter
 from mods.ReactPlot import PlotEnergyDiagram
 from mods.common_functions import random_color, select_color, is_number
 
 
-class Plotter(QtWidgets.QMainWindow, Ui_AnyPlotter):
+class Plotter(QMainWindow, Ui_AnyPlotter):
     def __init__(self, parent):
         super(Plotter, self).__init__(parent)
         # find better alternative to , Qt.WindowStaysOnTopHint
         self.ui = Ui_AnyPlotter()
         self.ui.setupUi(self)
+
+        #Fix right-clickable menu:
+        self.ui.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.tableWidget.customContextMenuRequested.connect(self.table_menu)
+
+
         #self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
         self.setWindowTitle("REACT - AnyPlot")
 
@@ -20,9 +29,58 @@ class Plotter(QtWidgets.QMainWindow, Ui_AnyPlotter):
 
         self.ui.button_set_rows_columns.clicked.connect(self.update_table)
 
+        # Clipboard for copy/paste functionality
+        self.clipboard = QApplication.clipboard()
+
         # Set a random color for the first column
         self.set_colour(0, random_color())
         self.set_title(0, "Title")
+
+    def table_menu(self, event):
+        """
+        Opens up menu when tableWidget is right-clicked
+        :param position:
+        :return:
+        """
+        # If not cells are selected, return
+        if not self.ui.tableWidget.selectedRanges():
+            return
+
+
+
+        menu = QMenu(self)
+        copy_action = menu.addAction("Copy")
+        paste_action = menu.addAction("Paste")
+
+        action = menu.exec_(self.ui.tableWidget.mapToGlobal(event))
+
+        if action is copy_action:
+            self.copy_to_clipboard()
+        if action is paste_action:
+            print("PASTE")
+
+    def copy_to_clipboard(self):
+        """
+        Copies text from selected cells to clipboard.
+        :return:
+        """
+
+        text_ = ""
+        row = None
+        for index in self.ui.tableWidget.selectedIndexes():
+            if not row:
+                row = index.row()
+            else:
+                text_ += "\t"
+            if index.row() != row:
+                text_ += "\n"
+                row = index.row()
+            try:
+                text_ += self.ui.tableWidget.item(index.row(),index.column()).text()
+            except AttributeError:
+                text_ += ""
+
+        self.clipboard.setText(text_)
 
     def update_table(self):
         """
@@ -115,7 +173,7 @@ class Plotter(QtWidgets.QMainWindow, Ui_AnyPlotter):
         row = 0
 
         # color name in hex:
-        self.ui.tableWidget.setItem(row, column, QtWidgets.QTableWidgetItem())
+        self.ui.tableWidget.setItem(row, column, QTableWidgetItem())
         self.ui.tableWidget.item(row, column).setBackground(QColor(color))
 
     def set_title(self, column=0, title="Title"):
@@ -124,7 +182,7 @@ class Plotter(QtWidgets.QMainWindow, Ui_AnyPlotter):
         :param column:
         :param title:
         """
-        self.ui.tableWidget.setItem(1, column, QtWidgets.QTableWidgetItem("Title"))
+        self.ui.tableWidget.setItem(1, column, QTableWidgetItem("Title"))
 
     def make_plot(self):
         """
