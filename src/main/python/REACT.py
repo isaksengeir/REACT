@@ -364,32 +364,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states = new_pointers
         self.included_files = new_included_files
 
-    def add_state(self, import_project=None):
+    def add_state(self):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
+        self.states.append(State())
 
-        # NBNB: this no functions calls this function with import_project arg
-        # (we can delete this whole if-statement)
-        if import_project:
-            # TODO code assumes that states are numbered correctly
-            self.states.append(State(import_project[1]))
-            print(f"added state {import_project[0]}, with files {import_project[1]}")
-
-            tab_index = self.tabWidget.addTab(DragDropListWidget(self), f"{import_project[0]}")
-            files = self.states[tab_index].get_all_gpaths
-            self.tabWidget.widget(tab_index).insertItems(-1, files)
-            insert_index = 0
-            for file in self.states[tab_index].get_all_gpaths:
-                self.check_convergence(file, insert_index, tab_index)
-                insert_index += 1
-
-        else:
-            self.states.append(State())
-
-            state = self.tabWidget.count() + 1
-            self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
-            self.tabWidget.setCurrentWidget(self.tabWidget.widget(state-1))
+        state = self.tabWidget.count() + 1
+        self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
+        self.tabWidget.setCurrentWidget(self.tabWidget.widget(state-1))
 
     def delete_state(self):
         """
@@ -401,6 +384,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #Avoid crash when there are not tabs
         if tab_index < 0:
             return
+
+        # Delete from self.included_files
+        if self.included_files:
+            self.included_files[tab_index+1] = {0: "", 1: "", 2: "", 3: ""}
+            if self.analyse_window:
+                self.analyse_window.update_state_included_files()
 
         self.tabWidget.widget(tab_index).deleteLater()
         self.states.pop(tab_index)

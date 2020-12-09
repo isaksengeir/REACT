@@ -4,8 +4,11 @@ import numpy as np
 
 
 class PlotStuff:
-    def __init__(self):
-        super().__init__()
+    def __init__(self, white=False):
+        #super().__init__()
+
+        # Use standard white background insted of REACT color scheme?
+        self.white = white
 
         #Init matplotlib.pyplot settings
         self.set_plot_settings()
@@ -34,6 +37,14 @@ class PlotStuff:
         react_pink = "#8f1777"
         react_bg_dark = "#141414"
         react_bg = "#1e1e1e"
+
+        if self.white:
+            react_white = "#141414" # dark now --> darker: "#1e1e1e"
+            react_blue = "#1e1e1e"
+            react_pink = "#1e1e1e"
+            react_bg_dark ="#FFFFFF" # white now
+            react_bg = "#FFFFFF"
+
 
         # Size of window = 700 x 500 px
         mpl.rcParams["figure.figsize"] = (7, 5)
@@ -215,7 +226,7 @@ class PlotEnergyDiagram(PlotStuff):
         self.legends = legends
         self.line_colors = line_colors
 
-        super().__init__()
+        super().__init__(white=True)
 
         ene_array = self.check_array(ene_array)
 
