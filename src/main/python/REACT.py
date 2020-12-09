@@ -52,14 +52,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # bool to keep track of unsaved changes to project.
         self.unsaved_proj = False
 
-
-
-        # Keep track of files to include for each state ... TODO implement this in States later instead?
-        # state (int): main: path, frequency: path, solvation: path, big basis: path
+        # { state (int): main: path, frequency: path, solvation: path, big basis: path }
         self.included_files = None
 
-        # Since included files belong to project, and will be stored with project, we can only allow
-        # one instance of the analyse window... TODO if we want this different
+        # Analyse window active or not:
         self.analyse_window = None
 
         # Bool allows only one instance of settings window at the time.
@@ -104,53 +100,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
-    def add_files_to_list_old(self, paths=False):
-        """
-        Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
-        """
-        # Add state tab if not any exists...
-        if self.tabWidget.currentIndex() < 0:
-            self.append_text("No states exist - files must be assigned to a state.", True)
-            self.append_text("Auto-creating state 1 - files will be added there")
-            self.add_state(import_project=False)
-
-        #path = os.getcwd()  # wordkdir TODO set this as global at some point
-        path = "../resources/DFT_testfiles"
-        filter_type = "Gaussian output files (*.out);; Gaussian input files (*.com *.inp);; " \
-                      "Geometry files (*.pdb *.xyz)"
-        title_ = "Import File"
-
-        if paths:
-            files_path = paths
-        else:
-            files_path, type_ = self.import_files(title_, filter_type,path)
-
-        start = time.time()
-
-        #add new file to current state TODO this takes some time for large files...
-        #with concurrent.futures.ThreadPoolExecutor() as executor:
-        #    [executor.submit(self.add_file_to_state, filepath) for filepath in files_path]
-
-        #Insert new items at the end of the list
-        items_insert_index = self.tabWidget.currentWidget().count()
-
-        #Insert files/filenames to project table:
-        for file in files_path:
-            self.tabWidget.currentWidget().insertItem(items_insert_index, file)
-            self.add_file_to_state(file)
-            #self.tabWidget.currentWidget().insertItem(items_insert_index, file)
-            # Check if output file and if it has converged:
-            if file.split(".")[-1] == "out":
-                self.check_convergence(file, items_insert_index)
-            items_insert_index += 1
-
-        print("Time executed IMPORT:", time.time() - start, "s")
-
-        #Move horizontall scrollbar according to text
-        self.tabWidget.currentWidget().repaint()
-        scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
-        scrollbar.setValue(self.tabWidget.currentWidget().horizontalScrollBar().maximum())
-
     def add_files_to_list(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
@@ -163,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.tabWidget.currentIndex() < 0:
             self.append_text("No states exist - files must be assigned to a state.", True)
             self.append_text("Auto-creating state 1 - files will be added there")
-            self.add_state(import_project=False)
+            self.add_state()
 
         #path = os.getcwd()  # wordkdir TODO set this as global at some point
         path = "../resources/DFT_testfiles"
@@ -289,7 +238,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Deletes selected file(s) from QtabBarWidget-->Tab-->QListWdget-->item
         :return:
         """
-        #Avoid crash when no tabs exist
+        # Avoid crash when no tabs exist
         if self.tabWidget.currentIndex() < 0:
             return
 

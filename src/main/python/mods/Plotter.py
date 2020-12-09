@@ -57,7 +57,35 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         if action is copy_action:
             self.copy_to_clipboard()
         if action is paste_action:
-            print("PASTE")
+            self.paste_from_clipboard()
+
+    def paste_from_clipboard(self):
+        """
+        Paste from clipboard to tablewidget.
+        :return:
+        """
+        row_start = self.ui.tableWidget.selectedIndexes()[0].row()
+        # Can not allow pasting on color row (row = 0)
+        if row_start == 0:
+            row_start = 1
+
+        column_start = self.ui.tableWidget.selectedIndexes()[0].column()
+        row_text = self.clipboard.text().split("\n")
+
+        for row in range(len(row_text)):
+            row_index = row_start + row
+            # Check if there are enough rows
+            if (self.ui.tableWidget.rowCount() - 2) < (row_index + 1):
+                self.add_rows(self.ui.tableWidget.rowCount(), row_index - 1)
+
+            column_text = row_text[row].split("\t")
+            for column in range(len(column_text)):
+                column_index = column_start + column
+                # Check if there are enough columns:
+                if self.ui.tableWidget.columnCount() < (column_index + 1):
+                    self.add_columns(self.ui.tableWidget.columnCount(), column_index + 1)
+                item = QTableWidgetItem(column_text[column])
+                self.ui.tableWidget.setItem(row_index, column_index, item)
 
     def copy_to_clipboard(self):
         """
@@ -186,7 +214,7 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
 
     def make_plot(self):
         """
-
+        TODO this funciton needs to check content of cells - could be NoneType or Text
         :return:
         """
         colors = list()
