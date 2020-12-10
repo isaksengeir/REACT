@@ -9,6 +9,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
     def __init__(self, parent):
         super(AnalyseCalc, self).__init__(parent, Qt.WindowStaysOnTopHint)
 
+
         self.react = parent
 
         self.ui = Ui_AnalyseWindow()

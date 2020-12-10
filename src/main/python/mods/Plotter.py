@@ -16,6 +16,7 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         self.ui = Ui_AnyPlotter()
         self.ui.setupUi(self)
 
+
         #Fix right-clickable menu:
         self.ui.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.tableWidget.customContextMenuRequested.connect(self.table_menu)
@@ -84,7 +85,7 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                 # Check if there are enough columns:
                 if self.ui.tableWidget.columnCount() < (column_index + 1):
                     self.add_columns(self.ui.tableWidget.columnCount(), column_index + 1)
-                item = QTableWidgetItem(column_text[column])
+                item = QTableWidgetItem(column_text[column].strip("\t").strip("\n"))
                 self.ui.tableWidget.setItem(row_index, column_index, item)
 
     def copy_to_clipboard(self):
@@ -98,13 +99,16 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         for index in self.ui.tableWidget.selectedIndexes():
             if not row:
                 row = index.row()
-            else:
-                text_ += "\t"
-            if index.row() != row:
+
+            elif index.row() != row:
+                print("Added new row!")
                 text_ += "\n"
                 row = index.row()
+            else:
+                text_ += "\t"
+
             try:
-                text_ += self.ui.tableWidget.item(index.row(),index.column()).text()
+                text_ += self.ui.tableWidget.item(index.row(), index.column()).text().strip("\n")
             except AttributeError:
                 text_ += ""
 
