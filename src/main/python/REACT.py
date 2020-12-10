@@ -650,9 +650,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.button_power_off.setIcon(QtGui.QIcon('../resources/icons/power_off.png'))
             self.append_text("Powering down...", date_time=True)
             self.power = False
-            #worker = Worker(self.thread_power_off,)
-            #worker.signals.progress.connect(self.progress_fn)
-            #self.threadpool.start(worker)
             self.timer2 = QTimer()
             self.timer2.timeout.connect(lambda: self.update_progressbar(reverse=True))
             self.timer2.start(5)

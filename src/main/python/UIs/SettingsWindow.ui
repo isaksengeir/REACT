@@ -341,8 +341,14 @@ margin-right:0px;
            <x>380</x>
            <y>150</y>
            <width>125</width>
-           <height>20</height>
+           <height>24</height>
           </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>24</height>
+          </size>
          </property>
          <property name="text">
           <string>  Additional print</string>
@@ -494,12 +500,18 @@ margin-right:0px;
            <x>379</x>
            <y>418</y>
            <width>97</width>
-           <height>41</height>
+           <height>49</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
            <widget class="QCheckBox" name="noeigen_checkBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="text">
              <string>noeigentest</string>
             </property>
@@ -507,6 +519,12 @@ margin-right:0px;
           </item>
           <item>
            <widget class="QCheckBox" name="calcfc_checkBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="text">
              <string>calcfc</string>
             </property>
@@ -520,12 +538,18 @@ margin-right:0px;
            <x>380</x>
            <y>280</y>
            <width>65</width>
-           <height>41</height>
+           <height>49</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_9">
           <item>
            <widget class="QCheckBox" name="Chk_checkBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="text">
              <string>%Chk</string>
             </property>
@@ -533,6 +557,12 @@ margin-right:0px;
           </item>
           <item>
            <widget class="QCheckBox" name="mem_checkBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>65</width>
@@ -1030,7 +1060,7 @@ margin-right:0px;
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -1189,6 +1219,9 @@ margin-right:0px;
              <widget class="QRadioButton" name="dark_button">
               <property name="text">
                <string>Dark</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

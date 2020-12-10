@@ -304,6 +304,18 @@ class Ui_MainWindow(object):
 "    background-color: rgb(70,70,70);\n"
 "}\n"
 "\n"
+"QCheckBox {\n"
+"color: rgb(98, 114, 164);\n"
+"}\n"
+"\n"
+"QCheckBox::indicator:checked {\n"
+"image: url(:/24x24/resources/icons/toggle_on.png);\n"
+"}\n"
+"\n"
+"QCheckBox::indicator:unchecked {\n"
+"image: url(:/24x24/resources/icons/toggle_off.png);\n"
+"}\n"
+"\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

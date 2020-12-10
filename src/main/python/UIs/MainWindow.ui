@@ -305,6 +305,18 @@ QComboBox QAbstractItemView {
 	background-color: rgb(70,70,70);
 }
 
+QCheckBox {
+color: rgb(98, 114, 164);
+}
+
+QCheckBox::indicator:checked {
+image: url(:/24x24/resources/icons/toggle_on.png);
+}
+
+QCheckBox::indicator:unchecked {
+image: url(:/24x24/resources/icons/toggle_off.png);
+}
+
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">

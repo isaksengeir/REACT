@@ -4,11 +4,11 @@ import numpy as np
 
 
 class PlotStuff:
-    def __init__(self, white=False):
+    def __init__(self, react_style=True):
         #super().__init__()
 
         # Use standard white background insted of REACT color scheme?
-        self.white = white
+        self.react_style = react_style
 
         #Init matplotlib.pyplot settings
         self.set_plot_settings()
@@ -38,7 +38,7 @@ class PlotStuff:
         react_bg_dark = "#141414"
         react_bg = "#1e1e1e"
 
-        if self.white:
+        if not self.react_style:
             react_white = "#141414" # dark now --> darker: "#1e1e1e"
             react_blue = "#1e1e1e"
             react_pink = "#1e1e1e"
@@ -218,7 +218,7 @@ class SpectrumIR(SinglePlot):
 
 class PlotEnergyDiagram(PlotStuff):
     def __init__(self, ene_array, legends=None, x_title=None, y_title=None, plot_title=None, plot_legend=False,
-                 line_colors=None):
+                 line_colors=None, react_style=True):
         self.x_title = x_title
         self.y_title = y_title
         self.plot_title = plot_title
@@ -226,7 +226,7 @@ class PlotEnergyDiagram(PlotStuff):
         self.legends = legends
         self.line_colors = line_colors
 
-        super().__init__(white=True)
+        super().__init__(react_style=react_style)
 
         ene_array = self.check_array(ene_array)
 

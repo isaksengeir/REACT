@@ -243,7 +243,9 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
 
         print(colors, titles, plots)
 
+        react_style = self.ui.checkBox_style.isChecked()
+
         PlotEnergyDiagram(ene_array=plots, legends=titles, line_colors=colors, y_title="Relative Energy",
-                          plot_legend=True)
+                          plot_legend=True, react_style=react_style)
 
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>327</height>
+    <width>395</width>
+    <height>338</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,78 +28,78 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="5">
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Columns:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="spinBox_rows">
-             <property name="maximum">
-              <number>99999</number>
-             </property>
-             <property name="value">
-              <number>3</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Rows</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QSpinBox" name="spinBox_columns">
-             <property name="maximum">
-              <number>99999</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <widget class="QPushButton" name="button_set_rows_columns">
-             <property name="minimumSize">
-              <size>
-               <width>50</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>SET</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="5">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
-         <item row="1" column="0">
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Columns:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="spinBox_rows">
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+           <property name="value">
+            <number>3</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Rows</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QSpinBox" name="spinBox_columns">
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QPushButton" name="button_set_rows_columns">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>SET</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0" colspan="3">
           <widget class="QTableWidget" name="tableWidget">
            <property name="contextMenuPolicy">
             <enum>Qt::DefaultContextMenu</enum>
@@ -159,49 +159,57 @@
            <column/>
           </widget>
          </item>
-         <item row="2" column="0">
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+         <item row="1" column="0">
+          <widget class="QComboBox" name="plot_type">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Energy diagram</string>
+            </property>
            </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="plot_type">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>0</height>
-              </size>
-             </property>
-             <item>
-              <property name="text">
-               <string>Energy diagram</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Line</string>
-              </property>
-             </item>
-            </widget>
+           <item>
+            <property name="text">
+             <string>Line</string>
+            </property>
            </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="button_plot">
-             <property name="text">
-              <string>Plot</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="checkBox_style">
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator:checked {image: url(:/24x24/resources/icons/toggle_on.png);}
+
+QCheckBox::indicator:unchecked {image: url(:/24x24/resources/icons/toggle_off.png);}
+</string>
+           </property>
+           <property name="text">
+            <string>Style</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>24</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="tristate">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="button_plot">
+           <property name="text">
+            <string>Plot</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -211,6 +219,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
