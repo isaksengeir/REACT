@@ -32,10 +32,6 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
         # Timer in milliseconds:
         self.timer.start(35)
 
-        # Text in splash screen:
-        #QtCore.QTimer.singleShot(1000, lambda: self.ui.label_loading.setText("<strong>loading...<strong>USER "
-         #                                                                    "INTERFACE</strong>"))
-
     def progress(self):
         """
         :return:

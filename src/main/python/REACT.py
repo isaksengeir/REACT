@@ -86,6 +86,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.button_plotter.clicked.connect(self.open_plotter)
 
+        self.button_power_off.clicked.connect(self.power_off_on)
+        self.power = True
+
         # Print welcome
         self.append_text("Welcome to REACT", True)
 
@@ -106,7 +109,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         TODO: need to check if files exist in list from before! If file exist, 
         delete old and add again, since the user might have edited the file
         outside the app or using FileEditorWindow.
-
         """
         # Add state tab if not any exists...
         if self.tabWidget.currentIndex() < 0:
@@ -179,7 +181,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             args = progress_stuff[func]
             func(*args)
 
-    def update_progressbar(self, val=None):
+    def update_progressbar(self, val=None, reverse=False):
         """
         :param val:
         :return:
@@ -187,13 +189,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         with Lock():
             if not val:
                 val = self.progressBar.value()
-                val += 1
+                if reverse:
+                    val -= 1
+                else:
+                    val += 1
 
             if val < 100:
                 self.progressBar.setTextVisible(True)
-            else:
+
+            if not reverse and val > 99:
                 self.progressBar.setTextVisible(False)
                 self.timer.stop()
+            elif reverse and val < 1:
+                self.timer2.stop()
+                sys.exit()
 
             self.progressBar.setValue(int(val))
 
@@ -632,14 +641,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
         return new_dict
 
+    def power_off_on(self):
+        """
+        power down when power button is clicked
+        :return:
+        """
+        if self.power:
+            self.button_power_off.setIcon(QtGui.QIcon('../resources/icons/power_off.png'))
+            self.append_text("Powering down...", date_time=True)
+            self.power = False
+            #worker = Worker(self.thread_power_off,)
+            #worker.signals.progress.connect(self.progress_fn)
+            #self.threadpool.start(worker)
+            self.timer2 = QTimer()
+            self.timer2.timeout.connect(lambda: self.update_progressbar(reverse=True))
+            self.timer2.start(5)
 
-#Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
+
+        else:
+            self.button_power_off.setIcon(QtGui.QIcon('../resources/icons/power_on.png'))
+            self.append_text("Powering down cancelled.")
+            self.power = True
+            self.timer2.stop()
+            self.timer.start(5)
+
+
+
+# Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
 appctxt = ApplicationContext()
 
-#Create window and show
+# Create window and show
 window = MainWindow()
-#window.show()
+# window.show() <- handled by splash screen
 
-#Invoke appctxt.app.exec_()
 exit_code = appctxt.app.exec_()
 sys.exit(exit_code)

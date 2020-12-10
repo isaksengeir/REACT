@@ -223,7 +223,6 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         for column in range(self.ui.tableWidget.columnCount()):
             energies = list()
             for row in range(self.ui.tableWidget.rowCount()):
-                print(self.ui.tableWidget.item(row, column).text())
                 if row == 0:
                     color = self.ui.tableWidget.item(row, column).background().color().name()
                     colors.append(color)
@@ -231,7 +230,10 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                     print(self.ui.tableWidget.item(row, column))
                     titles.append(self.ui.tableWidget.item(row, column).text())
                 else:
-                    value = self.ui.tableWidget.item(row, column).text()
+                    try:
+                        value = self.ui.tableWidget.item(row, column).text()
+                    except AttributeError:
+                        value = None
 
                     if is_number(value):
                         energies.append(float(value))

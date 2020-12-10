@@ -337,10 +337,17 @@ QComboBox QAbstractItemView {
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QSplitter" name="splitter">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="styleSheet">
             <string notr="true">QFrame {
 border: None;
-}</string>
+}
+</string>
            </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -484,6 +491,38 @@ border: None;
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="button_power_off">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/power_on.png</normaloff>:/24x24/resources/icons/power_on.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
