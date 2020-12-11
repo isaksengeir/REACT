@@ -262,7 +262,6 @@ class PlotEnergyDiagram(PlotStuff):
             self.parent.plot = None
             plt.close()
 
-
     def check_array(self, ene_array):
         """
         Check if ene_array is list of lists. if not, make it so
@@ -329,6 +328,7 @@ class PlotEnergyDiagram(PlotStuff):
         for i in range(len(ene_array)):
             # Need to manually assign colors for this type of Line2D plot:
             color = plt.rcParams['axes.prop_cycle'].by_key()['color'][i]
+
             if self.line_colors:
                 color = self.line_colors[i]
 

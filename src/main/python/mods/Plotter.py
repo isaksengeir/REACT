@@ -245,7 +245,6 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                     else:
                         pass
             plots.append(energies)
-            plots.append(energies)
 
         react_style = self.ui.checkBox_style.isChecked()
 
