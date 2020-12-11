@@ -1,24 +1,20 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+
 import numpy as np
+
 
 
 class PlotStuff:
     def __init__(self, react_style=True):
-        #super().__init__()
-
         # Use standard white background insted of REACT color scheme?
         self.react_style = react_style
 
         #Init matplotlib.pyplot settings
-        self.set_plot_settings()
+        self.set_plot_settings(self.react_style)
 
         # Make plot pop up relative to REACT main window:
         mpl.use("Qt5agg")
-
-        # TODO change figure colors prior to save, if possible
-        # fm = plt.get_current_fig_manager()
-        # fm.toolbar.actions()[9].clicked.connect()
 
         # With Qt5agg we need to turn the interactive mode on!
         plt.ion()
@@ -26,7 +22,7 @@ class PlotStuff:
     def set_figure_save_settings(self):
         print("Hello")
 
-    def set_plot_settings(self):
+    def set_plot_settings(self, react_style=True):
         """
         Defines mpl.rcParams
         :return:
@@ -38,7 +34,7 @@ class PlotStuff:
         react_bg_dark = "#141414"
         react_bg = "#1e1e1e"
 
-        if not self.react_style:
+        if not react_style:
             react_white = "#141414" # dark now --> darker: "#1e1e1e"
             react_blue = "#1e1e1e"
             react_pink = "#1e1e1e"
@@ -65,7 +61,7 @@ class PlotStuff:
 
         mpl.rcParams["figure.autolayout"] = True
 
-        #TODO this or tight_layout / autolayout (both overrides settings below here)
+        # Layout
         mpl.rcParams["figure.subplot.top"] = 0.88
         mpl.rcParams["figure.subplot.wspace"] = 0.70
         mpl.rcParams["figure.subplot.hspace"] = 0.35
@@ -86,6 +82,30 @@ class PlotStuff:
 
         mpl.rcParams["axes.prop_cycle"] = mpl.cycler('color', ['8f1777', '1f77b4', 'ff7f0e', '2ca02c', 'd62728',
                                                        '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
+
+    def update_style(self, fig, ax, title=None):
+        """
+        Required for real-time updating of style
+        :return:
+        """
+        fig.set_edgecolor(mpl.rcParams["figure.edgecolor"])
+        fig.set_facecolor(mpl.rcParams["figure.facecolor"])
+
+        ax.set_facecolor(mpl.rcParams["axes.facecolor"])
+
+        # Clumsy way to set axes edge color:
+        for where in ["bottom", "top", "right", "left"]:
+            ax.spines[where].set_color(mpl.rcParams["axes.edgecolor"])
+
+        for where in ["x", "y"]:
+            ax.tick_params(axis=where, colors=mpl.rcParams["xtick.color"])
+
+        ax.yaxis.label.set_color(mpl.rcParams["axes.labelcolor"])
+        ax.xaxis.label.set_color(mpl.rcParams["axes.labelcolor"])
+
+        # Don't mess with title color unless there is a title - it will display color code in title then
+        if title:
+            ax.set_title(color=mpl.rcParams["axes.titlecolor"])
 
 
 class SinglePlot(PlotStuff):
@@ -217,20 +237,31 @@ class SpectrumIR(SinglePlot):
 
 
 class PlotEnergyDiagram(PlotStuff):
-    def __init__(self, ene_array, legends=None, x_title=None, y_title=None, plot_title=None, plot_legend=False,
-                 line_colors=None, react_style=True):
+    def __init__(self, ene_array, parent=None, legends=None, x_title=None, y_title=None, plot_title=None,
+                 plot_legend=False, line_colors=None, react_style=True):
         self.x_title = x_title
         self.y_title = y_title
         self.plot_title = plot_title
         self.plot_legend = plot_legend
         self.legends = legends
         self.line_colors = line_colors
+        self.parent = parent
 
         super().__init__(react_style=react_style)
 
+        # create figure and axis:
+        self.fig, self.ax = plt.subplots()
+        self.fig.canvas.mpl_connect('close_event', self.close)
+
         ene_array = self.check_array(ene_array)
 
-        self.make_energy_diagram(ene_array)
+        self.plot_energy_diagram(ene_array)
+
+    def close(self, event):
+        if self.parent:
+            self.parent.plot = None
+            plt.close()
+
 
     def check_array(self, ene_array):
         """
@@ -283,18 +314,16 @@ class PlotEnergyDiagram(PlotStuff):
 
     def make_energy_diagram(self, ene_array):
         """
-
+        Takes array and creates connected Line2D energy diagram
         :param ene_array: [ [energies_plot1], [energies_plot2],...]
-        :return:
+        :return: plots: Line2D
+        :return: legend_elements: labels for each connected Line2D (energy diagram)
         """
         # Collect artists Line2D:
         plots = list()
 
         # Custom legends:
         legend_elements = list()
-
-        # Make figure and axis:
-        fig, ax = plt.subplots()
 
         # Make energy diagrams:
         for i in range(len(ene_array)):
@@ -310,35 +339,81 @@ class PlotEnergyDiagram(PlotStuff):
 
             legend_elements.append(plt.Line2D([0], [0], color=color, lw=3, label=label))
             plots.append( self.energy_rank(energies=ene_array[i], marker_width=.5, color=color))
-        print(plots)
 
+        return plots, legend_elements
+
+    def plot_energy_diagram(self, ene_array, new_plot=True):
+        """
+        :param ene_array: list of lists with energies to plot as energy diagram
+        :param update: Update existing plot instead of opening new instance of matplotlib.pyplot
+        """
+
+        # Get Line2D energy diagrams (plots) and labels (legends)
+        plots, legend_elements = self.make_energy_diagram(ene_array)
+
+        # Get bounds for X- and Y- axes:
         x_min, x_max, y_min, y_max = self.get_bounds(ene_array)
 
         # Make integer X-ticks only for number of included states:
-        ax.set_xticks(np.arange(1, x_max, step=1))
+        self.ax.set_xticks(np.arange(1, x_max, step=1))
 
         # Add custom legend:
         if self.plot_legend:
-            ax.legend(handles=legend_elements, loc="upper right")
+            self.ax.legend(handles=legend_elements, loc="upper right")
             # Add one more tick to make space for custom legend:
             x_max += 1
 
         # Set boundary of X- and Y-axes
-        ax.set_ybound([y_min, y_max])
-        ax.set_xbound([x_min, x_max])
+        self.ax.set_ybound([y_min, y_max])
+        self.ax.set_xbound([x_min, x_max])
 
         for i in range(len(plots)):
             for plot in plots[i]:
-                ax.add_artist(plot)
+                self.ax.add_artist(plot)
 
         if self.plot_title:
-            ax.set_title(self.plot_title)
+            self.ax.set_title(self.plot_title)
         if self.y_title:
-            ax.set_ylabel(self.y_title)
+            self.ax.set_ylabel(self.y_title)
         if self.x_title:
-            ax.set_xlabel(self.x_title)
+            self.ax.set_xlabel(self.x_title)
 
-        plt.show()
+        if new_plot:
+            plt.show()
+        else:
+            plt.draw()
+
+    def update_plot(self, ene_array, legends=None, x_title=None, y_title=None, plot_title=None, plot_legend=False,
+                 line_colors=None, react_style=True):
+        """
+        Update existing plot
+        :param ene_array:
+        :param legends:
+        :param x_title:
+        :param y_title:
+        :param plot_title:
+        :param plot_legend:
+        :param line_colors:
+        :param react_style:
+        :return:
+        """
+        self.x_title = x_title
+        self.y_title = y_title
+        self.plot_title = plot_title
+        self.plot_legend = plot_legend
+        self.legends = legends
+        self.line_colors = line_colors
+
+        self.set_plot_settings(react_style)
+        self.update_style(ax=self.ax, fig=self.fig, title=self.plot_title)
+
+        #mpl.rcParams.update()
+        #super().__init__(react_style=react_style)
+        self.fig.canvas.draw()
+        ene_array = self.check_array(ene_array)
+
+
+        self.plot_energy_diagram(ene_array, new_plot=False)
 
 
 class PlotGdata(PlotStuff):
@@ -415,3 +490,4 @@ class PlotGdata(PlotStuff):
         fig.suptitle(self.filename)
 
         plt.show()
+

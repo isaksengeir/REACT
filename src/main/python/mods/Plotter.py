@@ -37,6 +37,9 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         self.set_colour(0, random_color())
         self.set_title(0, "Title")
 
+        # Matplotlib.pyplot window:
+        self.plot = None
+
     def table_menu(self, event):
         """
         Opens up menu when tableWidget is right-clicked
@@ -101,7 +104,6 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                 row = index.row()
 
             elif index.row() != row:
-                print("Added new row!")
                 text_ += "\n"
                 row = index.row()
             else:
@@ -214,7 +216,7 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         :param column:
         :param title:
         """
-        self.ui.tableWidget.setItem(1, column, QTableWidgetItem("Title"))
+        self.ui.tableWidget.setItem(1, column, QTableWidgetItem(title))
 
     def make_plot(self):
         """
@@ -231,7 +233,6 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                     color = self.ui.tableWidget.item(row, column).background().color().name()
                     colors.append(color)
                 elif row == 1:
-                    print(self.ui.tableWidget.item(row, column))
                     titles.append(self.ui.tableWidget.item(row, column).text())
                 else:
                     try:
@@ -244,12 +245,22 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                     else:
                         pass
             plots.append(energies)
-
-        print(colors, titles, plots)
+            plots.append(energies)
 
         react_style = self.ui.checkBox_style.isChecked()
 
-        PlotEnergyDiagram(ene_array=plots, legends=titles, line_colors=colors, y_title="Relative Energy",
-                          plot_legend=True, react_style=react_style)
+        if not self.plot:
+            self.plot = PlotEnergyDiagram(ene_array=plots, parent=self, legends=titles, line_colors=colors,
+                                          y_title="Relative Energy", plot_legend=True, react_style=react_style)
+        else:
+            self.plot.update_plot(ene_array=plots, legends=titles, line_colors=colors, y_title="Relative Energy",
+                                  plot_legend=True, react_style=react_style)
 
+    def closeEvent(self, event):
+        """
+        Close matplotlib if open
+        :param event:
+        """
+        if self.plot:
+            self.plot.close(event)
 
