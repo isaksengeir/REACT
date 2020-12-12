@@ -13,9 +13,12 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
     def __init__(self, parent):
         super(Plotter, self).__init__(parent)
         # find better alternative to , Qt.WindowStaysOnTopHint
+
+        # Matplotlib.pyplot window:
+        self.plot = None
+
         self.ui = Ui_AnyPlotter()
         self.ui.setupUi(self)
-
 
         #Fix right-clickable menu:
         self.ui.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -27,8 +30,10 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
 
         self.ui.tableWidget.cellDoubleClicked.connect(self.double_click_color)
         self.ui.button_plot.clicked.connect(self.make_plot)
-
         self.ui.button_set_rows_columns.clicked.connect(self.update_table)
+
+        self.ui.checkBox_style.clicked.connect(self.update_plot)
+        self.ui.tableWidget.itemChanged.connect(self.update_plot)
 
         # Clipboard for copy/paste functionality
         self.clipboard = QApplication.clipboard()
@@ -37,8 +42,11 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         self.set_colour(0, random_color())
         self.set_title(0, "Title")
 
-        # Matplotlib.pyplot window:
-        self.plot = None
+
+
+    def update_plot(self):
+        if self.plot:
+            self.make_plot()
 
     def table_menu(self, event):
         """
@@ -49,8 +57,6 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         # If not cells are selected, return
         if not self.ui.tableWidget.selectedRanges():
             return
-
-
 
         menu = QMenu(self)
         copy_action = menu.addAction("Copy")
@@ -233,7 +239,10 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                     color = self.ui.tableWidget.item(row, column).background().color().name()
                     colors.append(color)
                 elif row == 1:
-                    titles.append(self.ui.tableWidget.item(row, column).text())
+                    try:
+                        titles.append(self.ui.tableWidget.item(row, column).text())
+                    except AttributeError:
+                        titles.append("Title%d" % row)
                 else:
                     try:
                         value = self.ui.tableWidget.item(row, column).text()
@@ -243,7 +252,7 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
                     if is_number(value):
                         energies.append(float(value))
                     else:
-                        pass
+                        energies.append(None)
             plots.append(energies)
 
         react_style = self.ui.checkBox_style.isChecked()

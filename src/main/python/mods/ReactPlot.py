@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from mods.common_functions import is_number
 
 import numpy as np
 
@@ -282,12 +283,24 @@ class PlotEnergyDiagram(PlotStuff):
         """
         y_data = np.repeat(energies, 2)
         x_data = np.empty_like(y_data)
+
         x_data[0::2] = np.arange(1, len(energies) + 1) - (marker_width/2)
         x_data[1::2] = np.arange(1, len(energies) + 1) + (marker_width/2)
         lines = list()
+
+        # Remove None values while keeping correct x-positions (allows for jumps in energy diagram):
+        for i in range(len(y_data) - 1, -1, -1):
+            if y_data[i] is None:
+                print("Deleting")
+                y_data = np.delete(y_data, i)
+                x_data = np.delete(x_data, i)
+
         lines.append(plt.Line2D(x_data, y_data, lw=1, linestyle="dashed", color=color))
+
         for x in range(0, len(energies)*2, 2):
-            lines.append(plt.Line2D(x_data[x:x+2], y_data[x:x+2], lw=4, linestyle="solid", color=color))
+            if is_number(x):
+                lines.append(plt.Line2D(x_data[x:x+2], y_data[x:x+2], lw=4, linestyle="solid", color=color))
+
         return lines
 
     def get_bounds(self, ene_array):
@@ -304,10 +317,11 @@ class PlotEnergyDiagram(PlotStuff):
             if len(plot) > x_max:
                 x_max = len(plot)
             for ene in plot:
-                if ene > y_max:
-                    y_max = ene
-                if ene < y_min:
-                    y_min = ene
+                if is_number(ene):
+                    if ene > y_max:
+                        y_max = ene
+                    if ene < y_min:
+                        y_min = ene
 
         return x_min, x_max + 0.5, y_min - 1, y_max + 1
 
@@ -338,7 +352,7 @@ class PlotEnergyDiagram(PlotStuff):
                 label = self.legends[i]
 
             legend_elements.append(plt.Line2D([0], [0], color=color, lw=3, label=label))
-            plots.append( self.energy_rank(energies=ene_array[i], marker_width=.5, color=color))
+            plots.append(self.energy_rank(energies=ene_array[i], marker_width=.5, color=color))
 
         return plots, legend_elements
 
@@ -347,6 +361,8 @@ class PlotEnergyDiagram(PlotStuff):
         :param ene_array: list of lists with energies to plot as energy diagram
         :param update: Update existing plot instead of opening new instance of matplotlib.pyplot
         """
+        if not new_plot:
+            self.ax.clear()
 
         # Get Line2D energy diagrams (plots) and labels (legends)
         plots, legend_elements = self.make_energy_diagram(ene_array)
