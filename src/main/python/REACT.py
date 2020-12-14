@@ -68,25 +68,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #MainWindow Buttons with methods:
         self.button_add_state.clicked.connect(self.add_state)
         self.button_delete_state.clicked.connect(self.delete_state)
-
-        self.button_add_file.clicked.connect(self.add_files_to_list)
+        self.button_add_file.clicked.connect(self.add_files)
         self.button_delete_file.clicked.connect(self.delete_file_from_list)
         self.button_edit_file.clicked.connect(self.edit_file)
         self.button_analyse_calc.clicked.connect(self.open_analyse)
         self.button_settings.clicked.connect(self.open_settings)
-
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
         self.button_plot_ene_diagram.clicked.connect(self.plot_energy_diagram)
-
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
         self.button_create_cluster.clicked.connect(self.create_cluster)
-
         self.button_plotter.clicked.connect(self.open_plotter)
-
         self.button_power_off.clicked.connect(self.power_off_on)
+
         self.power = True
 
         # Print welcome
@@ -103,7 +99,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
-    def add_files_to_list(self, paths=False):
+    def add_files(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
         TODO: need to check if files exist in list from before! If file exist, 
@@ -163,7 +159,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_progressbar(1)
         for n in range(len(file_paths)):
             file = file_paths[n]
-            self.states[self.tabWidget.currentIndex()].add_gfiles(file)
+            self.states[self.tabWidget.currentIndex()].add_gfile(file)
 
             progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
                                     self.check_convergence: (file, item_index,
@@ -552,7 +548,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if key == 'states':
                 for state in proj_item.items():
                     self.add_state()
-                    self.add_files_to_list(state[1])
+                    self.add_files(state[1])
 
                     # each state has to be completely loaded before moving on to text,
                     # to ensure the multithreading assigns files to correct state. 
