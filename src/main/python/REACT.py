@@ -212,15 +212,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def thread_complete(self):
         print("THREAD COMPLETE!")
 
-    def add_file_to_state(self, filepath):
-        """
-        :param filepath:
-        :return:
-        redundant?
-        """
-        self.states[self.tabWidget.currentIndex()].add_gfiles(filepath)
-        #
-
     def check_convergence(self, file_path, item_index, tab_index=None):
         filename = file_path.split('/')[-1]
         if tab_index is None:
