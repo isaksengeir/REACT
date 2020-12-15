@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from mods.common_functions import is_number
+from mods.common_functions import is_number, random_color
 
 import numpy as np
 
@@ -28,6 +28,7 @@ class PlotStuff:
         Defines mpl.rcParams
         :return:
         """
+
         # REACT color scheme:
         react_white = "#dcdcdc"
         react_blue = "#6272a4"
@@ -81,8 +82,32 @@ class PlotStuff:
 
         mpl.rcParams["axes.formatter.useoffset"] = False
 
-        mpl.rcParams["axes.prop_cycle"] = mpl.cycler('color', ['8f1777', '1f77b4', 'ff7f0e', '2ca02c', 'd62728',
-                                                       '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
+        custom_colors = ['8f1777', '1f77b4', 'ff7f0e', '2ca02c', 'd62728',
+                                                       '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf']
+        #Add 100 more colors:
+        for i in range(100):
+            custom_colors.append(random_color())
+
+        mpl.rcParams["axes.prop_cycle"] = mpl.cycler('color', custom_colors )
+
+    def set_axes_font_size(self, size=12):
+        mpl.rc('axes', titlesize=size)
+
+    def set_axes_label_size(self, size=12):
+        mpl.rc('axes', labelsize=size)
+        mpl.rcParams['axes.labelsize'] = size
+
+    def set_xtick_label_size(self, size=12):
+        mpl.rc('xtick', labelsize=size)
+
+    def set_ytick_label_size(self, size=12):
+        mpl.rc('ytick', labelsize=size)
+
+    def set_legend_size(self, size=12):
+        mpl.rc('legend', fontsize=size)
+
+    def set_figure_title_size(self, size=12):
+        mpl.rc('figure', titlesize=size)
 
     def update_style(self, fig, ax, title=None):
         """
@@ -103,6 +128,10 @@ class PlotStuff:
 
         ax.yaxis.label.set_color(mpl.rcParams["axes.labelcolor"])
         ax.xaxis.label.set_color(mpl.rcParams["axes.labelcolor"])
+        ax.xaxis.label.set_size(mpl.rcParams["axes.labelsize"])
+        ax.yaxis.label.set_size(mpl.rcParams["axes.labelsize"])
+
+
 
         # Don't mess with title color unless there is a title - it will display color code in title then
         if title:
@@ -254,9 +283,10 @@ class PlotEnergyDiagram(PlotStuff):
         self.fig, self.ax = plt.subplots()
         self.fig.canvas.mpl_connect('close_event', self.close)
 
-        ene_array = self.check_array(ene_array)
+        self.ene_array = self.check_array(ene_array)
 
-        self.plot_energy_diagram(ene_array)
+        if not self.parent:
+            self.plot_energy_diagram(self.ene_array)
 
     def close(self, event):
         if self.parent:
@@ -291,7 +321,6 @@ class PlotEnergyDiagram(PlotStuff):
         # Remove None values while keeping correct x-positions (allows for jumps in energy diagram):
         for i in range(len(y_data) - 1, -1, -1):
             if y_data[i] is None:
-                print("Deleting")
                 y_data = np.delete(y_data, i)
                 x_data = np.delete(x_data, i)
 
@@ -356,11 +385,14 @@ class PlotEnergyDiagram(PlotStuff):
 
         return plots, legend_elements
 
-    def plot_energy_diagram(self, ene_array, new_plot=True):
+    def plot_energy_diagram(self, ene_array=None, new_plot=True):
         """
         :param ene_array: list of lists with energies to plot as energy diagram
         :param update: Update existing plot instead of opening new instance of matplotlib.pyplot
         """
+        if not ene_array:
+            ene_array = self.ene_array
+
         if not new_plot:
             self.ax.clear()
 
@@ -395,7 +427,9 @@ class PlotEnergyDiagram(PlotStuff):
             self.ax.set_xlabel(self.x_title)
 
         if new_plot:
+            self.update_style(ax=self.ax, fig=self.fig, title=self.plot_title)
             plt.show()
+
         else:
             plt.draw()
 
@@ -423,11 +457,8 @@ class PlotEnergyDiagram(PlotStuff):
         self.set_plot_settings(react_style)
         self.update_style(ax=self.ax, fig=self.fig, title=self.plot_title)
 
-        #mpl.rcParams.update()
-        #super().__init__(react_style=react_style)
-        self.fig.canvas.draw()
+        #self.fig.canvas.draw()
         ene_array = self.check_array(ene_array)
-
 
         self.plot_energy_diagram(ene_array, new_plot=False)
 

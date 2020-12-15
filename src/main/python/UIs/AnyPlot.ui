@@ -6,15 +6,39 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>338</height>
+    <width>478</width>
+    <height>436</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QSpinBox {
+     padding-right: 15px; /* make room for the arrows */
+	border: 2px solid #515151;
+
+     border-width: 3;
+ }
+
+ QSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right; /* position at the top right corner */
+
+     width: 16px; /* 16 + 2*1px border-width = 15px padding + 3px parent border */
+     border-image: url(:/images/spinup.png) 1;
+     border-width: 1px;
+ }
+
+ QSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right; /* position at bottom right corner */
+
+     width: 16px;
+     border-image: url(:/images/spindown.png) 1;
+     border-width: 1px;
+     border-top-width: 0;
+ }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -28,78 +52,82 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="5">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Columns:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="spinBox_rows">
-           <property name="maximum">
-            <number>99999</number>
-           </property>
-           <property name="value">
-            <number>3</number>
-           </property>
-          </widget>
-         </item>
+        <layout class="QGridLayout" name="gridLayout_5">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Rows</string>
-           </property>
-          </widget>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="1">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Rows</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="spinBox_rows">
+               <property name="maximum">
+                <number>99999</number>
+               </property>
+               <property name="value">
+                <number>3</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Columns:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QSpinBox" name="spinBox_columns">
+               <property name="maximum">
+                <number>99999</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QPushButton" name="button_set_rows_columns">
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>SET</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
-         <item row="0" column="3">
-          <widget class="QSpinBox" name="spinBox_columns">
-           <property name="maximum">
-            <number>99999</number>
-           </property>
-           <property name="value">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QPushButton" name="button_set_rows_columns">
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>SET</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0" colspan="3">
+         <item row="1" column="0">
           <widget class="QTableWidget" name="tableWidget">
            <property name="contextMenuPolicy">
             <enum>Qt::DefaultContextMenu</enum>
@@ -159,57 +187,151 @@
            <column/>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QComboBox" name="plot_type">
-           <property name="minimumSize">
-            <size>
-             <width>150</width>
-             <height>0</height>
-            </size>
-           </property>
-           <item>
-            <property name="text">
-             <string>Energy diagram</string>
-            </property>
+         <item row="2" column="0">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="1">
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
-           <item>
-            <property name="text">
-             <string>Line</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="checkBox_style">
-           <property name="styleSheet">
-            <string notr="true">QCheckBox::indicator:checked {image: url(:/24x24/resources/icons/toggle_on.png);}
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="0" column="0" colspan="5">
+              <widget class="QComboBox" name="plot_type">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Energy diagram</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Line</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="0" column="5" colspan="2">
+              <widget class="QCheckBox" name="checkBox_style">
+               <property name="styleSheet">
+                <string notr="true">QCheckBox::indicator:checked {image: url(:/24x24/resources/icons/toggle_on.png);}
 
 QCheckBox::indicator:unchecked {image: url(:/24x24/resources/icons/toggle_off.png);}
 </string>
-           </property>
-           <property name="text">
-            <string>Style</string>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>24</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="tristate">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="button_plot">
-           <property name="text">
-            <string>Plot</string>
-           </property>
-          </widget>
+               </property>
+               <property name="text">
+                <string>Style</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="tristate">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="7" colspan="2">
+              <widget class="QPushButton" name="button_plot">
+               <property name="text">
+                <string>Plot</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Y-axis title</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" colspan="7">
+              <widget class="QLineEdit" name="lineEdit_ytitle">
+               <property name="text">
+                <string>Relative Energy</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>X-axis title</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" colspan="7">
+              <widget class="QLineEdit" name="lineEdit_xtitle">
+               <property name="text">
+                <string>State</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Axes</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1" colspan="2">
+              <widget class="QSpinBox" name="spinBox_axis_fontsize">
+               <property name="frame">
+                <bool>true</bool>
+               </property>
+               <property name="value">
+                <number>12</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Ticks</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="4" colspan="2">
+              <widget class="QSpinBox" name="spinBox_ticklabel_size">
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="6" colspan="2">
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>Legend </string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="8">
+              <widget class="QSpinBox" name="spinBox_legend_size">
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>

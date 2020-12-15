@@ -1,9 +1,8 @@
 
-from PyQt5.QtWidgets import QMainWindow, QMenu, QTableWidgetItem, QApplication
+from PyQt5.QtWidgets import QMainWindow, QMenu, QTableWidgetItem, QApplication, QSpinBox
 from PyQt5.QtCore import Qt
 
-
-from PyQt5.QtGui import QColor, QClipboard
+from PyQt5.QtGui import QColor, QBrush
 from UIs.AnyPlot import Ui_AnyPlotter
 from mods.ReactPlot import PlotEnergyDiagram
 from mods.common_functions import random_color, select_color, is_number
@@ -42,11 +41,21 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
         self.set_colour(0, random_color())
         self.set_title(0, "Title")
 
+        self.numerate_vertical_headers()
+
 
 
     def update_plot(self):
         if self.plot:
             self.make_plot()
+
+    def numerate_vertical_headers(self):
+        """
+        Make vertical headers start from 1..N
+        :return:
+        """
+        for i in range(2, self.ui.tableWidget.rowCount()):
+            self.ui.tableWidget.setVerticalHeaderItem(i, QTableWidgetItem(str(i-1)))
 
     def table_menu(self, event):
         """
@@ -180,6 +189,8 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
             self.ui.tableWidget.insertRow(insert_index)
             insert_index += 1
 
+        self.numerate_vertical_headers()
+
     def delete_rows(self, delete_index, rows_total):
         """
         :param delete_index: Index to delete
@@ -256,13 +267,34 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
             plots.append(energies)
 
         react_style = self.ui.checkBox_style.isChecked()
+        y_title = self.ui.lineEdit_ytitle.text()
+        x_title = self.ui.lineEdit_xtitle.text()
 
         if not self.plot:
             self.plot = PlotEnergyDiagram(ene_array=plots, parent=self, legends=titles, line_colors=colors,
-                                          y_title="Relative Energy", plot_legend=True, react_style=react_style)
+                                          y_title=y_title, x_title=x_title, plot_legend=True, react_style=react_style)
+            self.read_plot_settings()
+
+            self.plot.plot_energy_diagram()
+
+
         else:
-            self.plot.update_plot(ene_array=plots, legends=titles, line_colors=colors, y_title="Relative Energy",
+            self.read_plot_settings()
+            self.plot.update_plot(ene_array=plots, legends=titles, line_colors=colors, y_title=y_title, x_title=x_title,
                                   plot_legend=True, react_style=react_style)
+
+    def read_plot_settings(self):
+        """
+
+        :return:
+        """
+        settings = {self.plot.set_axes_label_size: self.ui.spinBox_axis_fontsize,
+                    self.plot.set_xtick_label_size: self.ui.spinBox_ticklabel_size,
+                    self.plot.set_ytick_label_size: self.ui.spinBox_ticklabel_size,
+                    self.plot.set_legend_size: self.ui.spinBox_legend_size}
+
+        for setter in settings.keys():
+            setter(settings[setter].value())
 
     def closeEvent(self, event):
         """
