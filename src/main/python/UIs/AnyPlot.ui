@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>478</width>
+    <width>385</width>
     <height>436</height>
    </rect>
   </property>
@@ -14,36 +14,15 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QSpinBox {
-     padding-right: 15px; /* make room for the arrows */
-	border: 2px solid #515151;
-
-     border-width: 3;
- }
-
- QSpinBox::up-button {
-     subcontrol-origin: border;
-     subcontrol-position: top right; /* position at the top right corner */
-
-     width: 16px; /* 16 + 2*1px border-width = 15px padding + 3px parent border */
-     border-image: url(:/images/spinup.png) 1;
-     border-width: 1px;
- }
-
- QSpinBox::down-button {
-     subcontrol-origin: border;
-     subcontrol-position: bottom right; /* position at bottom right corner */
-
-     width: 16px;
-     border-image: url(:/images/spindown.png) 1;
-     border-width: 1px;
-     border-top-width: 0;
- }</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QFrame" name="frame">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -242,6 +221,9 @@ QCheckBox::indicator:unchecked {image: url(:/24x24/resources/icons/toggle_off.pn
                 </size>
                </property>
                <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
                 <bool>true</bool>
                </property>
                <property name="tristate">

@@ -43,7 +43,18 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
 
         self.numerate_vertical_headers()
 
+        # TODO check if user is using OS:
+        self.remove_mac_spinbox_focus()
 
+    def remove_mac_spinbox_focus(self):
+        """
+        Removes the rather annoying blue focus border that is default on MAC os
+        :return:
+        """
+        spins = [self.ui.spinBox_legend_size, self.ui.spinBox_rows, self.ui.spinBox_ticklabel_size,
+                 self.ui.spinBox_axis_fontsize, self.ui.spinBox_columns]
+        for spin in spins:
+            spin.setAttribute(Qt.WA_MacShowFocusRect, False)
 
     def update_plot(self):
         if self.plot:

@@ -285,31 +285,35 @@ QProgressBar::chunk{
 }
 
 
+
 QSpinBox {
-padding-right: 15px; /* make room for the arrows */
-background-color: rgb(30,30,30);
+/*padding-right: 15px; /* make room for the arrows */
+background-color: rgb(20,20,20);
 color: rgb(220,220,220);
-border: 2px solid rgb(20, 20, 20);
+border: 1px solid rgb(20, 20, 20);
 }
 
 QSpinBox:hover
 {
-	border: 2px solid rgb(143, 23, 119);
+	border: 1px solid rgb(143, 23, 119);
 }
 
 QSpinBox:focus
 {
-	border: 2px solid rgb(143, 23, 119);
+	border: 1px solid rgb(143, 23, 119);
 }
 
 
 QSpinBox::up-button {
+	background-color: rgb(30,30,30);
 	subcontrol-origin: border;
      subcontrol-position: top right; /* position at the top right corner */
 
      width: 16px; /* 16 + 2*1px border-width = 15px padding + 3px parent border */
 	image: url(:/16x16/resources/icons/arrow-top.png) 1;
 	border-width: 1px;
+	top: 1px;
+	right: 1px;
 }
 
  QSpinBox::up-button:hover {
@@ -317,12 +321,13 @@ QSpinBox::up-button {
 }
 
 QSpinBox::up-button:pressed  {
-top: 1px;
-right: 1px;
+top: -1px;
+right: 2px;
 }
 
 
 QSpinBox::down-button {
+	background-color:rgb(30,30,30);
      subcontrol-origin: border;
      subcontrol-position: bottom right; /* position at bottom right corner */
 
@@ -330,6 +335,8 @@ QSpinBox::down-button {
      image: url(:/16x16/resources/icons/arrow-bottom.png) 1;
      border-width: 1px;
      border-top-width: 0;
+	top: -1px;
+    right: 1px;
  }
 
 QSpinBox::down-button:hover {
@@ -338,8 +345,9 @@ QSpinBox::down-button:hover {
 
 QSpinBox::down-button:pressed  {
 top: 1px;
-right: 1px;
+right: 2px;
 }
+
 
 QComboBox::drop-down {
 color: rgb(220,220,220);
