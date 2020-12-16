@@ -403,7 +403,8 @@ class PlotEnergyDiagram(PlotStuff):
         x_min, x_max, y_min, y_max = self.get_bounds(ene_array)
 
         # Make integer X-ticks only for number of included states:
-        self.ax.set_xticks(np.arange(1, x_max, step=1))
+        if x_max < 9:
+            self.ax.set_xticks(np.arange(1, x_max, step=1))
 
         # Add custom legend:
         if self.plot_legend:
@@ -457,7 +458,6 @@ class PlotEnergyDiagram(PlotStuff):
         self.set_plot_settings(react_style)
         self.update_style(ax=self.ax, fig=self.fig, title=self.plot_title)
 
-        #self.fig.canvas.draw()
         ene_array = self.check_array(ene_array)
 
         self.plot_energy_diagram(ene_array, new_plot=False)

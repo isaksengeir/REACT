@@ -223,7 +223,7 @@ class Plotter(QMainWindow, Ui_AnyPlotter):
             return None
 
         column = self.ui.tableWidget.currentColumn()
-        color = select_color()
+        color = select_color(parent=self)
 
         self.set_colour(column, color)
 

@@ -187,7 +187,7 @@
               <widget class="QComboBox" name="plot_type">
                <property name="minimumSize">
                 <size>
-                 <width>150</width>
+                 <width>0</width>
                  <height>0</height>
                 </size>
                </property>
@@ -198,7 +198,7 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Line</string>
+                 <string>Energy landscape</string>
                 </property>
                </item>
               </widget>
