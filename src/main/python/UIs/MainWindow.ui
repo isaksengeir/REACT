@@ -53,7 +53,9 @@ QLineEdit{
 color: rgb(220,220,220);
 background-color: rgb(20,20,20);
 border: None;
-
+}
+QLineEdit::hover {
+border: 1px solid rgb(143,23,119);
 }
 
 QRadioButton{
@@ -62,7 +64,7 @@ color: rgb(98, 114, 164);
 }
 
 QRadioButton::indicator::unchecked {
-    background-color: rgb(30,30,30);
+    background-color: rgb(20,20,20);
 }
 
 
@@ -353,7 +355,7 @@ QComboBox {
     border: 1px solid rgb(30,30,30);
     border-radius: 3px;
     padding: 0px 3px 0px 3px;
-    min-width: 6em;
+    /*min-width: 6em;*/
 }
 
 QComboBox:!editable::hover {
