@@ -187,9 +187,15 @@
               <widget class="QComboBox" name="plot_type">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>108</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="currentIndex">
+                <number>0</number>
                </property>
                <item>
                 <property name="text">

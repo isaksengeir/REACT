@@ -86,7 +86,8 @@ class Ui_AnyPlotter(object):
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         self.plot_type = QtWidgets.QComboBox(self.frame)
-        self.plot_type.setMinimumSize(QtCore.QSize(0, 0))
+        self.plot_type.setMinimumSize(QtCore.QSize(108, 0))
+        self.plot_type.setStyleSheet("")
         self.plot_type.setObjectName("plot_type")
         self.plot_type.addItem("")
         self.plot_type.addItem("")
@@ -146,6 +147,7 @@ class Ui_AnyPlotter(object):
         AnyPlotter.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(AnyPlotter)
+        self.plot_type.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(AnyPlotter)
 
     def retranslateUi(self, AnyPlotter):
