@@ -47,3 +47,27 @@ def is_number(s):
         return True
     except:
         return False
+
+
+def json_hook_int_please(obj):
+    """
+    Used as object hook when calling json.load()
+    Will convert a key-object of type str into type int, if possible
+    """
+    new_dict = {}
+    for k, v in obj.items():
+        if isinstance(v,dict):
+            new_dict_sub = {}
+            for k_sub, v_sub in v.items():
+                try: 
+                    new_k_sub = int(k_sub)
+                    new_dict_sub[new_k_sub] = v[k_sub]
+                except ValueError:
+                    new_dict_sub[k] = v[k_sub]
+        try: 
+            new_k = int(k)
+            new_dict[new_k] = obj[k]
+        except ValueError:
+            new_dict[k] = obj[k]
+        
+    return new_dict

@@ -9,11 +9,7 @@ import mods.common_functions as cf
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
-from mods.FileEditor import FileEditor
-from mods.AnalyseCalc import AnalyseCalc
-from mods.GlobalSettings import GlobalSettings
-from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
-from mods.Plotter import Plotter
+from mods.PrintPlotOpen import PrintPlotOpen
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from mods.ThreadWorkers import Worker
@@ -23,7 +19,7 @@ import time
 #methods --> Classes --> Modules --> Packages
 
 
-class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
     def __init__(self, *args, obj=None, **kwargs):
 
         # SPLASH
@@ -68,25 +64,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #MainWindow Buttons with methods:
         self.button_add_state.clicked.connect(self.add_state)
         self.button_delete_state.clicked.connect(self.delete_state)
-
-        self.button_add_file.clicked.connect(self.add_files_to_list)
-        self.button_delete_file.clicked.connect(self.delete_file_from_list)
-        self.button_edit_file.clicked.connect(self.edit_file)
+        self.button_add_file.clicked.connect(self.add_files)
+        self.button_delete_file.clicked.connect(self.delete_file)
+        self.button_edit_file.clicked.connect(self.open_editfile)
         self.button_analyse_calc.clicked.connect(self.open_analyse)
         self.button_settings.clicked.connect(self.open_settings)
-
         self.button_print_energy.clicked.connect(self.print_energy)
         self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
         self.button_plot_ene_diagram.clicked.connect(self.plot_energy_diagram)
-
         self.button_save_project.clicked.connect(self.save_project)
         self.button_open_project.clicked.connect(self.import_project)
         self.button_create_cluster.clicked.connect(self.create_cluster)
-
         self.button_plotter.clicked.connect(self.open_plotter)
-
         self.button_power_off.clicked.connect(self.power_off_on)
+
         self.power = True
 
         # Print welcome
@@ -103,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
-    def add_files_to_list(self, paths=False):
+    def add_files(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
         TODO: need to check if files exist in list from before! If file exist, 
@@ -135,7 +127,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Start thread first:
         worker = Worker(self.thread_add_files, files_path, items_insert_index)
-        #worker.signals.result.connect(self.print_result)
         worker.signals.finished.connect(self.thread_complete)
         worker.signals.progress.connect(self.progress_fn)
         self.threadpool.start(worker)
@@ -163,7 +154,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_progressbar(1)
         for n in range(len(file_paths)):
             file = file_paths[n]
-            self.states[self.tabWidget.currentIndex()].add_gfiles(file)
+            self.states[self.tabWidget.currentIndex()].add_gfile(file)
 
             progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
                                     self.check_convergence: (file, item_index,
@@ -206,9 +197,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.progressBar.setValue(int(val))
 
-    def print_result(self, result):
-        return result
-
     def thread_complete(self):
         print("THREAD COMPLETE!")
 
@@ -233,7 +221,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             elif not isinstance(converged, bool):
                 tab_widget.item(item_index).setForeground(QtGui.QColor(117, 129, 104))
 
-    def delete_file_from_list(self):
+    def delete_file(self):
         """
         Deletes selected file(s) from QtabBarWidget-->Tab-->QListWdget-->item
         :return:
@@ -268,22 +256,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         # Update analyse window, if active:
                         if self.analyse_window:
                             self.analyse_window.update_state_included_files()
-
-    def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
-        """
-        Opens file dialog where multiple files can be selected.
-        Return: files_ --> list of files (absolute path)
-        Return: files_type --> string with the chosen filter_type
-        """
-        # TODO this can be removed at some point - it is not readable on mac either. This is because of the
-        #  DontUseNativeDialog (which will be removed)
-        if 'linux' in sys.platform:
-            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
-        else:
-            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
-                                                                        options=QtWidgets.QFileDialog.DontUseNativeDialog)
-
-        return files_, files_type
 
     def update_tab_names(self):
         """
@@ -343,172 +315,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tabWidget.widget(tab_index).deleteLater()
         self.states.pop(tab_index)
 
-    def append_text(self, text=str(), date_time=False):
-        """
-        :param text: text to be printed in ain window textBrowser
-        :return:
-        """
-        if date_time:
-            text = "\n%s\n%s" % (time.asctime(time.localtime(time.time())), text)
-        self.textBrowser.appendPlainText(text)
-        self.textBrowser.verticalScrollBar().setValue(self.textBrowser.verticalScrollBar().maximum())
-
-    def print_energy(self):
-        """
-        Takes the selected file and prints the final ENERGY (SCF Done) in hartree and kcal/mol.
-        :return:
-        """
-        filepath = self.tabWidget.currentWidget().currentItem().text()
-        filename = filepath.split('/')[-1]
-
-        if filename.split('.')[-1] not in  ["out", "log"]:
-            self.append_text("%s does not seem to be a Gaussian output file." % filename)
-            return
-
-        #this file --> State
-        state_energy = self.states[self.tabWidget.currentIndex()].get_energy(filepath)
-        #energy_kcal = superfile.connvert_to_kcal(energy_au) TODO ?
-
-        energy_kcal = cf.hartree_to_kcal(state_energy)
-
-        self.append_text("\nFinal energy of %s:" % filename)
-        self.append_text("%f a.u" % state_energy)
-        self.append_text("%.4f kcal/mol" % energy_kcal)
-
-    def get_relative_energies(self):
-        """
-        :return: energies dict[state] = "dE": float, "file":path
-        """
-        energies = list()
-        d_energies = dict()
-
-        for tab_index in range(self.tabWidget.count()):
-            if self.tabWidget.widget(tab_index).currentItem():
-                file_path = self.tabWidget.widget(tab_index).currentItem().text()
-                if file_path.split(".")[-1] in ["out", "log"]:
-                    energies.append(self.states[tab_index].get_energy(file_path))
-                    d_energies[tab_index + 1] = {"dE": energies[tab_index]-energies[0], "file": file_path}
-
-                else:
-                    self.append_text("%s does not seem to be Gaussian output" % file_path)
-            else:
-                self.append_text("No files selected for state %d" % (tab_index + 1))
-
-        return d_energies
-
-    def print_relative_energy(self):
-        """
-        calculates the relative energy (to state 1) for all states and prints it in the log window
-        :return:
-        """
-        self.append_text("Relative energies", date_time=True)
-
-        d_energies = self.get_relative_energies()
-
-        for state in sorted(d_energies.keys()):
-            self.append_text("%sE(%d): %.4f kcal/mol (%s)" % (cf.unicode_symbols["Delta"], state,
-                                                              cf.hartree_to_kcal(d_energies[state]["dE"]),
-                                                              d_energies[state]["file"].split("/")[-1]))
-
-    def plot_energy_diagram(self):
-        """
-
-        :return:
-        """
-        d_ene = self.get_relative_energies()
-
-        #Convert d_ene dict to list of energies in kcal/mol
-        d_ene = [cf.hartree_to_kcal(d_ene[x]["dE"]) for x in sorted(d_ene.keys())]
-
-        plot = PlotEnergyDiagram(d_ene, x_title="State", y_title="Relative energy", plot_legend=False)
-
-    def plot_scf(self):
-        """
-        Takes the selected file and prints the 4 Convergence criterias.
-        :return:
-        """
-        filepath = self.tabWidget.currentWidget().currentItem().text()
-
-        # Can not plot? :
-        if filepath.split(".")[-1] not in ["out", "log"]:
-            return
-
-        filename = filepath.split('/')[-1]
-
-        scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filepath)
-
-        #Check if this is geometry optimization or not (None if not):
-        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filepath)
-        plot = PlotGdata(scf_data, filename)
-
-        if converged is None:
-            plot.plot_scf_done()
-            self.append_text("%s seem to not be a geometry optimisation ..." % filename)
-        else:
-            plot.plot_scf_convergence()
-            if converged is False:
-                self.append_text("%s has not converged successfully." % filename)
-
-    def edit_file(self):
-        """
-
-        :return:
-        """
-        if not self.tabWidget.currentWidget().currentItem():
-            self.append_text("\n No file selected for editing!")
-            return
-
-        filepath = self.tabWidget.currentWidget().currentItem().text()
-
-        editor = FileEditor(self, filepath)
-        editor.show()
-
     def create_input_content(self, filepath):
         '''
         :return: string -> content of new input file, based on outputfile given as argument
         '''
         return self.states[self.tabWidget.currentIndex()].create_input_content(filepath)
-
-    def open_settings(self):
-
-        if self.settings_window:
-            self.append_text("\nSettings window is already running."
-                             "\nPerhaps the window is hidden?")
-            self.settings_window.raise_()
-        else:
-            self.settings_window = GlobalSettings(self)
-            self.settings_window.show()
-
-    def open_analyse(self):
-        """
-
-        :return:
-        """
-        if self.analyse_window:
-            self.append_text("\nAnalyse Calculation is already running. \nPerhaps the window is hidden?")
-            self.analyse_window.raise_()
-            return
-
-        if not self.tabWidget.currentWidget().currentItem() and not self.included_files:
-            self.append_text("\n Nothing to analyse here ...")
-            return
-        self.analyse_window = AnalyseCalc(self)
-        self.analyse_window.show()
-
-    def create_cluster(self):
-        """
-        """
-        dialog = DialogMessage(self, "Create Cluster not yet available:(")
-        dialog.exec_()
-
-    def open_plotter(self):
-        """
-
-        :return:
-        """
-
-        self.plotter = Plotter(self)
-        self.plotter.show()
 
     def import_project(self):
         """
@@ -539,7 +350,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
 
         with open(proj_path, 'r') as proj_file:
-            proj = json.load(proj_file, object_hook=self.json_hook_int_please)
+            proj = json.load(proj_file, object_hook=cf.json_hook_int_please)
 
         for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
             self._import_project_pop_and_assign(proj, key)
@@ -552,7 +363,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if key == 'states':
                 for state in proj_item.items():
                     self.add_state()
-                    self.add_files_to_list(state[1])
+                    self.add_files(state[1])
 
                     # each state has to be completely loaded before moving on to text,
                     # to ensure the multithreading assigns files to correct state. 
@@ -607,31 +418,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         with open(proj_path, 'w') as f:
             json.dump(project, f)
 
-    def json_hook_int_please(self, obj):
-        """
-        Used as object hook when calling json.load()
-        Will convert a key-object of type str into type int, if possible
-        """
-        new_dict = {}
-        for k, v in obj.items():
-
-            if isinstance(v,dict):
-                new_dict_sub = {}
-                for k_sub, v_sub in v.items():
-                    try: 
-                        new_k_sub = int(k_sub)
-                        new_dict_sub[new_k_sub] = v[k_sub]
-                    except ValueError:
-                        new_dict_sub[k] = v[k_sub]
-
-            try: 
-                new_k = int(k)
-                new_dict[new_k] = obj[k]
-            except ValueError:
-                new_dict[k] = obj[k]
-            
-        return new_dict
-
     def power_off_on(self):
         """
         power down when power button is clicked
@@ -652,7 +438,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.power = True
             self.timer2.stop()
             self.timer.start(5)
-
 
 
 # Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code

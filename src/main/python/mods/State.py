@@ -6,7 +6,7 @@ import time
 
 class State:
 
-    def __init__(self, file_paths=None):
+    def __init__(self):
 
         # File types --> sublass assignment
         self.file_types = {"com": InputFile,
@@ -19,12 +19,10 @@ class State:
         self.gfiles = {}
 
         start = time.time()
-        if file_paths:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                [executor.submit(self.add_gfiles, f) for f in file_paths]
-        print("self.add_gfiles Time executed:", time.time() - start, "s")
 
-    def add_gfiles(self, filepath):
+        print("self.add_gfile Time executed:", time.time() - start, "s")
+
+    def add_gfile(self, filepath):
         """
         Creates GaussianFile instance for each uploaded file-path.
         """
