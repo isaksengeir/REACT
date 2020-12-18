@@ -13,8 +13,9 @@ from mods.FileEditor import FileEditor
 
 class PrintPlotOpen():
     """
-    Defines the print/plot/open methods developed to be used by the MainWindow class. 
-    Will most likely throw errors left and right if called by any other classes! 
+    Defines the print/plot/open methods developed to be used by the MainWindow
+    class. Will most likely throw errors left and right if called by any other
+    classes than MainWindow!
     """
 
     def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
