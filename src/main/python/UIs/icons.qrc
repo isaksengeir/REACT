@@ -20,6 +20,11 @@
     <file>../../resources/icons/arrow-circle-bottom.png</file>
     <file>../../resources/icons/arrow-circle-top.png</file>
   </qresource>
+  <qresource prefix="16x16">
+    <file>../../resources/icons/arrow-top.png</file>
+    <file>../../resources/icons/arrow-bottom.png</file>
+  </qresource>
+  <qresource prefix="newPrefix"/>
   <qresource prefix="logo">
     <file>../../resources/icons/REACT_logo.png</file>
   </qresource>

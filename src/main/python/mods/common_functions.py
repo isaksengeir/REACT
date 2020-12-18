@@ -11,12 +11,12 @@ def random_color():
     return f"#{random.randrange(0x1000000):06x}"
 
 
-def select_color():
+def select_color(parent=None):
     """
     Opens QColorDialog where user selects color.
     :return: Hex Color Code
     """
-    color = QColorDialog.getColor()
+    color = QColorDialog.getColor(parent=parent)
     return color
 
 
