@@ -315,8 +315,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.tabWidget.widget(tab_index).deleteLater()
         self.states.pop(tab_index)
 
-
-
     def create_input_content(self, filepath):
         '''
         :return: string -> content of new input file, based on outputfile given as argument
