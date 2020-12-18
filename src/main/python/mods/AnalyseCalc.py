@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from UIs.AnalyseWindow import Ui_AnalyseWindow
 import mods.common_functions as cf
 from mods.ReactPlot import SpectrumIR, PlotEnergyDiagram
+from mods.PymolProcess import PymolSession
 
 
 class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
@@ -26,11 +27,19 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         self.ui.button_plot_energies.clicked.connect(self.plot_energies)
 
+        self.ui.button_frq_pymol.clicked.connect(self.view_in_pymol)
+
         # Track State viewed in MainWindow:
         self.react.tabWidget.tabBar().currentChanged.connect(self.update_state_included_files)
 
         # Initialise dict of included files if it does not exist:
         self.energies = dict()
+
+        # Pymol session:
+        # TODO - get pymol_path from global settings
+        self.pymol_path = '/Applications/PyMOL.app/Contents/MacOS/pymol'
+        self.pymol = None
+
         state = self.react.tabWidget.currentIndex() + 1
         if not self.react.included_files or sum(len(x) for x in self.react.included_files[state].values()) < 4:
             self.init_included_files()
@@ -45,6 +54,12 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.ui.unit_hartree.toggled.connect(lambda: self.set_unit(1))
         self.ui.unit_kcal.toggled.connect(lambda: self.set_unit(627.51))
         self.ui.unit_kj.toggled.connect(lambda: self.set_unit(2625.51))
+
+    def view_in_pymol(self):
+        if not self.pymol:
+            self.pymol = PymolSession(parent=self, home=self.react, pymol_path=self.pymol_path)
+
+        self.pymol.load_structure("/Users/gvi022/Onedrive - UiT Office 365/programming/REACT/src/main/resources/DFT_testfiles/EST_PS.xyz")
 
     def set_unit(self, value):
         self.unit = float(value)

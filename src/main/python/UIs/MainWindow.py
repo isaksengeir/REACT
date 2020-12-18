@@ -63,7 +63,7 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QRadioButton::indicator::unchecked {\n"
-"    background-color: rgb(20,20,20);\n"
+"    background-color: rgb(50,50,50);\n"
 "}\n"
 "\n"
 "\n"

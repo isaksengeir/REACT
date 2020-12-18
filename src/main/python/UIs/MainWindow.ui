@@ -64,7 +64,7 @@ color: rgb(98, 114, 164);
 }
 
 QRadioButton::indicator::unchecked {
-    background-color: rgb(20,20,20);
+    background-color: rgb(50,50,50);
 }
 
 
