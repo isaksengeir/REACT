@@ -187,7 +187,7 @@
               <widget class="QComboBox" name="plot_type">
                <property name="minimumSize">
                 <size>
-                 <width>108</width>
+                 <width>104</width>
                  <height>0</height>
                 </size>
                </property>
@@ -196,6 +196,9 @@
                </property>
                <property name="currentIndex">
                 <number>0</number>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToContents</enum>
                </property>
                <item>
                 <property name="text">

@@ -4,7 +4,7 @@ from UIs.AnalyseWindow import Ui_AnalyseWindow
 import mods.common_functions as cf
 from mods.ReactPlot import SpectrumIR, PlotEnergyDiagram
 from mods.PymolProcess import PymolSession
-
+import os
 
 class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
     def __init__(self, parent):
@@ -27,7 +27,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         self.ui.button_plot_energies.clicked.connect(self.plot_energies)
 
-        self.ui.button_frq_pymol.clicked.connect(self.view_in_pymol)
+        self.ui.button_frq_pymol.clicked.connect(self.view_freq_in_pymol)
 
         # Track State viewed in MainWindow:
         self.react.tabWidget.tabBar().currentChanged.connect(self.update_state_included_files)
@@ -55,11 +55,53 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.ui.unit_kcal.toggled.connect(lambda: self.set_unit(627.51))
         self.ui.unit_kj.toggled.connect(lambda: self.set_unit(2625.51))
 
-    def view_in_pymol(self):
+    @property
+    def get_selected_frequency(self):
+        frq = self.ui.list_frequencies.selectedItems()
+        if not frq:
+            # TODO Bente, did you make some class for pop-up warnings? This could be nice here, I think.
+            self.react.append_text("Select frequency to be displayed in pymol")
+            return None
+        else:
+            return frq[0].text().split()[0]
+
+    def view_freq_in_pymol(self):
+        """
+        Takes current output file, creates a temporary xyz file - loads it to pymol and creates movie for
+        selected frequency
+        :return:
+        """
+        # Get selected frequency:
+        frq = self.get_selected_frequency
+        print("Displaying Frequency %s" % frq)
+
+        # path to gaussian output file with frequencies:
+        g_file = self.get_freq_file
+
+        # Current state:
+        state = self.get_current_state
+
+        # Get XYZ file from gaussian frequency file TODO remove state -1 dependency!
+        xyz = self.react.states[state-1].get_final_xyz(g_file)
+
+        xyz_path = "%s/%s.xyz" % (self.react.settings["workdir"], g_file.split("/")[-1].split(".")[0])
+        xyz_file = open(xyz_path, "w")
+
+        for line in xyz:
+            print(line)
+            xyz_file.write(line+"\n")
+
+        xyz_file.close()
+
         if not self.pymol:
             self.pymol = PymolSession(parent=self, home=self.react, pymol_path=self.pymol_path)
 
-        self.pymol.load_structure("/Users/gvi022/Onedrive - UiT Office 365/programming/REACT/src/main/resources/DFT_testfiles/EST_PS.xyz")
+        # Load file:
+        self.pymol.load_structure(xyz_path, delete_after=True)
+
+        # Fix representation
+        self.pymol.pymol_cmd("hide spheres")
+        self.pymol.pymol_cmd("show sticks")
 
     def set_unit(self, value):
         self.unit = float(value)
@@ -405,8 +447,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         PlotEnergyDiagram(ene_array=plots, legends=legends,x_title="State", y_title="Relative Energy", plot_legend=True)
 
-
-
     def has_energy_terms(self, term=0):
         """
         Check if all states have energy terms...
@@ -458,19 +498,34 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                 """
         return self.has_energy_terms(3)
 
+    @property
+    def get_current_state(self):
+        """
+        :return: integer (state)
+        """
+        return self.react.tabWidget.currentIndex() + 1
+
+    @property
+    def get_freq_file(self):
+        """
+        :return: path to frequency file of currently active state
+        """
+        return str(self.react.included_files[self.get_current_state][1])
+
     def plot_frequency(self):
         """
         :return:
         """
-        state = self.react.tabWidget.currentIndex() + 1
+        state = self.get_current_state
         if self.energies[state][1]:
-            frequencies = self.react.states[state - 1].get_frequencies(str(self.react.included_files[state][1]))
+            # TODO Bente, states should probably use the actual state number, not the tab index?
+            frequencies = self.react.states[state - 1].get_frequencies(self.get_freq_file)
             freq = list()
             inten = list()
             for x in sorted(frequencies.keys()):
                 freq.append(x)
                 inten.append(frequencies[x])
-            SpectrumIR(freq, inten)
+            plot = SpectrumIR(freq, inten)
 
     def set_file_included(self):
         """
@@ -478,8 +533,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         :return:
         """
         insert_index = self.ui.calctype.currentRow()
-        filepath = self.react.tabWidget.currentWidget().currentItem().text()
-        state = self.react.tabWidget.currentIndex() + 1
+        filepath = self.react.get_selected_filepath
+        state = self.react.get_current_state
 
         if filepath.split(".")[-1] not in ["out", "log"]:
             self.react.append_text("File must be Gaussian output file")
@@ -519,6 +574,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         :param event:
         """
         self.react.analyse_window = None
+        if self.pymol:
+            self.pymol.close()
 
 
 

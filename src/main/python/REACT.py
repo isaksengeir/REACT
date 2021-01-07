@@ -291,9 +291,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         """
         self.states.append(State())
 
-        state = self.tabWidget.count() + 1
-        self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
-        self.tabWidget.setCurrentWidget(self.tabWidget.widget(state-1))
+        # This assumes that add state is always pressed when the tab with the highest number is active...
+        # state = self.get_current_state
+        state = self.count_states
+        self.tabWidget.addTab(DragDropListWidget(self), f"{state+1}")
+        self.tabWidget.setCurrentWidget(self.tabWidget.widget(state))
 
     def delete_state(self):
         """
@@ -316,9 +318,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.states.pop(tab_index)
 
     def create_input_content(self, filepath):
-        '''
+        """
         :return: string -> content of new input file, based on outputfile given as argument
-        '''
+        """
         return self.states[self.tabWidget.currentIndex()].create_input_content(filepath)
 
     def import_project(self):
@@ -431,7 +433,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             self.timer2.timeout.connect(lambda: self.update_progressbar(reverse=True))
             self.timer2.start(5)
 
-
         else:
             self.button_power_off.setIcon(QtGui.QIcon('../resources/icons/power_on.png'))
             self.append_text("Powering down cancelled.")
@@ -439,6 +440,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             self.timer2.stop()
             self.timer.start(5)
 
+    @property
+    def get_selected_filepath(self):
+        """
+        :return: path to selected file, str
+        """
+        return self.tabWidget.currentWidget().currentItem().text()
+
+    @property
+    def get_current_state(self):
+        """
+        :return: integer (state)
+        """
+        return self.tabWidget.currentIndex() + 1
+
+    @property
+    def count_states(self):
+        """
+        :return: integer (total number of states)
+        """
+        return self.tabWidget.count()
 
 # Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
 appctxt = ApplicationContext()

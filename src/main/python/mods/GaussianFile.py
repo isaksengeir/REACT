@@ -467,23 +467,41 @@ class FrequenciesOut(OutputFile):
     def get_displacement(self, frequency):
         """
         Make GaussianMolecule with displacements for X,Y,Z for all atoms as "coordinates"
-        :param frequency:
+        :param frequency: selected frequency to extract displacements from
         :return: TODO
         """
-        # found_displacement = False
-        # g_atoms = list()
-                #if found_displacement:
-                #    if len(line.split()) > 5:
-                #        g_line = "%s 0 %s" % (" ".join((line.split()[0:2])), " ".join(line.split()[2:5]))
-                #        g_atoms.append(GaussianAtom(g_line))
-                #    else:
-                #        # TODO need to include all 3 sets here, not just the first:
-                #        self.freq_displacement[freq[0]] = GaussianMolecule(g_atoms=g_atoms)
-                #        found_displacement = False
-                #if "Atom  AN      X      Y      Z" in line:
-                #    found_displacement = True
+        # Skip reading of output file if already read and stored:
+        if frequency in self.freq_displacement[frequency]:
+            return self.freq_displacement[frequency]
 
-        # __init__(atom_nr, x_coordinate, y_coordinate, z_coordinate)
+        found_frequency = False
+        found_displacement = False
+        g_atoms = list()
+
+        index_range = {0: (2, 5), 1: (5, 8), 2: (8, 11)}
+
+        with open(self.file_path, "r") as frq:
+            for line in frq:
+                if "Frequencies" in line:
+                    current_frqs = line.split()[2:5]
+                    if frequency in current_frqs:
+                        frq_index = current_frqs.index(frequency)
+                        found_frequency = True
+
+                if found_displacement:
+                    if len(line.split()) > 5:
+                        coord_start, coord_end = index_range[frq_index][:]
+                        g_line = "%s 0 %s" % (" ".join((line.split()[0:2])),
+                                              " ".join(line.split()[coord_start:coord_end]))
+                        g_atoms.append(GaussianAtom(g_line))
+                    else:
+                        # TODO need to include all 3 sets here, not just the first:
+                        self.freq_displacement[frequency] = GaussianMolecule(g_atoms=g_atoms)
+                        found_displacement = False
+                        return self.freq_displacement[frequency]
+
+                if found_frequency and "Atom  AN      X      Y      Z" in line:
+                    found_displacement = True
 
     @property
     def get_img_frq(self):

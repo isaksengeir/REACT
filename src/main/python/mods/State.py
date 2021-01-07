@@ -181,12 +181,13 @@ class State:
             return self.gfiles[filepath].get_frequencies
 
     def create_input_content(self, path):
-        '''
-        Create inputfile content (not file), based on coordiantes from an outputfile or from *.xyz file, or from XYZfile object?
-        '''
+        """
+        Create inputfile content (not file), based on coordiantes from an outputfile or from *.xyz file,
+        or from XYZfile object?
+        """
         
         # if coordinates argument is a file associated with this state. NB works for inp/out only, what if file is *.xyz?
-
+        content = ""
         gaussian_filetypes = ["out", "inp", "com"]
         if path.split(".")[-1] in gaussian_filetypes:
             routecard = self.gfiles[path].get_routecard
