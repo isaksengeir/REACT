@@ -27,7 +27,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         self.ui.button_plot_energies.clicked.connect(self.plot_energies)
 
-        self.ui.button_frq_pymol.clicked.connect(self.view_freq_in_pymol)
+        self.ui.button_frq_pymol.clicked.connect(self.animate_frequency)
+
+        self.ui.horizontalSlider_scale.valueChanged.connect(self.update_scale)
 
         # Track State viewed in MainWindow:
         self.react.tabWidget.tabBar().currentChanged.connect(self.update_state_included_files)
@@ -55,6 +57,12 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.ui.unit_kcal.toggled.connect(lambda: self.set_unit(627.51))
         self.ui.unit_kj.toggled.connect(lambda: self.set_unit(2625.51))
 
+    def update_scale(self):
+        """
+        connect scalebar with LCD number displayed
+        """
+        self.ui.lcdNumber_scale.display(self.ui.horizontalSlider_scale.value())
+
     @property
     def get_selected_frequency(self):
         frq = self.ui.list_frequencies.selectedItems()
@@ -65,12 +73,26 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         else:
             return frq[0].text().split()[0]
 
-    def view_freq_in_pymol(self):
+    def animate_frequency(self):
         """
-        Takes current output file, creates a temporary xyz file - loads it to pymol and creates movie for
-        selected frequency
+        Takes current output file, creates temporary xyz files - loads it to pymol and creates movie for
+        selected frequency. Temporary xyz files, can be stored if selected by user under settings.
         :return:
         """
+        view_pymol = False
+        delete_files = True
+
+        if self.ui.checkBox_view_pymol.isChecked():
+            view_pymol = True
+
+        if self.ui.checkBox_write_xyz.isChecked():
+            delete_files = False
+
+        # if not view in pymol or not write files - nothing to do - return
+        if not view_pymol and delete_files:
+            print("Well, no reason to get up and go to work with these settings... ")
+            return
+
         # Get selected frequency:
         frq = self.get_selected_frequency
         print("Displaying Frequency %s" % frq)
@@ -79,29 +101,37 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         g_file = self.get_freq_file
 
         # Current state:
-        state = self.get_current_state
+        state = self.react.get_current_state
 
-        # Get XYZ file from gaussian frequency file TODO remove state -1 dependency!
-        xyz = self.react.states[state-1].get_final_xyz(g_file)
+        scale = self.ui.lcdNumber_scale.value() / 100.
 
-        xyz_path = "%s/%s.xyz" % (self.react.settings["workdir"], g_file.split("/")[-1].split(".")[0])
-        xyz_file = open(xyz_path, "w")
+        xyz_vib = self.react.states[state-1].get_displacement_xyz(filepath=g_file, freq=frq, steps=10, scale=scale)
 
-        for line in xyz:
-            print(line)
-            xyz_file.write(line+"\n")
-
-        xyz_file.close()
-
-        if not self.pymol:
+        if view_pymol and not self.pymol:
             self.pymol = PymolSession(parent=self, home=self.react, pymol_path=self.pymol_path)
 
-        # Load file:
-        self.pymol.load_structure(xyz_path, delete_after=True)
+        # Load files
+        i = 0
+        base_name = "%s/%s" % (self.react.settings["workdir"], g_file.split("/")[-1].split(".")[0])
+        for vib in xyz_vib:
+            xyz_path = "%s_%03d.xyz" % (base_name, i)
+            cf.write_file(vib, xyz_path)
+            i += 1
+            if view_pymol:
+                self.pymol.load_structure(xyz_path, delete_after=delete_files)
 
-        # Fix representation
-        self.pymol.pymol_cmd("hide spheres")
-        self.pymol.pymol_cmd("show sticks")
+        if view_pymol:
+            # Make animation
+            # join_states moviename, mol*, 0 (the 0 assumes identical input objects so bonds can vary)
+            self.pymol.pymol_cmd("join_states w_%s, %s*, 0" % (frq, base_name.split("/")[-1]))
+            self.pymol.pymol_cmd("delete %s*" % base_name.split("/")[-1])
+            self.pymol.pymol_cmd("set movie_fps, 40")
+            self.pymol.pymol_cmd("mplay")
+
+            # Fix representation
+            self.pymol.pymol_cmd("hide spheres")
+            self.pymol.pymol_cmd("show sticks")
+            self.pymol.pymol_cmd("color grey, name C*")
 
     def set_unit(self, value):
         self.unit = float(value)
@@ -287,6 +317,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
             for freq in sorted(frequencies.keys()):
                 insert_index += 1
                 self.ui.list_frequencies.insertItem(insert_index, "%10.4f %10.4f" % (freq, frequencies[freq]))
+
+            # select the first frequency:
+            self.ui.list_frequencies.setCurrentRow(1)
 
     def update_relative_values(self):
         """
@@ -499,24 +532,17 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         return self.has_energy_terms(3)
 
     @property
-    def get_current_state(self):
-        """
-        :return: integer (state)
-        """
-        return self.react.tabWidget.currentIndex() + 1
-
-    @property
     def get_freq_file(self):
         """
         :return: path to frequency file of currently active state
         """
-        return str(self.react.included_files[self.get_current_state][1])
+        return str(self.react.included_files[self.react.get_current_state][1])
 
     def plot_frequency(self):
         """
         :return:
         """
-        state = self.get_current_state
+        state = self.react.get_current_state
         if self.energies[state][1]:
             # TODO Bente, states should probably use the actual state number, not the tab index?
             frequencies = self.react.states[state - 1].get_frequencies(self.get_freq_file)

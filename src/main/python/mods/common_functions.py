@@ -11,13 +11,18 @@ def random_color():
     return f"#{random.randrange(0x1000000):06x}"
 
 
-def select_color(parent=None):
+def select_color(parent=None, return_hex=True):
     """
     Opens QColorDialog where user selects color.
-    :return: Hex Color Code
+    :return_hex: Return hex color code
+    :return: Hex Color Code (hex=True), else RGB tuple will be returned (r,g,b)
     """
     color = QColorDialog.getColor(parent=parent)
-    return color
+    if return_hex:
+        return color
+    else:
+        color = color.lstrip("#")
+        return tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
 
 
 def hartree_to_kcal(au):
@@ -71,3 +76,16 @@ def json_hook_int_please(obj):
             new_dict[k] = obj[k]
         
     return new_dict
+
+
+def write_file(list_stuff, path):
+    """
+    Takes a list of lines and writes file to path
+    :param list_stuff: list()
+    :param path: str()
+    :return: path: str()
+    """
+    _file = open(path, "w")
+    for line in list_stuff:
+        _file.write(line + "\n")
+    _file.close()

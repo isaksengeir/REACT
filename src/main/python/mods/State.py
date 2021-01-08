@@ -123,6 +123,19 @@ class State:
 
         return self.get_xyz_formatted(molecule)
 
+    def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
+        """
+        :param filepath:
+        :return: list of formated xyz files
+        """
+        g_molecules = self.gfiles[filepath].create_displacement_animation(freq=freq, scale=scale, steps=steps)
+
+        xyz = list()
+        for step in g_molecules:
+            xyz.append(self.get_xyz_formatted(step))
+
+        return xyz
+
     def get_routecard(self, filepath):
         """
         :param filepath:

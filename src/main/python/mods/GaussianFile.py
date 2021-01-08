@@ -2,6 +2,7 @@ import distutils.util
 from mods.Atoms import GaussianAtom, Atom
 from mods.MoleculeFile import GaussianMolecule
 import re
+import copy
 import mmap
 import time
 
@@ -164,7 +165,9 @@ class InputFile(GaussianFile):
         self.charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
 
         self.read_gaussian_inp()
-        self.get_coordinates
+
+        # TODO, I have commented the below out, because it does not do anything...
+        # self.get_coordinates
 
     def read_gaussian_inp(self):
         """
@@ -410,6 +413,14 @@ class OutputFile(GaussianFile):
         return iter_atoms
 
     @property
+    def get_final_molecule(self):
+        """
+        :return: GaussianMolecule
+        """
+        atoms = self.get_coordinates[-1]
+        return GaussianMolecule(g_atoms=atoms)
+
+    @property
     def has_solvent(self):
         """
         :return: solvent = True/False
@@ -471,7 +482,7 @@ class FrequenciesOut(OutputFile):
         :return: TODO
         """
         # Skip reading of output file if already read and stored:
-        if frequency in self.freq_displacement[frequency]:
+        if frequency in self.freq_displacement.keys():
             return self.freq_displacement[frequency]
 
         found_frequency = False
@@ -496,12 +507,40 @@ class FrequenciesOut(OutputFile):
                         g_atoms.append(GaussianAtom(g_line))
                     else:
                         # TODO need to include all 3 sets here, not just the first:
-                        self.freq_displacement[frequency] = GaussianMolecule(g_atoms=g_atoms)
+                        self.freq_displacement[frequency] = GaussianMolecule(g_atoms=g_atoms).g_molecule
                         found_displacement = False
                         return self.freq_displacement[frequency]
 
                 if found_frequency and "Atom  AN      X      Y      Z" in line:
                     found_displacement = True
+
+    def create_displacement_animation(self, freq, scale=1, steps=10):
+        """
+        :param scale: scale displacment
+        :param steps: number of structures to create
+        :return: list of gaussian molecules, where the first is the original optimised molecules.
+        """
+        molecule = self.get_final_molecule.g_molecule
+
+        displacement = self.get_displacement(freq)
+
+        molecules = list()
+        molecules.append(molecule)
+        coord = ["x","y","z"]
+
+        # Forward direction (N steps)
+        for i in range(steps):
+            mol_disp = copy.deepcopy(molecule)
+            for atom in mol_disp.keys():
+                for x in coord:
+                    mol_disp[atom][x] = float(mol_disp[atom][x])
+                    mol_disp[atom][x] += float(displacement[atom][x]) * scale * (i/steps)
+            molecules.append(mol_disp)
+        # Reversed direction
+        for i in range(len(molecules) - 1, 0, -1):
+            molecules.append(molecules[i])
+
+        return molecules
 
     @property
     def get_img_frq(self):

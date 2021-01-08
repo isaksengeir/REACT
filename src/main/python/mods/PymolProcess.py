@@ -30,7 +30,10 @@ class PymolSession:
         :param file_: path to file (xyz, pdb, mae)
         """
         if delete_after:
-            self.delete_file = file_
+            if not self.delete_file:
+                self.delete_file = dict()
+            # filename as displayed in pymol : filepath
+            self.delete_file[file_.split("/")[-1].split(".")[0]] = file_
         if not file_:
             print("PymolProcess load_structure - No file given")
             return
@@ -75,14 +78,19 @@ class PymolSession:
         data = self.session.readAllStandardOutput()
         stdout = bytes(data).decode("utf8")
 
+        # TODO remove print statement
+        print(stdout)
+
         # Delete file?
         if self.delete_file:
             if "CmdLoad: loaded as" in stdout:
-                os.remove(self.delete_file)
+                # remove left " and right ". from pymol string in filename
+                filename = stdout.split()[3][1:-2]
+                if filename in self.delete_file.keys():
+                    os.remove(self.delete_file.pop(filename))
+            # When all files are deleted, set to None again:
+            if len(self.delete_file.keys()) == 0:
                 self.delete_file = None
-
-        # TODO remove print statement
-        print(stdout)
 
     def handle_state(self, state):
         states = {

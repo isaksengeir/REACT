@@ -66,6 +66,8 @@ class GaussianMolecule(XYZFile, GaussianAtom):
 
         return molecule
 
+
+
     # TODO Gaussian molecule probably need some unique properties not present in XYZ file
 
 

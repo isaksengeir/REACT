@@ -291,8 +291,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         """
         self.states.append(State())
 
-        # This assumes that add state is always pressed when the tab with the highest number is active...
-        # state = self.get_current_state
         state = self.count_states
         self.tabWidget.addTab(DragDropListWidget(self), f"{state+1}")
         self.tabWidget.setCurrentWidget(self.tabWidget.widget(state))

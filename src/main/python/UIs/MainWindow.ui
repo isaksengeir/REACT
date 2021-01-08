@@ -433,7 +433,32 @@ QCheckBox::indicator:unchecked {
 image: url(:/24x24/resources/icons/toggle_off.png);
 }
 
-</string>
+QLCDNumber {
+border: 0px;
+color: rgb(143,23,119);
+
+}
+
+QSlider::handle:horizontal {
+    background:  rgb(98, 114, 164);
+    border: 1px solid rgb(20,20,20);
+    width: 10px;
+    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 3px;
+}
+
+QSlider::groove:horizontal {
+border: 1px solid rgb(20,20,20);
+height: 10px;
+
+border-radius: 9px;
+}
+
+QSlider::sub-page:qlineargradient {
+background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));
+
+
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
