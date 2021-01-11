@@ -11,7 +11,7 @@ from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from mods.FileEditor import FileEditor
 
 
-class PrintPlotOpen():
+class PrintPlotOpen:
     """
     Defines the print/plot/open methods developed to be used by the MainWindow
     class. Will most likely throw errors left and right if called by any other

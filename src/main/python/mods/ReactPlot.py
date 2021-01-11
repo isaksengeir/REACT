@@ -475,34 +475,12 @@ class PlotGdata(PlotStuff):
         :param energies:
         :return:
         """
-        fig = plt.figure()
-        scf_data1 = fig.add_subplot(1, 1, 1)
+
+        scf_data1 = self.fig.add_subplot(1, 1, 1)
         scf_data1.set_title("Energy")
         scf_data1.plot(list(range(1, len(self.g_data["SCF Done"]) + 1)), self.g_data["SCF Done"], label="SCF")
 
         plt.legend()
-        plt.show()
-
-    def plot_convergence(self):
-        """
-        plot Force and displacement (max and rms)
-        :return:
-        """
-        # Set up the figure
-        fig, axs = plt.subplots(nrows=2, ncols=2)
-        axs = axs.flatten()
-        fig.tight_layout()
-
-        axs[0].set_title('Maximum Force')
-        axs[1].set_title('RMS Force')
-        axs[2].set_title('Maximum displacement')
-        axs[3].set_title('RMS displacement')
-
-        axs[0].plot(self.g_data["Maximum Force"])
-        axs[1].plot(self.g_data["RMS     Force"])
-        axs[2].plot(self.g_data["Maximum Displacement"])
-        axs[3].plot(self.g_data["RMS     Displacement"])
-
         plt.show()
 
     def plot_scf_convergence(self):
@@ -510,31 +488,71 @@ class PlotGdata(PlotStuff):
         Plots SCF energy, Force and displacement from optimisation.
         :return:
         """
+
+        self.points = None
+
         fig = plt.figure()
         scf_data = fig.add_subplot(2, 4, (1, 6))
         scf_data.set_title("Energy")
         scf_data.set_ylabel("Hartree")
-        scf_data.plot(list(range(1, len(self.g_data["SCF Done"])+1)), self.g_data["SCF Done"], label="SCF")
+        scf_data.plot(list(range(1, len(self.g_data["SCF Done"])+1)), self.g_data["SCF Done"], label="SCF", picker=True)
         plt.legend()
 
         force = fig.add_subplot(2,4,(3,4))
         force.set_title("Force")
         force.set_ylabel("Hartree/Bohr")
-        force.plot(list(range(1, len(self.g_data["Maximum Force"])+1)), self.g_data["Maximum Force"], label="Maximum")
-        force.plot(list(range(1, len(self.g_data["RMS     Force"])+1)), self.g_data["RMS     Force"], label="RMS")
+        force.plot(list(range(1, len(self.g_data["Maximum Force"])+1)), self.g_data["Maximum Force"], label="Maximum",
+                   picker=True)
+        force.plot(list(range(1, len(self.g_data["RMS     Force"])+1)), self.g_data["RMS     Force"], label="RMS",
+                   picker=True)
         plt.legend()
 
         displ = fig.add_subplot(2,4,(7,8))
         displ.set_title("Displacement")
         displ.set_ylabel("Angstrom")
         displ.plot(list(range(1, len(self.g_data["Maximum Displacement"])+1)),
-                   self.g_data["Maximum Displacement"], label="Maximum")
+                   self.g_data["Maximum Displacement"], label="Maximum", picker=True)
         displ.plot(list(range(1, len(self.g_data["RMS     Displacement"])+1)),
-                   self.g_data["RMS     Displacement"], label="RMS")
+                   self.g_data["RMS     Displacement"], label="RMS", picker=True)
 
         plt.legend()
 
         fig.suptitle(self.filename)
 
+        def on_pick(event):
+            if self.points:
+                for point in self.points:
+                    point.remove()
+
+            ind = event.ind[0]
+            print("energy (%d) = %f" % (ind +1, self.g_data["SCF Done"][ind]))
+            self.points = list()
+            self.points.append(scf_data.plot(ind + 1, self.g_data["SCF Done"][ind], "o", color="white",
+                                             fillstyle='none')[0])
+            self.points.append(force.plot(ind+1, self.g_data["Maximum Force"][ind], "o", color="white",
+                                          fillstyle='none')[0])
+            self.points.append(force.plot(ind + 1, self.g_data["RMS     Force"][ind], "o", color="white",
+                                          fillstyle='none')[0])
+            self.points.append(displ.plot(ind + 1, self.g_data["Maximum Displacement"][ind], "o", color="white",
+                                          fillstyle='none')[0])
+            self.points.append(displ.plot(ind + 1, self.g_data["RMS     Displacement"][ind], "o", color="white",
+                                          fillstyle='none')[0])
+
+            #fig.canvas.draw()
+            #fig.canvas.flush_events()
+            plt.draw()
+
+
+        fig.canvas.mpl_connect("pick_event", on_pick)
+
         plt.show()
+
+    def onclick(self, event):
+        print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+              ('double' if event.dblclick else 'single', event.button,
+               event.x, event.y, event.xdata, event.ydata))
+
+
+
+
 

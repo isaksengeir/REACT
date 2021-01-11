@@ -1,8 +1,8 @@
 
-from PyQt5.QtWidgets import QMainWindow, QMenu, QTableWidgetItem, QApplication, QSpinBox
+from PyQt5.QtWidgets import QMainWindow, QMenu, QTableWidgetItem, QApplication
 from PyQt5.QtCore import Qt
 
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtGui import QColor
 from UIs.AnyPlot import Ui_AnyPlotter
 from mods.ReactPlot import PlotEnergyDiagram
 from mods.common_functions import random_color, select_color, is_number
