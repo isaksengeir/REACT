@@ -117,7 +117,10 @@ class PrintPlotOpen:
         Takes the selected file and prints the 4 Convergence criterias.
         :return:
         """
-        filepath = self.tabWidget.currentWidget().currentItem().text()
+        try:
+            filepath = self.tabWidget.currentWidget().currentItem().text()
+        except:
+            return
 
         # Can not plot? :
         if filepath.split(".")[-1] not in ["out", "log"]:

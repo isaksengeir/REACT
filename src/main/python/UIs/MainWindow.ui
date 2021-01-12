@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
+    <width>829</width>
     <height>436</height>
    </rect>
   </property>
@@ -433,32 +433,7 @@ QCheckBox::indicator:unchecked {
 image: url(:/24x24/resources/icons/toggle_off.png);
 }
 
-QLCDNumber {
-border: 0px;
-color: rgb(143,23,119);
-
-}
-
-QSlider::handle:horizontal {
-    background:  rgb(98, 114, 164);
-    border: 1px solid rgb(20,20,20);
-    width: 10px;
-    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-    border-radius: 3px;
-}
-
-QSlider::groove:horizontal {
-border: 1px solid rgb(20,20,20);
-height: 10px;
-
-border-radius: 9px;
-}
-
-QSlider::sub-page:qlineargradient {
-background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));
-
-
-}</string>
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -950,8 +925,8 @@ QPushButton:pressed
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
             <widget class="QLabel" name="label_3">
              <property name="minimumSize">
               <size>
@@ -970,7 +945,7 @@ QPushButton:pressed
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QPushButton" name="button_add_state">
              <property name="minimumSize">
               <size>
@@ -1002,7 +977,7 @@ QPushButton:pressed
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="2">
             <widget class="QPushButton" name="button_delete_state">
              <property name="minimumSize">
               <size>
@@ -1034,7 +1009,7 @@ QPushButton:pressed
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="3">
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -1047,28 +1022,42 @@ QPushButton:pressed
              </property>
             </spacer>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="0" rowspan="5">
-            <widget class="QTabWidget" name="tabWidget">
-             <property name="styleSheet">
-              <string notr="true">/*border-color:rgb(98, 114, 164);*/
-
-border-color:rgb(143, 23, 119);</string>
+           <item row="0" column="4">
+            <widget class="QPushButton" name="button_pymol">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
              </property>
-             <property name="currentIndex">
-              <number>-1</number>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
              </property>
-             <property name="usesScrollButtons">
-              <bool>true</bool>
+             <property name="text">
+              <string/>
              </property>
-             <property name="movable">
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/24px-PyMOL_logo_trans.png</normaloff>:/24x24/resources/icons/24px-PyMOL_logo_trans.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
               <bool>true</bool>
              </property>
             </widget>
            </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_2">
            <item row="2" column="1">
             <widget class="QPushButton" name="button_delete_file">
              <property name="minimumSize">
@@ -1101,19 +1090,6 @@ border-color:rgb(143, 23, 119);</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>18</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item row="0" column="1">
             <spacer name="verticalSpacer">
              <property name="orientation">
@@ -1121,8 +1097,8 @@ border-color:rgb(143, 23, 119);</string>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>20</width>
-               <height>18</height>
+               <width>21</width>
+               <height>14</height>
               </size>
              </property>
             </spacer>
@@ -1159,6 +1135,19 @@ border-color:rgb(143, 23, 119);</string>
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>21</width>
+               <height>14</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item row="3" column="1">
             <widget class="QPushButton" name="button_edit_file">
              <property name="minimumSize">
@@ -1190,6 +1179,24 @@ border-color:rgb(143, 23, 119);</string>
               </size>
              </property>
              <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0" rowspan="5">
+            <widget class="QTabWidget" name="tabWidget">
+             <property name="styleSheet">
+              <string notr="true">/*border-color:rgb(98, 114, 164);*/
+
+border-color:rgb(143, 23, 119);</string>
+             </property>
+             <property name="currentIndex">
+              <number>-1</number>
+             </property>
+             <property name="usesScrollButtons">
+              <bool>true</bool>
+             </property>
+             <property name="movable">
               <bool>true</bool>
              </property>
             </widget>
@@ -1275,41 +1282,6 @@ border-color:rgb(143, 23, 119);</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="button_print_energy">
-             <property name="minimumSize">
-              <size>
-               <width>24</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>24</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true"/>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="icon">
-              <iconset resource="icons.qrc">
-               <normaloff>:/24x24/resources/icons/quick_print_E.png</normaloff>:/24x24/resources/icons/quick_print_E.png</iconset>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>24</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="flat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="4">
             <widget class="QPushButton" name="button_print_relativeE">
              <property name="minimumSize">
@@ -1333,6 +1305,41 @@ border-color:rgb(143, 23, 119);</string>
              <property name="icon">
               <iconset resource="icons.qrc">
                <normaloff>:/24x24/resources/icons/quick_delta_E.png</normaloff>:/24x24/resources/icons/quick_delta_E.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="button_print_energy">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="icons.qrc">
+               <normaloff>:/24x24/resources/icons/quick_print_E.png</normaloff>:/24x24/resources/icons/quick_print_E.png</iconset>
              </property>
              <property name="iconSize">
               <size>

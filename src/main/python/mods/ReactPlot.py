@@ -538,10 +538,8 @@ class PlotGdata(PlotStuff):
             self.points.append(displ.plot(ind + 1, self.g_data["RMS     Displacement"][ind], "o", color="white",
                                           fillstyle='none')[0])
 
-            #fig.canvas.draw()
-            #fig.canvas.flush_events()
-            plt.draw()
 
+            plt.draw()
 
         fig.canvas.mpl_connect("pick_event", on_pick)
 

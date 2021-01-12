@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(750, 436)
+        MainWindow.resize(829, 436)
         font = QtGui.QFont()
         font.setFamily("Courier")
         MainWindow.setFont(font)
@@ -432,32 +432,7 @@ class Ui_MainWindow(object):
 "image: url(:/24x24/resources/icons/toggle_off.png);\n"
 "}\n"
 "\n"
-"QLCDNumber {\n"
-"border: 0px;\n"
-"color: rgb(143,23,119);\n"
-"\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal {\n"
-"    background:  rgb(98, 114, 164);\n"
-"    border: 1px solid rgb(20,20,20);\n"
-"    width: 10px;\n"
-"    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
-"    border-radius: 3px;\n"
-"}\n"
-"\n"
-"QSlider::groove:horizontal {\n"
-"border: 1px solid rgb(20,20,20);\n"
-"height: 10px;\n"
-"\n"
-"border-radius: 9px;\n"
-"}\n"
-"\n"
-"QSlider::sub-page:qlineargradient {\n"
-"background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));\n"
-"\n"
-"\n"
-"}")
+"")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -641,13 +616,13 @@ class Ui_MainWindow(object):
         self.button_save_project.setObjectName("button_save_project")
         self.horizontalLayout.addWidget(self.button_save_project)
         self.verticalLayout_3.addLayout(self.horizontalLayout)
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.gridLayout_5 = QtWidgets.QGridLayout()
+        self.gridLayout_5.setObjectName("gridLayout_5")
         self.label_3 = QtWidgets.QLabel(self.frame_4)
         self.label_3.setMinimumSize(QtCore.QSize(50, 0))
         self.label_3.setMaximumSize(QtCore.QSize(50, 16777215))
         self.label_3.setObjectName("label_3")
-        self.horizontalLayout_2.addWidget(self.label_3)
+        self.gridLayout_5.addWidget(self.label_3, 0, 0, 1, 1)
         self.button_add_state = QtWidgets.QPushButton(self.frame_4)
         self.button_add_state.setMinimumSize(QtCore.QSize(24, 24))
         self.button_add_state.setMaximumSize(QtCore.QSize(24, 24))
@@ -658,7 +633,7 @@ class Ui_MainWindow(object):
         self.button_add_state.setIconSize(QtCore.QSize(24, 24))
         self.button_add_state.setFlat(True)
         self.button_add_state.setObjectName("button_add_state")
-        self.horizontalLayout_2.addWidget(self.button_add_state)
+        self.gridLayout_5.addWidget(self.button_add_state, 0, 1, 1, 1)
         self.button_delete_state = QtWidgets.QPushButton(self.frame_4)
         self.button_delete_state.setMinimumSize(QtCore.QSize(24, 24))
         self.button_delete_state.setMaximumSize(QtCore.QSize(24, 24))
@@ -669,20 +644,23 @@ class Ui_MainWindow(object):
         self.button_delete_state.setIconSize(QtCore.QSize(24, 24))
         self.button_delete_state.setFlat(True)
         self.button_delete_state.setObjectName("button_delete_state")
-        self.horizontalLayout_2.addWidget(self.button_delete_state)
+        self.gridLayout_5.addWidget(self.button_delete_state, 0, 2, 1, 1)
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem4)
-        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
+        self.gridLayout_5.addItem(spacerItem4, 0, 3, 1, 1)
+        self.button_pymol = QtWidgets.QPushButton(self.frame_4)
+        self.button_pymol.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_pymol.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_pymol.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/24px-PyMOL_logo_trans.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_pymol.setIcon(icon5)
+        self.button_pymol.setIconSize(QtCore.QSize(24, 24))
+        self.button_pymol.setFlat(True)
+        self.button_pymol.setObjectName("button_pymol")
+        self.gridLayout_5.addWidget(self.button_pymol, 0, 4, 1, 1)
+        self.verticalLayout_3.addLayout(self.gridLayout_5)
         self.gridLayout_2 = QtWidgets.QGridLayout()
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.tabWidget = QtWidgets.QTabWidget(self.frame_4)
-        self.tabWidget.setStyleSheet("/*border-color:rgb(98, 114, 164);*/\n"
-"\n"
-"border-color:rgb(143, 23, 119);")
-        self.tabWidget.setUsesScrollButtons(True)
-        self.tabWidget.setMovable(True)
-        self.tabWidget.setObjectName("tabWidget")
-        self.gridLayout_2.addWidget(self.tabWidget, 0, 0, 5, 1)
         self.button_delete_file = QtWidgets.QPushButton(self.frame_4)
         self.button_delete_file.setMinimumSize(QtCore.QSize(24, 24))
         self.button_delete_file.setMaximumSize(QtCore.QSize(24, 24))
@@ -692,10 +670,8 @@ class Ui_MainWindow(object):
         self.button_delete_file.setFlat(True)
         self.button_delete_file.setObjectName("button_delete_file")
         self.gridLayout_2.addWidget(self.button_delete_file, 2, 1, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem5, 4, 1, 1, 1)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 18, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem6, 0, 1, 1, 1)
+        spacerItem5 = QtWidgets.QSpacerItem(21, 14, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem5, 0, 1, 1, 1)
         self.button_add_file = QtWidgets.QPushButton(self.frame_4)
         self.button_add_file.setMinimumSize(QtCore.QSize(24, 24))
         self.button_add_file.setMaximumSize(QtCore.QSize(24, 24))
@@ -705,18 +681,28 @@ class Ui_MainWindow(object):
         self.button_add_file.setFlat(True)
         self.button_add_file.setObjectName("button_add_file")
         self.gridLayout_2.addWidget(self.button_add_file, 1, 1, 1, 1)
+        spacerItem6 = QtWidgets.QSpacerItem(21, 14, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem6, 4, 1, 1, 1)
         self.button_edit_file = QtWidgets.QPushButton(self.frame_4)
         self.button_edit_file.setMinimumSize(QtCore.QSize(24, 24))
         self.button_edit_file.setMaximumSize(QtCore.QSize(24, 24))
         self.button_edit_file.setStyleSheet("")
         self.button_edit_file.setText("")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/edit-pencil.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.button_edit_file.setIcon(icon5)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/edit-pencil.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_edit_file.setIcon(icon6)
         self.button_edit_file.setIconSize(QtCore.QSize(24, 24))
         self.button_edit_file.setFlat(True)
         self.button_edit_file.setObjectName("button_edit_file")
         self.gridLayout_2.addWidget(self.button_edit_file, 3, 1, 1, 1)
+        self.tabWidget = QtWidgets.QTabWidget(self.frame_4)
+        self.tabWidget.setStyleSheet("/*border-color:rgb(98, 114, 164);*/\n"
+"\n"
+"border-color:rgb(143, 23, 119);")
+        self.tabWidget.setUsesScrollButtons(True)
+        self.tabWidget.setMovable(True)
+        self.tabWidget.setObjectName("tabWidget")
+        self.gridLayout_2.addWidget(self.tabWidget, 0, 0, 5, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_2)
         self.gridLayout_3 = QtWidgets.QGridLayout()
         self.gridLayout_3.setObjectName("gridLayout_3")
@@ -728,9 +714,9 @@ class Ui_MainWindow(object):
         self.button_print_scf.setMaximumSize(QtCore.QSize(24, 24))
         self.button_print_scf.setStyleSheet("")
         self.button_print_scf.setText("")
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/quick_print_SCF.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.button_print_scf.setIcon(icon6)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/quick_print_SCF.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_print_scf.setIcon(icon7)
         self.button_print_scf.setIconSize(QtCore.QSize(24, 24))
         self.button_print_scf.setFlat(True)
         self.button_print_scf.setObjectName("button_print_scf")
@@ -740,25 +726,13 @@ class Ui_MainWindow(object):
         self.button_plot_ene_diagram.setMaximumSize(QtCore.QSize(24, 24))
         self.button_plot_ene_diagram.setStyleSheet("")
         self.button_plot_ene_diagram.setText("")
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/plot_enediagram.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.button_plot_ene_diagram.setIcon(icon7)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/plot_enediagram.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_plot_ene_diagram.setIcon(icon8)
         self.button_plot_ene_diagram.setIconSize(QtCore.QSize(24, 24))
         self.button_plot_ene_diagram.setFlat(True)
         self.button_plot_ene_diagram.setObjectName("button_plot_ene_diagram")
         self.gridLayout_3.addWidget(self.button_plot_ene_diagram, 0, 2, 1, 1)
-        self.button_print_energy = QtWidgets.QPushButton(self.frame_4)
-        self.button_print_energy.setMinimumSize(QtCore.QSize(24, 24))
-        self.button_print_energy.setMaximumSize(QtCore.QSize(24, 24))
-        self.button_print_energy.setStyleSheet("")
-        self.button_print_energy.setText("")
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/quick_print_E.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.button_print_energy.setIcon(icon8)
-        self.button_print_energy.setIconSize(QtCore.QSize(24, 24))
-        self.button_print_energy.setFlat(True)
-        self.button_print_energy.setObjectName("button_print_energy")
-        self.gridLayout_3.addWidget(self.button_print_energy, 0, 3, 1, 1)
         self.button_print_relativeE = QtWidgets.QPushButton(self.frame_4)
         self.button_print_relativeE.setMinimumSize(QtCore.QSize(24, 24))
         self.button_print_relativeE.setMaximumSize(QtCore.QSize(24, 24))
@@ -771,6 +745,18 @@ class Ui_MainWindow(object):
         self.button_print_relativeE.setFlat(True)
         self.button_print_relativeE.setObjectName("button_print_relativeE")
         self.gridLayout_3.addWidget(self.button_print_relativeE, 0, 4, 1, 1)
+        self.button_print_energy = QtWidgets.QPushButton(self.frame_4)
+        self.button_print_energy.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_print_energy.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_print_energy.setStyleSheet("")
+        self.button_print_energy.setText("")
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/quick_print_E.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_print_energy.setIcon(icon10)
+        self.button_print_energy.setIconSize(QtCore.QSize(24, 24))
+        self.button_print_energy.setFlat(True)
+        self.button_print_energy.setObjectName("button_print_energy")
+        self.gridLayout_3.addWidget(self.button_print_energy, 0, 3, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout_3)
         self.gridLayout.addWidget(self.frame_4, 1, 1, 1, 1)
         self.verticalLayout.addLayout(self.gridLayout)

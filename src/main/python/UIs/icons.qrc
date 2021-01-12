@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="24x24">
+    <file>../../resources/icons/24px-PyMOL_logo_trans.png</file>
+    <file>../../resources/icons/24px-PyMOL_logo.png</file>
     <file>../../resources/icons/power_on.png</file>
     <file>../../resources/icons/toggle_off.png</file>
     <file>../../resources/icons/toggle_on.png</file>

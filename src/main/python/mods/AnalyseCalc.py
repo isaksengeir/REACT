@@ -95,6 +95,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         # Get selected frequency:
         frq = self.get_selected_frequency
+        if not frq:
+            print("No frequencies found ")
+            return
         print("Displaying Frequency %s" % frq)
 
         # path to gaussian output file with frequencies:
