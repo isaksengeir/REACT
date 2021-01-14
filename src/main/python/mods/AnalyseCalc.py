@@ -29,6 +29,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         self.ui.button_frq_pymol.clicked.connect(self.animate_frequency)
 
+        self.ui.button_next_state.clicked.connect(lambda: self.change_state(i=1))
+        self.ui.button_prev_state.clicked.connect(lambda:self.change_state(i=-1))
+
         self.ui.horizontalSlider_scale.valueChanged.connect(self.update_scale)
 
         # Track State viewed in MainWindow:
@@ -100,20 +103,22 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
             return
         print("Displaying Frequency %s" % frq)
 
+        if view_pymol and not self.pymol:
+            self.pymol = PymolSession(parent=self, home=self.react, pymol_path=self.pymol_path)
+
         # path to gaussian output file with frequencies:
         g_file = self.get_freq_file
 
         # Current state:
         state = self.react.get_current_state
 
+        # Get vibration scaling:
         scale = self.ui.lcdNumber_scale.value() / 100.
 
+        # Get list of xyz coordinates for vibrational displacement:
         xyz_vib = self.react.states[state-1].get_displacement_xyz(filepath=g_file, freq=frq, steps=10, scale=scale)
 
-        if view_pymol and not self.pymol:
-            self.pymol = PymolSession(parent=self, home=self.react, pymol_path=self.pymol_path)
-
-        # Load files
+        # Load files to pymol, and/or write xyz files.
         i = 0
         base_name = "%s/%s" % (self.react.settings["workdir"], g_file.split("/")[-1].split(".")[0])
         for vib in xyz_vib:
@@ -126,6 +131,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         if view_pymol:
             # Make animation
             # join_states moviename, mol*, 0 (the 0 assumes identical input objects so bonds can vary)
+            self.pymol.pymol_cmd("delete w_%s" % frq)
             self.pymol.pymol_cmd("join_states w_%s, %s*, 0" % (frq, base_name.split("/")[-1]))
             self.pymol.pymol_cmd("delete %s*" % base_name.split("/")[-1])
             self.pymol.pymol_cmd("set movie_fps, 40")
@@ -135,6 +141,10 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
             self.pymol.pymol_cmd("hide spheres")
             self.pymol.pymol_cmd("show sticks")
             self.pymol.pymol_cmd("color grey, name C*")
+
+    def change_state(self, i=1):
+        current_state = self.react.get_current_state
+        self.react.set_state(current_state + i)
 
     def set_unit(self, value):
         self.unit = float(value)
@@ -168,11 +178,11 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
     def update_state_included_files(self):
         """
         When tabs are changed (state displayed) in main window, update correct files in list in analyse window
-        TODO this function still exist after window is closed... need to kill it properly upon close
         :return:
         """
         tab_index = self.react.tabWidget.currentIndex()
         self.ui.label_state.setText(str(tab_index+1))
+        print("Hello")
 
         # In case a new state has been added after initialising the analyse window:
         if tab_index + 1 not in self.react.included_files.keys():
@@ -605,6 +615,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.react.analyse_window = None
         if self.pymol:
             self.pymol.close()
+
+        self.react.tabWidget.tabBar().currentChanged.disconnect(self.update_state_included_files)
 
 
 

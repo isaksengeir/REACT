@@ -5,13 +5,12 @@ from mods.common_functions import is_number, random_color
 import numpy as np
 
 
-
 class PlotStuff:
     def __init__(self, react_style=True):
         # Use standard white background insted of REACT color scheme?
         self.react_style = react_style
 
-        #Init matplotlib.pyplot settings
+        # Init matplotlib.pyplot settings
         self.set_plot_settings(self.react_style)
 
         # Make plot pop up relative to REACT main window:
@@ -21,7 +20,7 @@ class PlotStuff:
         plt.ion()
 
     def set_figure_save_settings(self):
-        print("Hello")
+        pass
 
     def set_plot_settings(self, react_style=True):
         """
@@ -388,7 +387,7 @@ class PlotEnergyDiagram(PlotStuff):
     def plot_energy_diagram(self, ene_array=None, new_plot=True):
         """
         :param ene_array: list of lists with energies to plot as energy diagram
-        :param update: Update existing plot instead of opening new instance of matplotlib.pyplot
+        :new_plot: Make new plot, instead of updating existing
         """
         if not ene_array:
             ene_array = self.ene_array
@@ -468,11 +467,11 @@ class PlotGdata(PlotStuff):
         super().__init__()
         self.g_data = g_data
         self.filename = filename
+        self.fig = plt.figure()
 
     def plot_scf_done(self):
         """
         Creates single plot with SCF Done energies
-        :param energies:
         :return:
         """
 
@@ -489,16 +488,16 @@ class PlotGdata(PlotStuff):
         :return:
         """
 
-        self.points = None
+        self.points = list()
+        #self.tmp_points = list()
 
-        fig = plt.figure()
-        scf_data = fig.add_subplot(2, 4, (1, 6))
+        scf_data = self.fig.add_subplot(2, 4, (1, 6))
         scf_data.set_title("Energy")
         scf_data.set_ylabel("Hartree")
         scf_data.plot(list(range(1, len(self.g_data["SCF Done"])+1)), self.g_data["SCF Done"], label="SCF", picker=True)
         plt.legend()
 
-        force = fig.add_subplot(2,4,(3,4))
+        force = self.fig.add_subplot(2,4,(3,4))
         force.set_title("Force")
         force.set_ylabel("Hartree/Bohr")
         force.plot(list(range(1, len(self.g_data["Maximum Force"])+1)), self.g_data["Maximum Force"], label="Maximum",
@@ -507,7 +506,7 @@ class PlotGdata(PlotStuff):
                    picker=True)
         plt.legend()
 
-        displ = fig.add_subplot(2,4,(7,8))
+        displ = self.fig.add_subplot(2,4,(7,8))
         displ.set_title("Displacement")
         displ.set_ylabel("Angstrom")
         displ.plot(list(range(1, len(self.g_data["Maximum Displacement"])+1)),
@@ -517,38 +516,49 @@ class PlotGdata(PlotStuff):
 
         plt.legend()
 
-        fig.suptitle(self.filename)
+        self.fig.suptitle(self.filename)
 
         def on_pick(event):
-            if self.points:
-                for point in self.points:
-                    point.remove()
-
+            delete_points(self.points)
             ind = event.ind[0]
             print("energy (%d) = %f" % (ind +1, self.g_data["SCF Done"][ind]))
-            self.points = list()
-            self.points.append(scf_data.plot(ind + 1, self.g_data["SCF Done"][ind], "o", color="white",
+            draw_point(ind, self.points, color="white")
+
+        #def on_hover(event):
+        #    delete_points(self.tmp_points)
+        #    for curve in scf_data.get_lines():
+        #        if curve.contains(event)[0]:
+                    #ind = curve.contains(event)[1]['ind'][0]
+        #            ind = int(event.xdata) - 1
+        #            print(ind)
+        #            print(event.xdata)
+        #            draw_point(ind, self.tmp_points, color="blue")
+
+        def delete_points(points):
+            if len(points) > 0:
+                for point in points:
+                    point.remove()
+                del points[:]
+                plt.draw()
+
+        def draw_point(ind, points, color="white"):
+
+            points.append(scf_data.plot(ind + 1, self.g_data["SCF Done"][ind], "o", color=color,
                                              fillstyle='none')[0])
-            self.points.append(force.plot(ind+1, self.g_data["Maximum Force"][ind], "o", color="white",
+            points.append(force.plot(ind + 1, self.g_data["Maximum Force"][ind], "o", color=color,
                                           fillstyle='none')[0])
-            self.points.append(force.plot(ind + 1, self.g_data["RMS     Force"][ind], "o", color="white",
+            points.append(force.plot(ind + 1, self.g_data["RMS     Force"][ind], "o", color=color,
                                           fillstyle='none')[0])
-            self.points.append(displ.plot(ind + 1, self.g_data["Maximum Displacement"][ind], "o", color="white",
+            points.append(displ.plot(ind + 1, self.g_data["Maximum Displacement"][ind], "o", color=color,
                                           fillstyle='none')[0])
-            self.points.append(displ.plot(ind + 1, self.g_data["RMS     Displacement"][ind], "o", color="white",
+            points.append(displ.plot(ind + 1, self.g_data["RMS     Displacement"][ind], "o", color=color,
                                           fillstyle='none')[0])
-
-
             plt.draw()
 
-        fig.canvas.mpl_connect("pick_event", on_pick)
+        self.fig.canvas.mpl_connect("pick_event", on_pick)
+        #self.fig.canvas.mpl_connect("motion_notify_event", on_hover)
 
         plt.show()
-
-    def onclick(self, event):
-        print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
-              ('double' if event.dblclick else 'single', event.button,
-               event.x, event.y, event.xdata, event.ydata))
 
 
 

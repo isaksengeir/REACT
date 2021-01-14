@@ -291,9 +291,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         """
         self.states.append(State())
 
-        state = self.count_states
-        self.tabWidget.addTab(DragDropListWidget(self), f"{state+1}")
-        self.tabWidget.setCurrentWidget(self.tabWidget.widget(state))
+        #new state:
+        state = self.count_states + 1
+        self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
+        self.tabWidget.setCurrentWidget(self.tabWidget.widget(state - 1))
+
+    def set_state(self, state):
+        """
+        Set tab to be displayed
+        :param state: integer
+        :return:
+        """
+        if int(state) <= self.count_states:
+            self.tabWidget.setCurrentWidget(self.tabWidget.widget(state - 1))
 
     def delete_state(self):
         """
