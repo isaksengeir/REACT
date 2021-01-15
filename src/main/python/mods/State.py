@@ -220,3 +220,15 @@ class State:
             content = "Empty since this hasn't been implemented yet..."
 
         return content
+
+    def create_xyz_filecontent(self, filepath):
+
+
+        xyz = self.get_final_xyz(filepath)
+
+        
+        content = str(len(xyz)) + '\n' + str(filepath.split("/")[-1]) + '\n'
+        for line in xyz:
+            content += line + '\n'
+
+        return content

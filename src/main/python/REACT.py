@@ -330,6 +330,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         :return: string -> content of new input file, based on outputfile given as argument
         """
         return self.states[self.tabWidget.currentIndex()].create_input_content(filepath)
+    
+    def create_xyz_filecontent(self, filepath):
+        return self.states[self.tabWidget.currentIndex()].create_xyz_filecontent(filepath)
 
     def import_project(self):
         """
