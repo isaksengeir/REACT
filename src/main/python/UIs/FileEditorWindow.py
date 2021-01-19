@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_FileEditorWindow(object):
     def setupUi(self, FileEditorWindow):
         FileEditorWindow.setObjectName("FileEditorWindow")
-        FileEditorWindow.resize(408, 305)
+        FileEditorWindow.resize(527, 433)
         self.centralwidget = QtWidgets.QWidget(FileEditorWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -30,7 +30,11 @@ class Ui_FileEditorWindow(object):
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.textwindow = QtWidgets.QPlainTextEdit(self.frame)
+        font = QtGui.QFont()
+        font.setFamily("Courier")
+        self.textwindow.setFont(font)
         self.textwindow.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.textwindow.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
         self.textwindow.setObjectName("textwindow")
         self.gridLayout_3.addWidget(self.textwindow, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)

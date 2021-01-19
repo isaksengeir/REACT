@@ -123,6 +123,11 @@ class State:
 
         return self.get_xyz_formatted(molecule)
 
+    def get_all_xyz(self, filepath):
+        molecules = self.get_geometries(filepath)
+
+        return [self.get_xyz_formatted(x) for x in molecules]
+
     def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
         """
         :param filepath:

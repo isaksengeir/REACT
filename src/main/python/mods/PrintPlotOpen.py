@@ -3,7 +3,7 @@ import os
 import time
 import sys
 import mods.common_functions as cf
-from mods.ReactPlot import PlotGdata, PlotEnergyDiagram
+from mods.ReactPlot import PlotEnergyDiagram
 from mods.Plotter import Plotter
 from mods.GlobalSettings import GlobalSettings
 from mods.AnalyseCalc import AnalyseCalc
@@ -112,35 +112,7 @@ class PrintPlotOpen:
 
         plot = PlotEnergyDiagram(d_ene, x_title="State", y_title="Relative energy", plot_legend=False)
     
-    def plot_scf(self):
-        """
-        Takes the selected file and prints the 4 Convergence criterias.
-        :return:
-        """
-        try:
-            filepath = self.tabWidget.currentWidget().currentItem().text()
-        except:
-            return
 
-        # Can not plot? :
-        if filepath.split(".")[-1] not in ["out", "log"]:
-            return
-
-        filename = filepath.split('/')[-1]
-
-        scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filepath)
-
-        #Check if this is geometry optimization or not (None if not):
-        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filepath)
-        plot = PlotGdata(scf_data, filename)
-
-        if converged is None:
-            plot.plot_scf_done()
-            self.append_text("%s seem to not be a geometry optimisation ..." % filename)
-        else:
-            plot.plot_scf_convergence()
-            if converged is False:
-                self.append_text("%s has not converged successfully." % filename)
 
     def open_settings(self):
 

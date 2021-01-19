@@ -463,10 +463,16 @@ class PlotEnergyDiagram(PlotStuff):
 
 
 class PlotGdata(PlotStuff):
-    def __init__(self, g_data, filename):
+    def __init__(self, parent=None, g_data=None, filename=None):
         super().__init__()
         self.g_data = g_data
         self.filename = filename
+
+        # sync to pymol:
+        self.pymol = None
+        if parent and parent.pymol:
+            self.pymol = parent.pymol
+
         self.fig = plt.figure()
 
     def plot_scf_done(self):
@@ -521,6 +527,10 @@ class PlotGdata(PlotStuff):
         def on_pick(event):
             delete_points(self.points)
             ind = event.ind[0]
+
+            if self.pymol:
+                self.pymol.pymol_cmd("frame %s" % str(ind + 1))
+
             print("energy (%d) = %f" % (ind +1, self.g_data["SCF Done"][ind]))
             draw_point(ind, self.points, color="white")
 

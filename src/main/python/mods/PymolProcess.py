@@ -19,7 +19,7 @@ class PymolSession:
         self.session.stateChanged.connect(self.handle_state)
 
         # Delete file of loaded molecule after loading it:
-        self.delete_file = None
+        self.files_to_delete = list()
 
         self.start_pymol()
         self.set_pymol_settings()
@@ -30,15 +30,14 @@ class PymolSession:
         :param file_: path to file (xyz, pdb, mae)
         """
         if delete_after:
-            if not self.delete_file:
-                self.delete_file = dict()
             # filename as displayed in pymol : filepath
-            self.delete_file[file_.split("/")[-1].split(".")[0]] = file_
+            self.files_to_delete.append(file_)
+
         if not file_:
             print("PymolProcess load_structure - No file given")
             return
-        text = 'load %s \n' % file_
-        self.session.write(text.encode())
+
+        self.pymol_cmd("load %s" % file_)
 
     def start_pymol(self, external_gui=False):
         startup = ["-p"]
@@ -64,11 +63,38 @@ class PymolSession:
             return
         settings = ["space cmyk\n", "set stick_radius, 0.17\n", "set spec_power, 250\n", "set spec_reflect, 2\n"]
         for setting in settings:
-            self.session.write(setting.encode())
+            self.pymol_cmd(setting)
+
+    def set_default_rep(self):
+        """
+        :return:
+        """
+        print("setting defaults")
+        self.pymol_cmd("hide spheres")
+        self.pymol_cmd("show sticks")
+        self.pymol_cmd("color grey, name C*")
+
+    def highlight(self, name=None, group=None):
+        """
+        :param name: name of structure to be highlighted
+        :param group: name of group, if used
+        :return:
+        """
+        self.pymol_cmd("disable *")
+        self.pymol_cmd("enable %s or %s" % (group, name))
 
     def pymol_finished(self):
         self.parent.pymol = None
         print("Pymol session completed")
+
+    def delete_all_files(self):
+        """
+        Iterates through self.delete_file and removes from disk
+        :return:
+        """
+        for filename in self.files_to_delete:
+            os.remove(filename)
+        self.files_to_delete = list()
 
     def handle_stdout(self):
         """
@@ -77,20 +103,15 @@ class PymolSession:
         """
         data = self.session.readAllStandardOutput()
         stdout = bytes(data).decode("utf8")
-
-        # TODO remove print statement
         print(stdout)
-
-        # Delete file?
-        if self.delete_file:
-            if "CmdLoad: loaded as" in stdout:
+        if "CmdLoad: loaded as" in stdout:
+            # Delete file?
+            # print(stdout)
+            print(stdout)
+            if len(self.files_to_delete) > 0:
+                os.remove(self.files_to_delete.pop(0))
                 # remove left " and right ". from pymol string in filename
-                filename = stdout.split()[3][1:-2]
-                if filename in self.delete_file.keys():
-                    os.remove(self.delete_file.pop(filename))
-            # When all files are deleted, set to None again:
-            if len(self.delete_file.keys()) == 0:
-                self.delete_file = None
+                #filename = stdout.split()[3][1:-2]
 
     def handle_state(self, state):
         states = {
@@ -104,6 +125,8 @@ class PymolSession:
             self.react.append_text(f"Pymol: {state_name}", date_time=True)
         except:
             pass
+        if state == QProcess.NotRunning:
+            self.close()
 
     def handle_stderr(self):
         data = self.session.readAllStandardError()
@@ -111,4 +134,17 @@ class PymolSession:
         print(stderr)
 
     def close(self):
-        self.session.kill()
+        """
+        Disconnect for a cleaner kill
+        :return:
+        """
+        try:
+            self.react.tabWidget.tabBar().currentChanged.disconnect(self.react.pymol_view_current_state)
+            self.react.connect_pymol_structures(connect=False)
+            self.delete_all_files()
+            self.session.kill()
+        except:
+            pass
+
+
+

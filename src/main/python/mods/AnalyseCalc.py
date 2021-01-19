@@ -42,8 +42,8 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         # Pymol session:
         # TODO - get pymol_path from global settings
-        self.pymol_path = '/Applications/PyMOL.app/Contents/MacOS/pymol'
-        self.pymol = None
+        self.pymol_path = self.react.pymol_path
+        self.pymol = self.react.pymol
 
         state = self.react.tabWidget.currentIndex() + 1
         if not self.react.included_files or sum(len(x) for x in self.react.included_files[state].values()) < 4:
@@ -104,7 +104,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         print("Displaying Frequency %s" % frq)
 
         if view_pymol and not self.pymol:
-            self.pymol = PymolSession(parent=self, home=self.react, pymol_path=self.pymol_path)
+            self.pymol = self.react.start_pymol(return_session=True)
 
         # path to gaussian output file with frequencies:
         g_file = self.get_freq_file
@@ -122,25 +122,26 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         i = 0
         base_name = "%s/%s" % (self.react.settings["workdir"], g_file.split("/")[-1].split(".")[0])
         for vib in xyz_vib:
-            xyz_path = "%s_%03d.xyz" % (base_name, i)
+            xyz_path = "%s_tmp%03d.xyz" % (base_name, i)
             cf.write_file(vib, xyz_path)
             i += 1
             if view_pymol:
                 self.pymol.load_structure(xyz_path, delete_after=delete_files)
+                self.pymol.pymol_cmd("group state_%d, %s" % (state, xyz_path))
 
         if view_pymol:
             # Make animation
             # join_states moviename, mol*, 0 (the 0 assumes identical input objects so bonds can vary)
             self.pymol.pymol_cmd("delete w_%s" % frq)
             self.pymol.pymol_cmd("join_states w_%s, %s*, 0" % (frq, base_name.split("/")[-1]))
-            self.pymol.pymol_cmd("delete %s*" % base_name.split("/")[-1])
+            self.pymol.pymol_cmd("delete %s_tmp*" % base_name.split("/")[-1])
+            self.pymol.pymol_cmd("group state_%d, w_%s" % (state, frq))
+            self.pymol.highlight(name="w_%s" % frq, group="state_%d" % state)
             self.pymol.pymol_cmd("set movie_fps, 40")
             self.pymol.pymol_cmd("mplay")
 
             # Fix representation
-            self.pymol.pymol_cmd("hide spheres")
-            self.pymol.pymol_cmd("show sticks")
-            self.pymol.pymol_cmd("color grey, name C*")
+            self.pymol.set_default_rep()
 
     def change_state(self, i=1):
         current_state = self.react.get_current_state
@@ -182,7 +183,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         """
         tab_index = self.react.tabWidget.currentIndex()
         self.ui.label_state.setText(str(tab_index+1))
-        print("Hello")
 
         # In case a new state has been added after initialising the analyse window:
         if tab_index + 1 not in self.react.included_files.keys():
@@ -613,10 +613,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         :param event:
         """
         self.react.analyse_window = None
-        if self.pymol:
-            self.pymol.close()
-
         self.react.tabWidget.tabBar().currentChanged.disconnect(self.update_state_included_files)
+        if self.pymol:
+            self.pymol.pymol_cmd("mstop")
 
 
 

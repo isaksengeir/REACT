@@ -15,6 +15,8 @@ from fbs_runtime.application_context.PyQt5 import ApplicationContext
 from mods.ThreadWorkers import Worker
 from threading import Lock
 import time
+from mods.PymolProcess import PymolSession
+from mods.ReactPlot import PlotGdata
 
 #methods --> Classes --> Modules --> Packages
 
@@ -44,7 +46,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
                          }
         self.states = []
         self.proj_name = 'new_project'
-        
+
+        self.pymol = None
+
+        # TODO add pymol path to settings:
+        self.pymol_path = '/Applications/PyMOL.app/Contents/MacOS/pymol'
+
         # bool to keep track of unsaved changes to project.
         self.unsaved_proj = False
 
@@ -60,6 +67,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.add_state()
 
         self.tabWidget.tabBar().tabMoved.connect(self.update_tab_names)
+        self.tabWidget.currentWidget().itemClicked.connect(self.change_pymol_structure)
 
         #MainWindow Buttons with methods:
         self.button_add_state.clicked.connect(self.add_state)
@@ -78,6 +86,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.button_create_cluster.clicked.connect(self.create_cluster)
         self.button_plotter.clicked.connect(self.open_plotter)
         self.button_power_off.clicked.connect(self.power_off_on)
+        self.button_pymol.clicked.connect(self.start_pymol)
 
         self.power = True
 
@@ -94,6 +103,176 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
+
+    def start_pymol(self, return_session=False):
+        """
+        Starts pymol sync to REACT
+        :return_session: return the pymol session link
+        :return: session (if return_session = True)
+        """
+        if self.pymol:
+            return
+
+        self.pymol = PymolSession(parent=self, home=self, pymol_path=self.pymol_path)
+
+        if return_session:
+            return self.pymol
+
+        self.tabWidget.tabBar().currentChanged.connect(self.pymol_view_current_state)
+        self.connect_pymol_structures(connect=True)
+
+        self.load_all_states_pymol()
+
+    def connect_pymol_structures(self, connect=True):
+        """
+        Connect clicks in QListWidget to structure displayed in pymol
+        :param connect: bool
+        :return:
+        """
+        # on_off = {True:}
+        for state in range(self.count_states):
+            if connect:
+                self.tabWidget.widget(state).itemClicked.connect(self.change_pymol_structure)
+            else:
+                self.tabWidget.widget(state).itemClicked.disconnect(self.change_pymol_structure)
+
+    def pymol_view_current_state(self):
+        """
+        :return:
+        """
+        state = self.get_current_state
+        name = None
+        if self.get_selected_filepath:
+            name = self.get_selected_filepath.split("/")[-1].split(".")[0]
+        self.pymol.pymol_cmd("group state_%d, toggle, open" % state)
+        for i in range(1, self.count_states + 1):
+            if i != state:
+                self.pymol.pymol_cmd("group state_%d, toggle, close" % i)
+                self.pymol.pymol_cmd("disable state_%d" % i)
+        self.pymol.highlight(name=name, group="state_%d" % state)
+
+    def file_to_pymol(self, filepath, state=1, set_defaults=True):
+        """
+        Takes any file and opens it in pymol
+        :param filepath: path to file
+        :param state: integer for state
+        :param set_defaults: fix pymol representation
+        :return:
+        """
+        if not self.pymol:
+            return
+
+        delete_after = False
+        if filepath.split(".")[-1] not in ["xyz", "pdb"]:
+            delete_after = True
+            xyz = self.states[state - 1].get_final_xyz(filepath)
+            filepath = "%s.xyz" % filepath.split(".")[0]
+            cf.write_file(xyz, filepath)
+
+        self.pymol.load_structure(filepath, delete_after=delete_after)
+        self.pymol.pymol_cmd("group state_%d, %s" % (state, filepath.split("/")[-1].split(".")[0]))
+
+        if set_defaults:
+            self.pymol.set_default_rep()
+            self.pymol.pymol_cmd("enable state_%d and %s" % (state, filepath.split("/")[-1].split(".")[0]))
+
+    def load_all_states_pymol(self):
+        """
+        Loads all files from project table to pymol
+        :return:
+        """
+        if not self.pymol:
+            return
+
+        for state in range(1, self.count_states + 1):
+            for filepath in self.states[state-1].get_all_gpaths:
+                self.file_to_pymol(filepath, state, set_defaults=False)
+
+        self.pymol.set_default_rep()
+
+        state = self.get_current_state
+        self.pymol.pymol_cmd("group state_%d, toggle, open" % state)
+        self.pymol.pymol_cmd("disable *")
+        sel_file = self.get_selected_filepath
+        if sel_file:
+            self.pymol.pymol_cmd("enable state_%d and %s" % (state, sel_file.split("/")[-1].split(".")[0]))
+
+    def load_scf_geometries(self):
+        """
+        Creates pymol object with all scf geometries
+        :return:
+        """
+        state = self.get_current_state
+        filepath = self.get_selected_filepath
+
+        delete_after = True
+        xyz_list = self.states[state - 1].get_all_xyz(filepath)
+        del xyz_list[-1]
+        i = 0
+        base_path = "%s/%s" % (self.settings["workdir"], filepath.split("/")[-1].split(".")[0])
+
+        for xyz in xyz_list:
+            xyz_path = "%s_scf%03d.xyz" % (base_path, i)
+            cf.write_file(xyz, xyz_path)
+            self.pymol.load_structure(xyz_path, delete_after=delete_after)
+            i += 1
+
+        self.pymol.pymol_cmd("delete %s_scf" % base_path.split("/")[-1].split(".")[0])
+        self.pymol.pymol_cmd("join_states %s_scf, %s_scf*, 0" % (base_path.split("/")[-1].split(".")[0],
+                                                             base_path.split("/")[-1]))
+        self.pymol.pymol_cmd("group state_%d, %s_scf" % (state, base_path.split("/")[-1].split(".")[0]))
+
+        for j in range(0, i + 1):
+            self.pymol.pymol_cmd("delete %s_scf%03d*" % (base_path.split("/")[-1], j))
+
+        self.pymol.set_default_rep()
+        self.pymol.pymol_cmd("disable *")
+        self.pymol.pymol_cmd("enable state_%d and %s_scf" % (state, base_path.split("/")[-1].split(".")[0]))
+
+    def change_pymol_structure(self):
+        """
+        displayes clicked entry in pymol
+        :return:
+        """
+        if not self.pymol:
+            return
+        group = "state_%d" % self.get_current_state
+        name = self.get_selected_filepath.split("/")[-1].split(".")[0]
+        self.pymol.highlight(name=name, group=group)
+
+    def plot_scf(self):
+        """
+        Takes the selected file and prints the 4 Convergence criterias.
+        :return:
+        """
+        try:
+            filepath = self.tabWidget.currentWidget().currentItem().text()
+        except:
+            return
+
+        # Can not plot? :
+        if filepath.split(".")[-1] not in ["out", "log"]:
+            return
+
+        # Sync with pymol
+        if self.pymol:
+            self.load_scf_geometries()
+
+        filename = filepath.split('/')[-1]
+
+        scf_data = self.states[self.tabWidget.currentIndex()].get_scf(filepath)
+
+        #Check if this is geometry optimization or not (None if not):
+        converged = self.states[self.tabWidget.currentIndex()].check_convergence(filepath)
+        plot = PlotGdata(self, scf_data, filename)
+
+        if converged is None:
+            plot.plot_scf_done()
+            self.append_text("%s seem to not be a geometry optimisation ..." % filename)
+        else:
+            plot.plot_scf_convergence()
+            if converged is False:
+                self.append_text("%s has not converged successfully." % filename)
 
     def add_files(self, paths=False):
         """
@@ -138,6 +317,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             self.tabWidget.currentWidget().item(items_insert_index).setForeground(QtGui.QColor(80, 80, 80))
             items_insert_index += 1
 
+
+
+
         # Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
         scrollbar = self.tabWidget.currentWidget().horizontalScrollBar()
@@ -152,13 +334,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         """
         # set progressbar to 1:
         self.update_progressbar(1)
+        pymol_defaults = False
         for n in range(len(file_paths)):
             file = file_paths[n]
-            self.states[self.tabWidget.currentIndex()].add_gfile(file)
-
+            self.states[self.get_current_state - 1].add_gfile(file)
+            if n == len(file_paths) - 1:
+                pymol_defaults = True
             progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
                                     self.check_convergence: (file, item_index,
-                                    self.tabWidget.currentIndex())})
+                                    self.tabWidget.currentIndex()),
+                                    self.file_to_pymol: (file, self.get_current_state, pymol_defaults)})
             item_index += 1
 
         return "Done"
@@ -200,6 +385,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
     def thread_complete(self):
         print("THREAD COMPLETE!")
 
+        #if self.pymol:
+        #    self.file_to_pymol(filepath=file, state=self.get_current_state, set_defaults=True)
+
     def check_convergence(self, file_path, item_index, tab_index=None):
         filename = file_path.split('/')[-1]
         if tab_index is None:
@@ -230,19 +418,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         if self.tabWidget.currentIndex() < 0:
             return
 
-        #avid crash when no files exist in state:
+        # avoid crash when no files exist in state:
         if self.tabWidget.currentWidget().count() < 1:
             return
 
-        #Get the list displayed in the current tab (state)
+        # Get the list displayed in the current tab (state)
         current_list = self.tabWidget.currentWidget()
 
-        #Get the selected item(s) ---> returns a list of objects
+        # Get the selected item(s) ---> returns a list of objects
         list_items = current_list.selectedItems()
 
-        #delete files from state
+        # delete files from state
         tab_index = self.tabWidget.currentIndex()
         self.states[tab_index].del_gfiles([x.text() for x in list_items])
+
+        # delete files from pymol
+        if self.pymol:
+            state = self.get_current_state
+            [self.pymol.pymol_cmd("delete %s" % (x.text().split("/")[-1].split(".")[0]))
+             for x in list_items]
 
         #Remove selected items from list:
         for item in list_items:
@@ -263,8 +457,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         Algorithm for updating list of states: temporary new list is created, 
 
         """
-        #new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
-        #thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
+        # new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
+        # thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
         new_pointers = []
         new_included_files = dict()
 
@@ -295,6 +489,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         state = self.count_states + 1
         self.tabWidget.addTab(DragDropListWidget(self), f"{state}")
         self.tabWidget.setCurrentWidget(self.tabWidget.widget(state - 1))
+        if self.pymol:
+            self.pymol.pymol_cmd("group state_%d" % state)
+            self.tabWidget.widget(state - 1).itemClicked.connect(self.change_pymol_structure)
+
 
     def set_state(self, state):
         """
@@ -324,6 +522,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         self.tabWidget.widget(tab_index).deleteLater()
         self.states.pop(tab_index)
+        if self.pymol:
+            self.pymol.pymol_cmd("delete state_%d" % tab_index + 1)
 
     def create_input_content(self, filepath):
         """
@@ -456,7 +656,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         """
         :return: path to selected file, str
         """
-        return self.tabWidget.currentWidget().currentItem().text()
+        try:
+            return self.tabWidget.currentWidget().currentItem().text()
+        except:
+            return None
 
     @property
     def get_current_state(self):
@@ -471,6 +674,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         :return: integer (total number of states)
         """
         return self.tabWidget.count()
+
+    def closeEvent(self, event):
+        if self.pymol:
+            self.pymol.close()
 
 # Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
 appctxt = ApplicationContext()

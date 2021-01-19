@@ -678,7 +678,7 @@ border: 1px solid rgb(20,20,20);
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>115</height>
+              <height>114</height>
              </size>
             </property>
             <property name="font">
