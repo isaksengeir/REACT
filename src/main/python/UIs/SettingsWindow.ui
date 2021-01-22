@@ -1049,6 +1049,9 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QComboBox" name="basis4_comboBox_5">
         <property name="geometry">
@@ -1076,6 +1079,9 @@
           <width>51</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
        <widget class="QLineEdit" name="additionalKeys_1">
@@ -1129,6 +1135,9 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QComboBox" name="basis2_comboBox_4">
         <property name="geometry">
@@ -1157,6 +1166,9 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QComboBox" name="comboBox_funct">
         <property name="geometry">
@@ -1178,6 +1190,9 @@
           <width>100</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
        <widget class="QWidget" name="">
