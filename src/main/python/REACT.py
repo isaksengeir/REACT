@@ -38,11 +38,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
                          "DFT": {"functional"    : "B3LYP",
                                  "basis"         : ("6-31G", {"pol1": "d", "pol2": 'p', "diff": None}),
                                  "additional keys": ["empiricaldispersion=gd3"],
-                                 "link 0"        : None,
+                                 "link 0"        : [],
                                  "opt keys"      : ["noeigentest", "calcfc"],
                                  "user funct"    : [], 
                                  "user basis": {}},
-                         "pymol": None,
+                         "pymolpath": None,
+                         "REACT pymol" : True,
                          "Ui": 1
                          }
         self.states = []
