@@ -35,13 +35,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         # Global settings
         self.settings = {"workdir": os.getcwd(),
-                         "DFT": {'functional'         : 'B3LYP',
-                                 'basis'              : {'6-31G': {'pol1': 'd', 'pol2': 'p', 'diff': None}},
-                                 'empiricaldispersion': 'gd3',
-                                 'additonal keys'     : None,
-                                 'link 0'             : None,
-                                 'opt keys'           : ['noeigentest', 'calcfc']
-                                 },
+                         "DFT": {"functional"    : "B3LYP",
+                                 "basis"         : ("6-31G", {"pol1": "d", "pol2": 'p', "diff": None}),
+                                 "additional keys": ["empiricaldispersion=gd3"],
+                                 "link 0"        : None,
+                                 "opt keys"      : ["noeigentest", "calcfc"],
+                                 "user funct"    : [], 
+                                 "user basis": {}},
+                         "pymol": None,
                          "Ui": 1
                          }
         self.states = []
