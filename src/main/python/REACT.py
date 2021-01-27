@@ -23,13 +23,7 @@ from mods.ReactPlot import PlotGdata
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
     def __init__(self, *args, obj=None, **kwargs):
-
-        # SPLASH
-        self.splash = SplashScreen(self)
-        self.splash.show()
-
         super(MainWindow, self).__init__(*args, **kwargs)
-
         self.setupUi(self)
         self.setWindowTitle("REACT - Main")
 
@@ -51,8 +45,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         self.pymol = None
 
-        # TODO add pymol path to settings:
-        self.pymol_path = '/Applications/PyMOL.app/Contents/MacOS/pymol'
+        #self.pymol_path = '/Applications/PyMOL.app/Contents/MacOS/pymol'
 
         # bool to keep track of unsaved changes to project.
         self.unsaved_proj = False
@@ -103,6 +96,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         # Threads for jobs take take time:
         self.threadpool = QThreadPool()
 
+        # SPLASH
+        self.splash = SplashScreen(self)
+        self.splash.show()
+
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
@@ -115,7 +112,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         if self.pymol:
             return
 
-        self.pymol = PymolSession(parent=self, home=self, pymol_path=self.pymol_path)
+        if self.settings['REACT pymol']:
+            pymol_path = 'OpenSourcePymol/dist/OpenSourcePymol'
+        else:
+            pymol_path = self.settings['pymolpath']
+
+        if not pymol_path:
+            self.append_text("No PyMol path set. Please see settings.")
+            return
+
+
+        self.pymol = PymolSession(parent=self, home=self, pymol_path=pymol_path)
 
         if return_session:
             return self.pymol

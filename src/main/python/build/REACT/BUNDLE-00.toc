@@ -1,0 +1,4 @@
+([('REACT',
+   '/Users/gvi022/Onedrive - UiT Office '
+   '365/programming/REACT/src/main/python/dist/REACT',
+   'EXECUTABLE')],)

@@ -24,13 +24,16 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
         self.shadow.setColor(QtGui.QColor(0, 0, 0, 60))
         self.ui.dropShadowFrame.setGraphicsEffect(self.shadow)
 
+        # Launch open source pymol at login:
+        if self.parent.settings['REACT pymol']:
+            self.parent.start_pymol()
 
         # Start timer:
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.progress)
 
         # Timer in milliseconds:
-        self.timer.start(35)
+        self.timer.start(60)
 
     def progress(self):
         """
