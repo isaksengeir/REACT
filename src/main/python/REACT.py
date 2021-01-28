@@ -2,6 +2,7 @@ import sys
 import os
 import json
 from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QThreadPool, QTimer
 from mods.SplashScreen import SplashScreen
 import UIs.icons_rc
@@ -11,7 +12,8 @@ from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from mods.PrintPlotOpen import PrintPlotOpen
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
-from fbs_runtime.application_context.PyQt5 import ApplicationContext
+
+# from fbs_runtime.application_context.PyQt5 import ApplicationContext # fbs removed for good?
 from mods.ThreadWorkers import Worker
 from threading import Lock
 import time
@@ -113,7 +115,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             return
 
         if self.settings['REACT pymol']:
-            pymol_path = 'OpenSourcePymol/dist/OpenSourcePymol'
+            if os.path.isdir('OpenSourcePymol/dist/OpenSourcePymol.app'):
+                pymol_path = 'OpenSourcePymol/dist/OpenSourcePymol.app'
+            elif os.path.isdir("%s/OpenSourcePymol/dist/OpenSourcePymol.app" % '/'.join(sys.path[0].split('/')[0:-1])):
+                pymol_path = "%s/OpenSourcePymol/dist/OpenSourcePymol.app" % '/'.join(sys.path[0].split('/')[0:-1])
+            else:
+                self.append_text("Can not find REACT Open Source Pymol")
+                self.append_text(sys.path[0])
+                return
         else:
             pymol_path = self.settings['pymolpath']
 
@@ -688,12 +697,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         if self.pymol:
             self.pymol.close()
 
+### fbs code below not needed if we can not use fbs ###
 # Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
-appctxt = ApplicationContext()
-
+#appctxt = ApplicationContext()
 # Create window and show
-window = MainWindow()
-# window.show() <- handled by splash screen
+#window = MainWindow()
+# window.show() <- handled by splash screen - leave commented out
 
-exit_code = appctxt.app.exec_()
-sys.exit(exit_code)
+#exit_code = appctxt.app.exec_()
+#sys.exit(exit_code)
+### fbs code end ###
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    app.exec_()

@@ -15,6 +15,7 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
         # Remove title bar:
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
 
         # Drop shadow effect:
         self.shadow = QtWidgets.QGraphicsDropShadowEffect(self)
@@ -24,16 +25,12 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
         self.shadow.setColor(QtGui.QColor(0, 0, 0, 60))
         self.ui.dropShadowFrame.setGraphicsEffect(self.shadow)
 
-        # Launch open source pymol at login:
-        if self.parent.settings['REACT pymol']:
-            self.parent.start_pymol()
-
         # Start timer:
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.progress)
-
+        countdown = 35
         # Timer in milliseconds:
-        self.timer.start(60)
+        self.timer.start(countdown)
 
     def progress(self):
         """
@@ -43,6 +40,19 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
 
         # SET VALUE TO PROGRESS BAR
         self.ui.progressBar.setValue(counter)
+        if counter == 10:
+            self.ui.label_loading.setText("loading... source code")
+        if counter == 30:
+            self.ui.label_loading.setText("loading... User Interface & libraries")
+        if counter == 60:
+            if self.parent.settings['REACT pymol']:
+                self.ui.label_loading.setText("loading... Open Source Pymol")
+
+        if counter == 45:
+            # Launch open source pymol at login:
+            if self.parent.settings['REACT pymol']:
+                self.parent.start_pymol()
+
 
         # CLOSE SPLASH SCREE AND OPEN APP
         if counter > 100:
@@ -51,7 +61,8 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
 
             # SHOW MAIN WINDOW
             self.parent.window().show()
-
+            self.parent.window().setWindowState(QtCore.Qt.WindowActive)
+            self.parent.window().isActiveWindow()
             # CLOSE SPLASH SCREEN
             self.close()
 
