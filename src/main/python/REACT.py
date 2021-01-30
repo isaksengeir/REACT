@@ -40,8 +40,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
                                  "additional keys": ["empiricaldispersion=gd3"],
                                  "link 0"        : [],
                                  "opt keys"      : ["noeigentest", "calcfc"],
-                                 "user funct"    : [], 
-                                 "user basis": {}},
+                                 "user"    : {"functional": [], "basis": {}}}, 
                          "pymolpath": None,
                          "REACT pymol" : True,
                          "Ui": 1

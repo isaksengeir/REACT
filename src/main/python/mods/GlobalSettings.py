@@ -16,18 +16,18 @@ class GlobalSettings(QtWidgets.QMainWindow):
 
         # TODO: move this attribute to somewhere accessible for setup class
         self.DFT_options = {'functional': ['B3LYP', 'rB3LYP', 'M062X'],
-                            'basis': {'3-21G': {'pol1': None, 'pol2': None, 'diff': ['+', ' ']},
-                                          '6-21G': {'pol1': ['d'], 'pol2': ['p'], 'diff': None},
-                                          '4-31G': {'pol1': ['d'], 'pol2': ['p'], 'diff': None},
-                                          '6-31G': {'pol1': ['d', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-                                                    'pol2': ['p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-                                                    'diff': ['+', '++', ' ']},
-                                          '6-311G': {'pol1': ['d', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-                                                     'pol2': ['p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-                                                     'diff': ['+', '++', ' ']},
-                                          'D95': {'pol1': ['d', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-                                                  'pol2': ['p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-                                                  'diff': ['+', '++', ' ']}
+                            'basis': {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
+                                          '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
+                                          '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
+                                          '6-31G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
+                                                    'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
+                                                    'diff': ['', '+', '++']},
+                                          '6-311G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
+                                                     'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
+                                                     'diff': ['', '+', '++']},
+                                          'D95': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
+                                                  'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
+                                                  'diff': ['', '+', '++']}
                                            }
                             }
 
@@ -60,32 +60,69 @@ class GlobalSettings(QtWidgets.QMainWindow):
         self.ui.del_DFT_button_4.clicked.connect(lambda: self.del_item_from_list(self.ui.add_DFT_list_3, "opt keys"))
         self.ui.save_button.clicked.connect(self.save_settings)
         self.ui.cancel_button.clicked.connect(self.close)
-        self.ui.comboBox_funct.currentTextChanged.connect(lambda: self.update_settings(self.ui.comboBox_funct, "functional"))
-        self.ui.basis1_comboBox_3.currentTextChanged.connect(lambda: self.update_settings(self.ui.basis1_comboBox_3, "basis"))
-        self.ui.basis2_comboBox_4.currentTextChanged.connect(lambda: self.update_settings(self.ui.basis2_comboBox_4, "diff"))
-        self.ui.basis3_comboBox_6.currentTextChanged.connect(lambda: self.update_settings(self.ui.basis3_comboBox_6, "pol1"))
-        self.ui.basis4_comboBox_5.currentTextChanged.connect(lambda: self.update_settings(self.ui.basis4_comboBox_5, "pol2"))
-        #self.ui.change_cwd_button.clicked.connect(self.change_cwd)
-        #self.ui.change_pymol_button.clicked.connect(self.change_pymol)
+        self.ui.comboBox_funct.textActivated.connect(lambda: self.combobox_update(self.ui.comboBox_funct, "functional"))
+        self.ui.basis1_comboBox_3.textActivated.connect(lambda: self.combobox_update(self.ui.basis1_comboBox_3, "basis"))
+        self.ui.basis2_comboBox_4.textActivated.connect(lambda: self.combobox_update(self.ui.basis2_comboBox_4, "diff"))
+        self.ui.basis3_comboBox_6.textActivated.connect(lambda: self.combobox_update(self.ui.basis3_comboBox_6, "pol1"))
+        self.ui.basis4_comboBox_5.textActivated.connect(lambda: self.combobox_update(self.ui.basis4_comboBox_5, "pol2"))
+        self.ui.change_cwd_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.cwd_lineEdit, self.settings["workdir"]))
+        self.ui.change_pymol_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.pymol_lineEdit_2, self.settings["pymolpath"]))
 
-    def update_settings(self, widget, DFT_key):
+    def new_path_from_dialog(self, textwidget, curr_dir):
+        """
+        Changes text in work directory field using file dialog.
+        No change saved in self.settings, this is handeled in save_settings. 
+        """
+
+        new_dir = QtWidgets.QFileDialog.getExistingDirectory(self, directory=curr_dir)
+        if new_dir:
+            textwidget.setText(new_dir)
+
+    def combobox_update(self, widget, key):
         """
         :param combobox: QComboBox
         :param DFT_key: str: key to access correct variable in self.settings
         Updates self.settings according to update on combobox
+        Will add user input to self.settings if the input is unknown to REACT,
         """
-
         text = widget.currentText()
 
         if isinstance(widget, QtWidgets.QComboBox):
-            if DFT_key in ["diff", "pol1", "pol2"]:
-                self.settings["DFT"]["basis"][1][DFT_key] = text
-            else:
-                self.settings["DFT"][DFT_key] = text
 
-        elif isinstance(widget, QtWidgets.QPushButton):
-            pass
+            if key in ["diff", "pol1", "pol2"]:
 
+                basis = self.ui.basis1_comboBox_3.currentText()
+                new_entry = True
+
+                if basis in self.DFT_options["basis"]:
+                    if text in self.DFT_options["basis"][basis][key]:
+                        new_entry = False
+                if basis in self.settings["DFT"]["user"]["basis"]:
+                    if text in self.settings["DFT"]["user"]["basis"][basis][key]:
+                        new_entry = False
+                if new_entry:
+                    try:
+                        self.settings["DFT"]["user"]["basis"][basis][key].append(text)
+                    except KeyError:
+                        self.settings["DFT"]["user"]["basis"][basis] = {"pol1": [], "pol2": [], "diff": []}
+                        self.settings["DFT"]["user"]["basis"][basis][key].append(text)
+                self.settings["DFT"]["basis"][1][key] = text
+
+            elif key in ["functional", "basis"]:
+
+                if text not in self.DFT_options[key] and \
+                   text not in self.settings["DFT"]["user"][key]:
+                   #if basis or functional is unknown to REACT
+                    if key == "functional":
+                        self.settings["DFT"]["user"]["functional"].append(text)
+                    elif key == "basis":
+                        self.settings["DFT"]["user"]["basis"][text] = {"pol1": [], "pol2": [], "diff": []}
+
+                if key == "functional":
+                    self.settings["DFT"]["functional"] = text
+                else:
+                    self.settings["DFT"]["basis"] = (text, {"pol1": None, "pol2": None, "diff": None})
+                    self.update_basis_options(text)
 
 
     def add_item_to_list(self, Qtextinput, Qlist, DFT_key):
@@ -100,7 +137,6 @@ class GlobalSettings(QtWidgets.QMainWindow):
         if user_input and user_input not in self.settings["DFT"][DFT_key]:
             self.settings["DFT"][DFT_key].append(user_input)
             Qlist.addItem(user_input)
-            print(self.settings["DFT"][DFT_key])
 
     def del_item_from_list(self, Qlist, DFT_key):
         """
@@ -109,10 +145,8 @@ class GlobalSettings(QtWidgets.QMainWindow):
         Removes item in QlistWdiget and updates self.settings accordingly.
         """
         item_text = Qlist.currentItem().text()
-
         if item_text in self.settings["DFT"][DFT_key]:
             self.settings["DFT"][DFT_key].remove(item_text)
-
         Qlist.takeItem(Qlist.currentRow())
 
 
@@ -122,14 +156,34 @@ class GlobalSettings(QtWidgets.QMainWindow):
         Updates polarization and diffuse functions avail for basis set
         """
 
+        self.ui.basis2_comboBox_4.blockSignals(True)
+        self.ui.basis3_comboBox_6.blockSignals(True)
+        self.ui.basis4_comboBox_5.blockSignals(True) 
+
         self.ui.basis2_comboBox_4.clear()
         self.ui.basis3_comboBox_6.clear()
         self.ui.basis4_comboBox_5.clear()
 
-        if basis in self.DFT_options['basis']:
+        if basis in self.settings["DFT"]["user"]["basis"] and\
+           basis in self.DFT_options["basis"]:
+            #in case basis is in both, merge diff and pol options
+            basis_options = {"diff": [], "pol1": [], "pol2": []}
+
+            for key in ["diff", "pol1", "pol2"]:
+
+                temp = self.DFT_options['basis'][basis][key]
+                basis_options[key].extend(temp)
+
+                temp = self.settings["DFT"]["user"]["basis"][basis][key]
+                basis_options[key].extend(temp)
+
+                # removes any duplicates in list
+                basis_options[key] = list(set(basis_options[key]))
+
+        elif basis in self.DFT_options['basis']:
             basis_options = self.DFT_options['basis'][basis]
-        elif basis in self.settings["DFT"]["user basis"]:
-            basis_options = self.settings["DFT"]["user basis"][basis]
+        elif basis in self.settings["DFT"]["user"]["basis"]:
+            basis_options = self.settings["DFT"]["user"]["basis"][basis]
         else:
             self.react.append_text('Basis set is unknown to REACT. Add polarization and diffuse functions as needed.')
             return
@@ -137,13 +191,18 @@ class GlobalSettings(QtWidgets.QMainWindow):
         for item in basis_options.items():
             if item[0] == "diff":
                 if item[1]:
-                     self.ui.basis2_comboBox_4.addItems(item[1])
+                    self.ui.basis2_comboBox_4.addItems(item[1])
             if item[0] == "pol1":
                 if item[1]:
                     self.ui.basis3_comboBox_6.addItems(item[1])
             if item[0] == "pol2":
                 if item[1]:
                     self.ui.basis4_comboBox_5.addItems(item[1])
+
+        self.ui.basis2_comboBox_4.blockSignals(False)
+        self.ui.basis3_comboBox_6.blockSignals(False)
+        self.ui.basis4_comboBox_5.blockSignals(False) 
+
 
     def read_settings_set_window(self):
         """
@@ -153,9 +212,9 @@ class GlobalSettings(QtWidgets.QMainWindow):
 
         # fill functional and basis set comboboxes
         self.ui.comboBox_funct.addItems(self.DFT_options['functional'])
-        self.ui.comboBox_funct.addItems(self.settings["DFT"]["user funct"])
+        self.ui.comboBox_funct.addItems(self.settings["DFT"]["user"]["functional"])
         self.ui.basis1_comboBox_3.addItems([x for x in self.DFT_options['basis']])
-        self.ui.basis1_comboBox_3.addItems([x for x in self.settings["DFT"]["user basis"]])
+        self.ui.basis1_comboBox_3.addItems([x for x in self.settings["DFT"]["user"]["basis"]])
 
         # Read current settings, set window accordingly
         for item in self.settings.items():
@@ -190,7 +249,10 @@ class GlobalSettings(QtWidgets.QMainWindow):
                     self.ui.light_button.setChecked(True)
 
     def save_settings(self):
-        self.react.settings = self. settings
+        self.settings["workdir"] = self.ui.cwd_lineEdit.text()
+        self.settings["pymolpath"] = self.ui.pymol_lineEdit_2.text()
+        
+        self.react.settings = self.settings
         self.close()
 
     
