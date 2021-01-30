@@ -42,7 +42,6 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         # Pymol session:
         # TODO - get pymol_path from global settings
-        self.pymol_path = self.react.pymol_path
         self.pymol = self.react.pymol
 
         state = self.react.tabWidget.currentIndex() + 1

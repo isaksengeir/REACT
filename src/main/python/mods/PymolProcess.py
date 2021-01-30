@@ -142,7 +142,10 @@ class PymolSession:
             self.react.tabWidget.tabBar().currentChanged.disconnect(self.react.pymol_view_current_state)
             self.react.connect_pymol_structures(connect=False)
             self.delete_all_files()
+
+            self.close()
             self.session.kill()
+
         except:
             pass
 
