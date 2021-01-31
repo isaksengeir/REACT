@@ -1,6 +1,6 @@
 
 from UIs.SplashScreen import Ui_SplashScreen
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, Qt
 
 counter = 0
 

@@ -101,6 +101,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.splash = SplashScreen(self)
         self.splash.show()
 
+        # PyQt5.QtCore.QRect(0, 0, 5120, 1440)
+        screen_size = QtWidgets.QDesktopWidget().screenGeometry()
+        window_size = self.geometry()
+        self.move(int(((screen_size.width() - window_size.width())/2)), 50)
+
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
@@ -111,6 +116,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         :return: session (if return_session = True)
         """
         if self.pymol:
+            self.pymol.close()
             return
 
         if self.settings['REACT pymol']:
@@ -129,7 +135,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             self.append_text("No PyMol path set. Please see settings.")
             return
 
-
         self.pymol = PymolSession(parent=self, home=self, pymol_path=pymol_path)
 
         if return_session:
@@ -137,6 +142,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         self.tabWidget.tabBar().currentChanged.connect(self.pymol_view_current_state)
         self.connect_pymol_structures(connect=True)
+
+        # Resize window to make it a bit smaller
+        #self.pymol.pymol_cmd("viewport 500, 400")
 
         self.load_all_states_pymol()
 

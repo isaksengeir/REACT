@@ -43,8 +43,12 @@ class PymolSession:
         startup = ["-p"]
         if not external_gui:
             startup.append("-x")
+
+
         self.session.start(self.pymol_path, startup)
         print(self.session.waitForStarted())
+
+        self.session.isWindowType()
 
     def pymol_cmd(self, cmd=""):
         """
@@ -104,7 +108,7 @@ class PymolSession:
         data = self.session.readAllStandardOutput()
         stdout = bytes(data).decode("utf8")
         print(stdout)
-        if "CmdLoad: loaded as" in stdout:
+        if "CmdLoad:" in stdout:
             # Delete file?
             # print(stdout)
             print(stdout)
@@ -142,8 +146,7 @@ class PymolSession:
             self.react.tabWidget.tabBar().currentChanged.disconnect(self.react.pymol_view_current_state)
             self.react.connect_pymol_structures(connect=False)
             self.delete_all_files()
-
-            self.close()
+            self.pymol_cmd("quit")
             self.session.kill()
 
         except:
