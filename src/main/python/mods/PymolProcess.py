@@ -129,8 +129,6 @@ class PymolSession:
             self.react.append_text(f"Pymol: {state_name}", date_time=True)
         except:
             pass
-        if state == QProcess.NotRunning:
-            self.close()
 
     def handle_stderr(self):
         data = self.session.readAllStandardError()

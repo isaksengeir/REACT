@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(829, 436)
+        MainWindow.resize(750, 436)
         font = QtGui.QFont()
         font.setFamily("Courier")
         MainWindow.setFont(font)
@@ -432,6 +432,30 @@ class Ui_MainWindow(object):
 "image: url(:/24x24/resources/icons/toggle_off.png);\n"
 "}\n"
 "\n"
+"QLCDNumber {\n"
+"border: 0px;\n"
+"color: rgb(143,23,119);\n"
+"\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal {\n"
+"    background:  rgb(98, 114, 164);\n"
+"    border: 1px solid rgb(20,20,20);\n"
+"    width: 10px;\n"
+"    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
+"    border-radius: 3px;\n"
+"}\n"
+"\n"
+"QSlider::groove:horizontal {\n"
+"border: 1px solid rgb(20,20,20);\n"
+"height: 10px;\n"
+"\n"
+"border-radius: 9px;\n"
+"}\n"
+"\n"
+"QSlider::sub-page:qlineargradient {\n"
+"background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(170, 85, 255, 255), stop:1 rgba(143,23,119,255));\n"
+"}\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
