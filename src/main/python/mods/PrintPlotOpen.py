@@ -9,6 +9,7 @@ from mods.GlobalSettings import GlobalSettings
 from mods.AnalyseCalc import AnalyseCalc
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from mods.FileEditor import FileEditor
+from mods.PDBModel import ModelPDB
 
 
 class PrintPlotOpen:
@@ -143,8 +144,13 @@ class PrintPlotOpen:
     def create_cluster(self):
         """
         """
-        dialog = DialogMessage(self, "Create Cluster not yet available:(")
-        dialog.exec_()
+        #dialog = DialogMessage(self, "Create Cluster not yet available:(")
+        #dialog.exec_()
+        if self.cluster_window:
+            self.cluster_window.raise_()
+        else:
+            self.cluster_window = ModelPDB(self)
+            self.cluster_window.show()
 
     def open_plotter(self):
         """

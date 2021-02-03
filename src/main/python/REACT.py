@@ -58,6 +58,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         # Analyse window active or not:
         self.analyse_window = None
 
+        # Create PDB cluster window active or not
+        self.cluster_window = None
+
         # Bool allows only one instance of settings window at the time.
         self.settings_window = None
 
@@ -709,8 +712,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
     def closeEvent(self, event):
         if self.pymol:
-            self.pymol.close()
-
+            try:
+                self.pymol.close()
+            except:
+                pass
 ### fbs code below not needed if we can not use fbs ###
 # Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
 #appctxt = ApplicationContext()
