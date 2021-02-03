@@ -14,24 +14,52 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SettingsWindow(object):
     def setupUi(self, SettingsWindow):
         SettingsWindow.setObjectName("SettingsWindow")
-        SettingsWindow.resize(528, 574)
+        SettingsWindow.resize(530, 581)
         SettingsWindow.setMinimumSize(QtCore.QSize(528, 574))
-        SettingsWindow.setMaximumSize(QtCore.QSize(528, 574))
+        SettingsWindow.setMaximumSize(QtCore.QSize(540, 585))
         SettingsWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(SettingsWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.layoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 10, 508, 553))
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 10, 511, 561))
         self.layoutWidget.setObjectName("layoutWidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.layoutWidget)
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setSpacing(5)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(self.layoutWidget)
-        self.frame.setMinimumSize(QtCore.QSize(330, 551))
-        self.frame.setMaximumSize(QtCore.QSize(301, 551))
-        self.frame.setStyleSheet("QListWidget{\n"
-"background-color:rgb(30,30,30)}")
+        self.frame.setMinimumSize(QtCore.QSize(330, 555))
+        self.frame.setMaximumSize(QtCore.QSize(301, 565))
+        self.frame.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}\n"
+"QListWidget{    \n"
+" background-color: rgb(20,20,20);        \n"
+"  border:None;\n"
+"  margin-top:0px;    \n"
+"  margin-left:0px;\n"
+"  margin-right:0px;    \n"
+" }")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -451,7 +479,7 @@ class Ui_SettingsWindow(object):
         self.gridLayout_2.addWidget(self.frame_2, 0, 1, 1, 1)
         self.frame_4 = QtWidgets.QFrame(self.layoutWidget)
         self.frame_4.setMinimumSize(QtCore.QSize(0, 0))
-        self.frame_4.setMaximumSize(QtCore.QSize(171, 110))
+        self.frame_4.setMaximumSize(QtCore.QSize(171, 109))
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_4.setObjectName("frame_4")
