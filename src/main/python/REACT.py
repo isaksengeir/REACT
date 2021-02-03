@@ -12,6 +12,7 @@ from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
 from mods.PrintPlotOpen import PrintPlotOpen
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
+from mods.CalcSetupWindow import CalcSetupWindow
 
 # from fbs_runtime.application_context.PyQt5 import ApplicationContext # fbs removed for good?
 from mods.ThreadWorkers import Worker
@@ -83,6 +84,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.button_plotter.clicked.connect(self.open_plotter)
         self.button_power_off.clicked.connect(self.power_off_on)
         self.button_pymol.clicked.connect(self.start_pymol)
+        self.button_calc_setup.clicked.connect(self.calc_setup)
 
         self.power = True
 
@@ -108,6 +110,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         # TODO put this some place in the UI bottom ?
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
+
+    def calc_setup(self):
+        self.setup_window = CalcSetupWindow(self)
+        self.setup_window.show()
+
 
     def start_pymol(self, return_session=False):
         """

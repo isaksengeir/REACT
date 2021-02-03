@@ -38,13 +38,12 @@ class GlobalSettings(QtWidgets.QMainWindow):
         # It should look like this:
         #
         # self.settings = {"workdir": str(),
-        #                  "DFT": {"functional"    : str(),
-        #                          "basis"         : (str(), {"pol1": str(), "pol2": str(), "diff": str()}),
+        #                  "DFT": {"functional"     : str(),
+        #                          "basis"          : (str(), {"pol1": str(), "pol2": str(), "diff": str()}),
         #                          "additional keys": [],
-        #                          "link 0"        : [],
-        #                          "opt keys"      : [],
-        #                          "user funct"    : [], 
-        #                          "user basis": {}},
+        #                          "link 0"         : [],
+        #                          "opt keys"       : [],
+        #                          "user"           : {"functional": [], "basis": {}},
         #                  "pymolpath": str(),
         #                  "REACT pymol" : bool
         #                  "Ui": int()
@@ -87,43 +86,40 @@ class GlobalSettings(QtWidgets.QMainWindow):
         """
         text = widget.currentText()
 
-        if isinstance(widget, QtWidgets.QComboBox):
+        if key in ["diff", "pol1", "pol2"]:
 
-            if key in ["diff", "pol1", "pol2"]:
+            basis = self.ui.basis1_comboBox_3.currentText()
+            new_entry = True
 
-                basis = self.ui.basis1_comboBox_3.currentText()
-                new_entry = True
+            if basis in self.DFT_options["basis"]:
+                if text in self.DFT_options["basis"][basis][key]:
+                    new_entry = False
+            if basis in self.settings["DFT"]["user"]["basis"]:
+                if text in self.settings["DFT"]["user"]["basis"][basis][key]:
+                    new_entry = False
+            if new_entry:
+                try:
+                    self.settings["DFT"]["user"]["basis"][basis][key].append(text)
+                except KeyError:
+                    self.settings["DFT"]["user"]["basis"][basis] = {"pol1": [], "pol2": [], "diff": []}
+                    self.settings["DFT"]["user"]["basis"][basis][key].append(text)
+            self.settings["DFT"]["basis"][1][key] = text
 
-                if basis in self.DFT_options["basis"]:
-                    if text in self.DFT_options["basis"][basis][key]:
-                        new_entry = False
-                if basis in self.settings["DFT"]["user"]["basis"]:
-                    if text in self.settings["DFT"]["user"]["basis"][basis][key]:
-                        new_entry = False
-                if new_entry:
-                    try:
-                        self.settings["DFT"]["user"]["basis"][basis][key].append(text)
-                    except KeyError:
-                        self.settings["DFT"]["user"]["basis"][basis] = {"pol1": [], "pol2": [], "diff": []}
-                        self.settings["DFT"]["user"]["basis"][basis][key].append(text)
-                self.settings["DFT"]["basis"][1][key] = text
+        elif key in ["functional", "basis"]:
 
-            elif key in ["functional", "basis"]:
-
-                if text not in self.DFT_options[key] and \
-                   text not in self.settings["DFT"]["user"][key]:
-                   #if basis or functional is unknown to REACT
-                    if key == "functional":
-                        self.settings["DFT"]["user"]["functional"].append(text)
-                    elif key == "basis":
-                        self.settings["DFT"]["user"]["basis"][text] = {"pol1": [], "pol2": [], "diff": []}
-
+            if text not in self.DFT_options[key] and \
+               text not in self.settings["DFT"]["user"][key]:
+               #if basis or functional is unknown to REACT
                 if key == "functional":
-                    self.settings["DFT"]["functional"] = text
-                else:
-                    self.settings["DFT"]["basis"] = (text, {"pol1": None, "pol2": None, "diff": None})
-                    self.update_basis_options(text)
+                    self.settings["DFT"]["user"]["functional"].append(text)
+                elif key == "basis":
+                    self.settings["DFT"]["user"]["basis"][text] = {"pol1": [], "pol2": [], "diff": []}
 
+            if key == "functional":
+                self.settings["DFT"]["functional"] = text
+            else:
+                self.settings["DFT"]["basis"] = (text, {"pol1": None, "pol2": None, "diff": None})
+                self.update_basis_options(text)
 
     def add_item_to_list(self, Qtextinput, Qlist, DFT_key):
         """
@@ -214,7 +210,7 @@ class GlobalSettings(QtWidgets.QMainWindow):
         self.ui.comboBox_funct.addItems(self.DFT_options['functional'])
         self.ui.comboBox_funct.addItems(self.settings["DFT"]["user"]["functional"])
         self.ui.basis1_comboBox_3.addItems([x for x in self.DFT_options['basis']])
-        self.ui.basis1_comboBox_3.addItems([x for x in self.settings["DFT"]["user"]["basis"]])
+        self.ui.basis1_comboBox_3.addItems([x for x in self.settings["DFT"]["user"]["basis"] if x not in self.DFT_options['basis']])
 
         # Read current settings, set window accordingly
         for item in self.settings.items():
