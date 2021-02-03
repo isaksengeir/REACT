@@ -26,23 +26,7 @@
    <string>Calculation setup</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QPushButton {
-     background-color: rgb(143, 23, 119);
-       color: white;
- }
- QPushButton:hover{
- background-color:rgb(143, 23, 119);
- border-style: outset;
- border-width: 0px;
- /*border-color: rgb(12, 103, 213);*/
- }
- QPushButton:pressed
- {
- /*background-color:rgb(17, 145, 255);
-  color: black*/
-  background-color: rgb(42, 42, 42);
- }
- QListWidget{
+   <string notr="true"> QListWidget{
  background-color: rgb(20,20,20);
  border:None;
  margin-top:0px;
