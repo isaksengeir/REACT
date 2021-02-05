@@ -89,3 +89,33 @@ def write_file(list_stuff, path):
     for line in list_stuff:
         _file.write(line + "\n")
     _file.close()
+
+
+def find_ligands_pdbfile(pdbfile):
+    """
+    Reads through a PDB file and identifies residue_names that har not amino acids or similar. Used for highlighting
+    ligands in pymol.
+    :param pdbfile: path to pdb file.
+    :return: resnames (list of non-protein residue names)
+    """
+    residues = list()
+
+    res_ignore = ["GLY", "HIS", "HID", "HIP", "HIE", "ALA", "VAL", "ILE", "CYS", "MET", "TYR", "ASP", "GLU", "ARG",
+                  "LYS", "PHE", "TRP", "ASN", "GLN", "SER", "AR+", "LY+", "GL-", "AS-", "PRO", "LEU", "THR"]
+    # N-terminals (Q-style)
+    res_ignore += ["N%s" % x for x in res_ignore]
+    # C-terminals (Q-style)
+    res_ignore += ["C%s" % x for x in res_ignore]
+    # ions etc.
+    res_ignore += ["CL-", "CLA", "HOH", "WAT", "Cl-", "SOD", "Na+", "NA+"]
+
+    with open(pdbfile, "r") as pdb:
+        for line in pdb:
+            if line.startswith("ATOM") or line.startswith("HETATM"):
+                res = line[17:21].strip()
+                if res not in res_ignore:
+                    if res not in residues:
+                        residues.append(res)
+
+    return residues
+

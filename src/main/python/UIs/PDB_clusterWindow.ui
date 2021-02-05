@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>690</width>
-    <height>312</height>
+    <width>618</width>
+    <height>318</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -144,6 +144,30 @@
          </layout>
         </item>
         <item>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="select_byres">
+            <property name="text">
+             <string>Select by residue (recomended)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="include_solvent">
+            <property name="text">
+             <string>Include solvent</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
            <spacer name="horizontalSpacer_2">
@@ -158,8 +182,8 @@
             </property>
            </spacer>
           </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton">
+          <item row="0" column="2">
+           <widget class="QPushButton" name="button_create_model">
             <property name="minimumSize">
              <size>
               <width>150</width>
@@ -171,7 +195,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -183,6 +207,13 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="button_update_manual_selection">
+            <property name="text">
+             <string>Update manual selection</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -222,7 +253,7 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLineEdit" name="lineEdit_inclusion_radius_2">
+           <widget class="QLineEdit" name="lineEdit_atoms_in_model">
             <property name="maximumSize">
              <size>
               <width>50</width>

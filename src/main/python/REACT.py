@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QThreadPool, QTimer
 from mods.SplashScreen import SplashScreen
@@ -713,6 +713,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
     def closeEvent(self, event):
         if self.pymol:
             try:
+                # TODO this only partly works... QProcess: Destroyed while process ("OpenSourcePymol/dist/OpenSourcePymol.app") is still running.
                 self.pymol.close()
             except:
                 pass
@@ -731,4 +732,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
+    # TODO transparent frameless main window? Maybe not, but maybe all the others?
+    # window.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+    # window.setAttribute(QtCore.Qt.WA_TranslucentBackground)
     app.exec_()
