@@ -3,8 +3,6 @@ from mods.Atoms import GaussianAtom, Atom
 from mods.MoleculeFile import GaussianMolecule
 import re
 import copy
-import mmap
-import time
 
 
 class GaussianFile:
@@ -197,7 +195,7 @@ class InputFile(GaussianFile):
 
         """
         atoms = list()
-
+        index = 1
         with open(self.file_path, 'r') as ginp:
             get_coordinates = False
             for line in ginp:
@@ -207,12 +205,12 @@ class InputFile(GaussianFile):
                         break
                     else:
                         atom_info = line.split()
-                        atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3]))
-
+                        atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3], index))
+                        index += 1
                 if self.charge_multiplicity_regEx.search(line):
                     get_coordinates = True
         
-        return atoms
+        return [atoms]
 
 
 class OutputFile(GaussianFile):
@@ -404,7 +402,6 @@ class OutputFile(GaussianFile):
                         iter_atoms.append(atoms)
                     else:
                         atoms.append(GaussianAtom(line))
-
 
                 if "Standard orientation" in line:
                     standard_orientation = True

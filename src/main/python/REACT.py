@@ -323,7 +323,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             self.add_state()
 
         #path = os.getcwd()  # wordkdir TODO set this as global at some point
-        path = "../resources/DFT_testfiles"
+        path = self.settings['workdir']
         filter_type = "Gaussian output files (*.out);; Gaussian input files (*.com *.inp);; " \
                       "Geometry files (*.pdb *.xyz)"
         title_ = "Import File"
@@ -335,6 +335,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
 
         if len(files_path) < 1:
             return
+
+        # Remove file types not accepted by REACT
+        accepted_files = ["inp", "com", "out", "xyz", "pdb"]
+        files_path = [x for x in files_path if x.split(".")[-1] in accepted_files]
 
         # Where to start inserting files in project list:
         items_insert_index = self.tabWidget.currentWidget().count()
@@ -351,9 +355,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             self.tabWidget.currentWidget().insertItem(items_insert_index, file)
             self.tabWidget.currentWidget().item(items_insert_index).setForeground(QtGui.QColor(80, 80, 80))
             items_insert_index += 1
-
-
-
 
         # Move horizontall scrollbar according to text
         self.tabWidget.currentWidget().repaint()
@@ -372,6 +373,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         pymol_defaults = False
         for n in range(len(file_paths)):
             file = file_paths[n]
+            print(file)
             self.states[self.get_current_state - 1].add_gfile(file)
             if n == len(file_paths) - 1:
                 pymol_defaults = True
@@ -404,6 +406,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
                     val -= 1
                 else:
                     val += 1
+                if val > 80:
+                    self.timer.setInterval(50)
+                else:
+                    self.timer.setInterval(10)
 
             if val < 100:
                 self.progressBar.setTextVisible(True)
@@ -414,6 +420,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
             elif reverse and val < 1:
                 self.timer2.stop()
                 sys.exit()
+
+
 
             self.progressBar.setValue(int(val))
 
@@ -558,7 +566,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.tabWidget.widget(tab_index).deleteLater()
         self.states.pop(tab_index)
         if self.pymol:
-            self.pymol.pymol_cmd("delete state_%d" % tab_index + 1)
+            self.pymol.pymol_cmd("delete state_%s" % str(tab_index + 1))
 
     def create_input_content(self, filepath):
         """

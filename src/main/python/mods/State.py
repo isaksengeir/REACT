@@ -1,13 +1,9 @@
 from mods.GaussianFile import OutputFile, InputFile, FrequenciesOut
 from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
-import concurrent.futures
-import time
 
 
 class State:
-
     def __init__(self):
-
         # File types --> sublass assignment
         self.file_types = {"com": InputFile,
                            "inp": InputFile,
@@ -18,19 +14,10 @@ class State:
         # filepath (key) : File object (value)
         self.gfiles = {}
 
-        start = time.time()
-
-        print("self.add_gfile Time executed:", time.time() - start, "s")
-
     def add_gfile(self, filepath):
         """
         Creates GaussianFile instance for each uploaded file-path.
         """
-
-        # if len(files_path) > some number:
-        #    do multiprocessing or threading instead? Each new GaussianFile object will undergo some processing (read file, check convergence, energies...)
-
-
         # Check file type for correct GaussianFile subclass assignment:
         filename = filepath.split("/")[-1]
         filetype = filename.split(".")[-1]
@@ -42,7 +29,6 @@ class State:
 
             if self.gfiles[filepath].has_frequencies:
                 self.gfiles[filepath] = FrequenciesOut(filepath)
-            #return self.check_convergence(filepath)
 
         return None
 

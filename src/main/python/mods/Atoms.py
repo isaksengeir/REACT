@@ -3,7 +3,7 @@ class Atom:
     Class to store information for atoms.
     Coordinates, mass, name, pdb name, type etc.
     """
-    def __init__(self, atom, x, y, z):
+    def __init__(self, atom, x, y, z, index=None):
         # Atom number to atom dictionary - only most common elements. Maybe complete at some point later ... maybe not.
         self.atomnr_atom = {1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F", 10: "Ne",
                              11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
@@ -26,6 +26,9 @@ class Atom:
         self.x = float(x)
         self.y = float(y)
         self.z = float(z)
+
+        if index:
+            self.center_number = index
 
     @property
     def get_x(self):
@@ -52,6 +55,10 @@ class Atom:
     def get_atom_nr(self):
         return self.atomnr
 
+    @property
+    def get_atom_index(self):
+        return int(self.center_number)
+
 
 class GaussianAtom(Atom):
     """
@@ -75,10 +82,6 @@ class GaussianAtom(Atom):
             super(GaussianAtom, self).__init__(atom_nr, x_coordinate, y_coordinate, z_coordinate)
 
         # atom = {index: int, name: C:str, X:float, Y:float, Z:float}
-
-    @property
-    def get_atom_index(self):
-        return int(self.center_number)
 
 
 class PDBAtom(Atom):

@@ -1,54 +1,3 @@
-"""
-Nice feature to get atom numbers of a selection:
-> iterate sele, print("%s" % ID)
-# https://pymolwiki.org/index.php?title=Modeling_and_Editing_Structures#Adding_and_using_your_own_fragments%3E
-# Pymol has some build-in fragments (amino acids and simple functional groups). You can add your own fragments, eg.
-# sugars, in this way: Create the molecule you want to use as a fragment. Save it as a .pkl file in
-# <pymol_path>/data/chempy/fragments.
-# If you want a menu item for your fragment, you can probably put it in <pymol_path>/modules/pmg_tk/skins/normal/__init__.py, but I haven't tried this.
-#######
-step 1:
-* Load pdb file or import from project table
-* select central molecule/ligand/reactant
-* choose size of cluster (default 5 Å + include byres to avoid stupid cutting)
-* Report back how many atoms current cluster will consist of - dynamically adjust size until happy.
-> count_atoms cluster
-
---> Create cluster
-
-step 2:
-* Evaluate model, delete stuff, go back to step 1 to adjust size, or process model
-** choose n-terminal capping: ace, methyl or H
-** choose c-terminal capping: nme, methyl or H
-"process model"
-
-step 2 --> step 3 processing
-* select terminals that have been chopped:
-> select nterms, test and (elem n and (neighbor name CA and not neighbor name C))
-> select cterms, test and (elem C and (neighbor name O and not neighbor name N))
-
-* Get residue numbers of terminals to be fixed:
-> iterate nterms, print("%s" % resi)
-> iterate cterms, print("%s" % resi)
-
-* Iterate over terminal residues, get_dihedral, attach terminal capping and set dihedral to original again.
-*N-terms:
-> get_dihedral prot///resnr/C, prot///resnr/CA, prot///resnr/N, prot///resnr/H
-> editor.attach_amino_acid("prot///resnr/N", 'ace')
->  set_dihedral prot///resnr/C, prot///resnr/CA, prot///resnr/N, prot///resnr/H, dihedral_angle
-*C-terms:
-> get_dihedral prot///resnr/N, prot///resnr/CA, prot///resnr/C, prot///resnr/O
-> editor.attach_amino_acid("prot///resnr/N", 'nme')
->  set_dihedral prot///resnr/N, prot///resnr/CA, prot///resnr/C, prot///resnr/O, dihedral_angle
-> editor.attach_amino_acid("pl1", 'nme')
-
-Step 3:
-* Validate cluster (done by user visually).
-* Add, delete H-atoms, methyl-groups?
-** Save cluster & quit.
-#######
-"""
-
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import pyqtSlot, Qt
 from UIs.PDB_clusterWindow import Ui_ClusterPDB
@@ -62,7 +11,7 @@ class ModelPDB(QtWidgets.QMainWindow):
     workdir, DFT_settings and Ui_stylemode)
     """
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, Qt.WindowStaysOnTopHint)
 
         self.react = parent
         self.ui = Ui_ClusterPDB()
@@ -84,14 +33,25 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol = self.react.pymol
 
         self.selected_atoms = {"central": list(), "included": list()}
+        self.fix_atoms = list()
+        self.model_tmp = False
+        self.model_final = False
+        self.count_terminals = {"nterm":True, "cterm":True, "count": 0}
+        self.auto_added = False
 
-        # Connect signals from pymol
+        # Connect signals from pymol:
         self.pymol.atomsSelectedSignal.connect(self.update_selected_atoms)
+        self.pymol.ntermResidues.connect(self.update_nterm)
+        self.pymol.ctermResidues.connect(self.update_cterm)
+        self.pymol.dihedralSignal.connect(self.update_dihedral)
+        self.pymol.countAtomsSignal.connect(self.update_atom_count)
+
+        # Connect UI widgets:
         self.ui.select_byres.clicked.connect(self.update_inclusion_size)
         self.ui.include_solvent.clicked.connect(self.update_inclusion_size)
+        self.ui.tabWidget.currentChanged.connect(self.tab_changed)
 
         self.ui.lineEdit_atoms_in_model.setText("0")
-        #self.ui.lineEdit_inclusion_radius.insert("1")
 
         self.ui.slider_inclusion_size.valueChanged.connect(self.update_inclusion_size)
         self.ui.slider_inclusion_size.setValue(1)
@@ -99,24 +59,77 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.ui.button_set_cluster_center.clicked.connect(self.set_central_atoms)
         self.ui.button_update_manual_selection.clicked.connect(lambda: self.pymol.get_selected_atoms("included"))
         self.ui.button_create_model.clicked.connect(self.create_model)
+        self.ui.button_auto_nterm.clicked.connect(self.auto_add_terminals)
+        self.ui.button_delete_selected.clicked.connect(self.delete_selected)
+        self.ui.button_add_group.clicked.connect(self.build_fragment)
+        self.ui.button_load_pdb.clicked.connect(self.load_pdb)
+
+        self.nterm = list()
+        self.cterm = list()
+        self.dihedrals = dict()
 
     def load_pdb(self):
-        pass
+        file_, file_type = self.react.import_files(title_="Import PDB", filter_type="Protein data bank (*.pdb)", path=self.react.settings['workdir'])
+        if not file_:
+            return
+        file_ = file_[0]
+        self.pymol.load_structure(file_=file_, delete_after=False)
+        self.add_new_pdb(file_)
 
     def import_pdb_project_table(self):
         """
         take selected PDB file from project table
         :return:
         """
-        file_ = self.react.get_selected_filepath
+        try:
+            file_ = self.react.get_selected_filepath
+        except AttributeError:
+            return
+        if not file_:
+            return
         if not file_.split(".")[-1] == "pdb":
             warn = DialogMessage(self, "PDB file required")
             warn.show()
             self.react.append_text("%s is not recognised as a pdb file." % (file_.split("/")[-1]))
             return
+        self.add_new_pdb(file_)
+
+    def add_new_pdb(self, file_):
         self.ui.lineEdit_pdb_file.setText(file_)
         self.group_pdb_pymol(pdb_source=file_.split("/")[-1].split(".")[0], pdb_target="source")
         self.guess_highlight_ligand(pdb_file=file_, pymol_name="source")
+
+    def tab_changed(self):
+        """
+
+        :return:
+        """
+        tab_index = self.ui.tabWidget.currentIndex()
+        if tab_index == 0:
+            if self.model_tmp:
+                self.model_tmp = False
+            self.pymol.highlight(name="source", group="pdb_model")
+            self.pymol.pymol_cmd("enable included or central")
+            self.pymol.pymol_cmd("set mouse_selection_mode, 1")
+            self.pymol.pymol_cmd("config_mouse three_button_viewing")
+            self.update_inclusion_size()
+        elif tab_index == 1:
+            if not self.model_tmp:
+                self.create_model()
+            if self.model_tmp:
+                self.pymol.highlight(name="model_tmp", group="pdb_model")
+                self.pymol.pymol_cmd("set mouse_selection_mode, 0")
+                self.pymol.pymol_cmd("config_mouse three_button_viewing")
+                # self.pymol.pymol_cmd("config_mouse three_button_editing")
+        elif tab_index == 2:
+            # TODO
+            # self.pymol.highlight(name="model_final", group="pdb_model")
+            self.pymol.pymol_cmd("config_mouse three_button_editing")
+            pass
+
+
+        #else:
+        #    self.pymol.pymol_cmd("config_mouse three_button_viewing")
 
     def guess_highlight_ligand(self, pdb_file, pymol_name):
         """
@@ -125,6 +138,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         :return:
         """
         residues = find_ligands_pdbfile(pdb_file)
+
         self.pymol.set_protein_ligand_rep(residues, pymol_name=pymol_name, group="pdb_model")
 
     def group_pdb_pymol(self, pdb_source, pdb_target):
@@ -158,8 +172,14 @@ class ModelPDB(QtWidgets.QMainWindow):
             print("No atoms selected")
             self.react.append_text("No atoms selected")
             return
+
         # Remove duplicates (maybe not necessary):
         atoms = list(dict.fromkeys(atoms))
+        if self.model_tmp:
+            self.fix_atoms = list()
+            self.fix_atoms = atoms
+            return
+
         if len(self.selected_atoms["central"]) < 1:
             self.selected_atoms["central"] = atoms
             self.pymol.set_selection(atoms=atoms, sele_name="central", object_name="source", group="pdb_model")
@@ -168,8 +188,42 @@ class ModelPDB(QtWidgets.QMainWindow):
         else:
             self.selected_atoms["included"] = atoms
             self.pymol.set_selection(atoms=atoms, sele_name="included", object_name="source", group="pdb_model")
-        print(atoms)
+
         self.ui.lineEdit_atoms_in_model.setText(str(len(atoms)))
+
+    @pyqtSlot(list)
+    def update_nterm(self, resi):
+        self.nterm = resi
+        self.get_terminal_dihedrals(term="nterm", residues=resi)
+
+    @pyqtSlot(list)
+    def update_cterm(self, resi):
+        self.cterm = resi
+        self.get_terminal_dihedrals(term="cterm", residues=resi)
+
+    @pyqtSlot(list)
+    def update_dihedral(self, dihedral):
+        if "/N" in dihedral[2]:
+            adding = self.ui.nterm_capping.currentText()
+        elif "/C" in dihedral[2]:
+            adding = self.ui.cterm_capping.currentText()
+        else:
+            print("I am not sure what you want to add or where... FIX ME!")
+            return
+
+        self.pymol.add_fragment(attach_to=dihedral[2], fragment=adding)
+        self.pymol.set_dihedral(dihedral[0], dihedral[1], dihedral[2], dihedral[3], dihedral[4])
+
+    @pyqtSlot(str)
+    def update_atom_count(self, count):
+        if self.count_terminals["cterm"]:
+            self.count_terminals["count"] += int(count)
+            self.count_terminals["cterm"] = False
+        elif self.count_terminals["nterm"]:
+            self.count_terminals["count"] += int(count)
+            self.count_terminals["nterm"] = False
+        else:
+            self.ui.lineEdit_atoms_in_model.setText(count)
 
     def update_inclusion_size(self):
         """
@@ -180,6 +234,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.ui.lineEdit_inclusion_radius.setText(str(expand_radius))
 
         if self.selected_atoms["central"]:
+            self.selected_atoms["included"].clear()
             self.pymol.expand_sele(selection="central", sele_name="included", group="pdb_model", radius=expand_radius,
                                    by_res=self.ui.select_byres.isChecked(),
                                    include_solv=self.ui.include_solvent.isChecked())
@@ -195,10 +250,86 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.get_selected_atoms(sele="included")
 
     def create_model(self):
+        if len(self.selected_atoms["included"]) < 1:
+            print("No atoms to generate model from. Please select central molecule")
+            self.react.append_text("No atoms to generate model from. Please select central molecule.")
+            self.ui.tabWidget.setCurrentIndex(0)
+            return
+
+        self.count_terminals["nterm"], self.count_terminals["cterm"] = True, True
+        self.count_terminals["count"] = 0
+        self.auto_added = False
         self.pymol.copy_sele_to_object(sele="included", target_name="model_tmp", group="pdb_model")
         self.pymol.pymol_cmd("disable source")
         self.pymol.pymol_cmd("hide cartoon, model_tmp")
+        # Update included selection to now refer to model_tmp instead of source:
+        self.pymol.pymol_cmd("select included, model_tmp")
+        # Identify terminals that have been chopped
+        [self.pymol.find_unbonded(pymol_name="model_tmp", type=x, group="pdb_model") for x in ["nterm", "cterm"]]
+        self.pymol.pymol_cmd("show nonbonded, model_tmp")
+        self.pymol.pymol_cmd("count_atoms nterm")
+        self.pymol.pymol_cmd("count_atoms cterm")
+
+        self.model_tmp = True
         self.ui.tabWidget.setCurrentIndex(1)
+
+    def delete_selected(self):
+        self.pymol.pymol_cmd("remove sele and model_tmp")
+        self.pymol.pymol_cmd("count_atoms model_tmp")
+
+    def build_fragment(self):
+        fragment = self.ui.groups_to_add.currentText()
+        #self.pymol.pymol_cmd("edit sele")
+        self.pymol.add_fragment(attach_to="sele", fragment=fragment)
+        self.pymol.pymol_cmd("count_atoms model_tmp")
+
+
+    def auto_add_terminals(self):
+        """
+        :return:
+        """
+        if self.auto_added:
+            return
+
+        for selection in ["nterm", "cterm"]:
+            self.pymol.get_selected_atoms(sele=selection, type="int(resi)")
+
+        build_time = (self.count_terminals["count"]) * 250
+        QtCore.QTimer.singleShot(build_time, lambda: self.pymol.pymol_cmd("select auto_added, included extend 5 and not "
+                                                                    "included"))
+        QtCore.QTimer.singleShot(build_time+25, lambda: self.pymol.pymol_cmd("group pdb_model, auto_added"))
+        QtCore.QTimer.singleShot(build_time+50, lambda: self.pymol.pymol_cmd("color gray, auto_added and name C*"))
+        QtCore.QTimer.singleShot(build_time+75, lambda: self.pymol.pymol_cmd("count_atoms model_tmp"))
+        self.auto_added = True
+
+    def get_terminal_dihedrals(self, term="nterm", residues=None):
+        """
+
+        :param term:
+        :param residues:
+        :return:
+        """
+        if residues is None:
+            residues = list()
+
+        prot = "model_tmp"
+        if term == "nterm":
+            names = ["C", "CA", "N", "H"]
+        else:
+            names = ["N", "CA", "C", "O"]
+
+        for i in residues:
+            atoms = list()
+            for atom in names:
+                atoms.append("%s///%s/%s" % (prot, i, atom))
+            self.pymol.get_dihedral(atoms[0], atoms[1], atoms[2], atoms[3])
+
+    def add_nterm_cap(self):
+        pass
+        editor_cmd = {"ace": "editor.atach_amino_acid", "methyl": "editor.attach_fragment"}
+
+    def add_cterm_cap(self):
+        pass
 
     def closeEvent(self, event):
         self.react.cluster_window = None

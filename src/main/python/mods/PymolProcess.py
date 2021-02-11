@@ -3,8 +3,12 @@ import os
 
 
 class PymolSession(QObject):
-    # Signal to be emitted when pymol has returned all atom numbers of current selection
+    # Signal to be emitted when pymol returns stuff of interest to REACT
     atomsSelectedSignal = pyqtSignal(list)
+    dihedralSignal = pyqtSignal(list)
+    ntermResidues = pyqtSignal(list)
+    ctermResidues = pyqtSignal(list)
+    countAtomsSignal = pyqtSignal(str)
 
     def __init__(self, parent=None, home=None, pymol_path=None):
         super(QObject, self).__init__(parent)
@@ -22,8 +26,36 @@ class PymolSession(QObject):
 
         # Delete file of loaded molecule after loading it:
         self.files_to_delete = list()
-        self.collect_atoms = False
-        self.iterate_found = False
+
+        # Handling standard output:
+        self.atoms_selected = list()
+        self.unbonded = 0
+
+        self.stdout_handler = {"iterate sele, ID": {"collect": False,
+                                                    "process": self.collect_iterate,
+                                                    "return": "iterated",
+                                                    "signal": self.return_sel_atomnr},
+                               "iterate included, ID": {"collect": False,
+                                                        "process": self.collect_iterate,
+                                                        "return": "iterated",
+                                                        "signal": self.return_sel_atomnr},
+                               "iterate nterm": {"collect": False,
+                                                 "process": self.collect_iterate,
+                                                 "return": "iterated",
+                                                 "signal": self.return_nterm},
+                               "iterate cterm": {"collect": False,
+                                                 "process": self.collect_iterate,
+                                                 "return": "iterated",
+                                                 "signal": self.return_cterm},
+                               "get_dihedral ": {"collect": False,
+                                                 "process": self.collect_dihedral,
+                                                 "return": "cmd.get_dihedral:",
+                                                 "signal": self.return_dihedral},
+                               "count_atoms:": {"collect": False,
+                                                 "process": self.return_atom_count,
+                                                 "return": "count_atoms:",
+                                                 "signal": None},
+                               }
 
         self.start_pymol()
         self.set_pymol_settings()
@@ -40,18 +72,14 @@ class PymolSession(QObject):
         if not file_:
             print("PymolProcess load_structure - No file given")
             return
-
         self.pymol_cmd("load %s" % file_)
 
     def start_pymol(self, external_gui=False):
         startup = ["-p"]
         if not external_gui:
             startup.append("-x")
-
-
         self.session.start(self.pymol_path, startup)
         print(self.session.waitForStarted())
-
         self.session.isWindowType()
 
     def pymol_cmd(self, cmd=""):
@@ -99,6 +127,7 @@ class PymolSession(QObject):
             sel_str += " or resname ".join(residues)
 
         self.pymol_cmd("hide sticks, %s and %s and not %s" % (group, pymol_name, sel_str))
+        self.pymol_cmd("color gray, %s and %s and name C*" % (group, pymol_name))
         self.pymol_cmd("color chartreuse, %s and %s and %s and name C*" % (group, pymol_name, sel_str))
         self.pymol_cmd("zoom %s and %s and %s, 10" % (group, pymol_name, sel_str))
 
@@ -114,12 +143,9 @@ class PymolSession(QObject):
         if group:
             cmd += "%s and " % group
         self.pymol_cmd("hide sticks, %s %s" % (cmd, name))
-
         self.pymol_cmd("color grey, %s %s and name C*" % (cmd, name))
-
         selection = "(id %s)" % (" or id ".join(atoms))
         self.pymol_cmd("show sticks, %s%s " % (cmd, selection))
-
         self.pymol_cmd("color %s, name C* and %s%s" % (color, cmd, selection))
 
     def highlight(self, name=None, group=None):
@@ -132,6 +158,7 @@ class PymolSession(QObject):
         if group:
             self.pymol_cmd("group %s, toggle, open" % group)
         self.pymol_cmd("enable %s or %s" % (group, name))
+        self.pymol_cmd("zoom %s and %s" % (group, name))
 
     def set_selection(self, atoms, sele_name, object_name, group):
         """
@@ -162,20 +189,63 @@ class PymolSession(QObject):
             cmd += "and not sol."
 
         self.pymol_cmd(cmd)
-
         self.pymol_cmd("group %s, %s" % (group, sele_name))
 
-    def get_selected_atoms(self, sele="sele"):
+    def get_selected_atoms(self, sele="sele", type="ID"):
         """
-        Get PDB atom numbers for selection
+        Get PDB atom numbers/residue numbers of selection
         :return:
         """
-        # iterate sele, rank
-        self.atoms_selected = list()
-        self.collect_atoms = True
-        self.iterate_found = False
-        self.pymol_cmd("iterate %s, ID" % sele)
-        self.session.waitForReadyRead()
+        self.pymol_cmd("iterate %s, %s" % (sele, type))
+
+    def get_dihedral(self, a1, a2, a3, a4):
+        self.look_for_dihedral = True
+        self.pymol_cmd("get_dihedral %s, %s, %s, %s" % (a1, a2, a3, a4))
+
+    def set_dihedral(self, a1, a2, a3, a4, dihedral):
+        self.pymol_cmd("set_dihedral %s, %s, %s, %s, %s" % (a1, a2, a3, a4, dihedral))
+        self.pymol_cmd("unpick")
+
+    def add_fragment(self, attach_to, fragment):
+        """
+
+        :param attach_to: atom to attach fragment to
+        :param fragment: type of fragment
+        :return:
+        """
+        if fragment == "H":
+            cmd = "h_add %s" % attach_to
+        elif fragment == "methyl":
+            if attach_to != "pk1":
+                self.pymol_cmd("select sele, first sele")
+                self.pymol_cmd("edit %s" % attach_to)
+            cmd = "editor.attach_fragment('pk1', 'methane', 1, 0)"
+        elif fragment in ["ace", "nme"]:
+            cmd = "editor.attach_amino_acid('%s', '%s')" % (attach_to, fragment)
+        else:
+            return
+
+        self.pymol_cmd(cmd)
+        self.pymol_cmd("unpick")
+
+    def find_unbonded(self, pymol_name, type="nterm", group=None):
+        """
+        Special function to locate atoms that potentially are missing bonds.
+        :param pymol_name: object name in pymol
+        :param type:
+        :param group:
+        :return:
+        """
+        selector = {"nterm": "and (elem n and (neighbor name CA and not neighbor name C))",
+                    "cterm": "and (elem C and (neighbor name O and not neighbor name N))"}
+
+        cmd = "select %s, %s " % (type, pymol_name)
+        if group:
+            cmd += "and %s " % group
+        cmd += selector[type]
+        self.pymol_cmd(cmd)
+        if group:
+            self.pymol_cmd("group %s, %s" % (group, type))
 
     def copy_sele_to_object(self, sele="sele", target_name="new_obj", group=None):
         """
@@ -209,20 +279,26 @@ class PymolSession(QObject):
         """
         data = self.session.readAllStandardOutput()
         stdout = bytes(data).decode("utf8")
-        print(stdout)
+        # print(stdout)
         if "CmdLoad:" in stdout:
             if len(self.files_to_delete) > 0:
                 os.remove(self.files_to_delete.pop(0))
-        if self.collect_atoms:
-            if "Iterate:" in stdout:
-                self.return_sel_atomnr()
-                self.collect_atoms = False
-            elif "iterate" in stdout:
-                self.iterate_found = True
-            if self.iterate_found:
-                self.collect_iterate_rank(stdout)
 
-    def collect_iterate_rank(self, stdout):
+        for k in self.stdout_handler.keys():
+            if k in stdout:
+                self.atoms_selected.clear()
+                self.stdout_handler[k]["collect"] = True
+
+        for k in self.stdout_handler.keys():
+            if self.stdout_handler[k]["collect"]:
+                self.stdout_handler[k]["process"](stdout)
+
+                if self.stdout_handler[k]["return"] in stdout:
+                    if self.stdout_handler[k]["signal"]:
+                        self.stdout_handler[k]["signal"]()
+                    self.stdout_handler[k]["collect"] = False
+
+    def collect_iterate(self, stdout):
         """
         Read standard output from Qprocess pymol in the case of "iterate sele, rank" and collects atom numbers to
         self.atoms_selected
@@ -233,10 +309,36 @@ class PymolSession(QObject):
             for atomnr in junk.split("\n"):
                 if atomnr.isnumeric():
                     self.atoms_selected.append(atomnr)
+                elif "atoms" in atomnr:
+                    del self.atoms_selected[-1]
+
+    def collect_dihedral(self, stdout):
+        if "get_dihedral " in stdout:
+            self.atoms_selected.extend(stdout.replace(",", "").split()[1:5])
+        elif "cmd.get_dihedral:" in stdout:
+            self.atoms_selected.append(stdout.split()[1])
 
     @pyqtSlot()
     def return_sel_atomnr(self):
         self.atomsSelectedSignal.emit(self.atoms_selected)
+
+    @pyqtSlot()
+    def return_dihedral(self):
+        self.dihedralSignal.emit(self.atoms_selected)
+
+    @pyqtSlot()
+    def return_nterm(self):
+        self.ntermResidues.emit(self.atoms_selected)
+
+    @pyqtSlot()
+    def return_cterm(self):
+        self.ctermResidues.emit(self.atoms_selected)
+
+    @pyqtSlot()
+    def return_atom_count(self, stdout):
+        if "count_atoms:" in stdout:
+            count = stdout.split()[1]
+            self.countAtomsSignal.emit(count)
 
     def handle_state(self, state):
         states = {
