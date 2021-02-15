@@ -676,7 +676,7 @@ class Ui_MainWindow(object):
         self.button_pymol.setMaximumSize(QtCore.QSize(24, 24))
         self.button_pymol.setText("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/24px-PyMOL_logo_trans.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/24px-PyMOL-OS_logo_trans.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.button_pymol.setIcon(icon5)
         self.button_pymol.setIconSize(QtCore.QSize(24, 24))
         self.button_pymol.setFlat(True)

@@ -8,7 +8,7 @@ class PymolSession(QObject):
     dihedralSignal = pyqtSignal(list)
     ntermResidues = pyqtSignal(list)
     ctermResidues = pyqtSignal(list)
-    countAtomsSignal = pyqtSignal(str)
+    countAtomsSignal = pyqtSignal(dict)
 
     def __init__(self, parent=None, home=None, pymol_path=None):
         super(QObject, self).__init__(parent)
@@ -29,6 +29,7 @@ class PymolSession(QObject):
 
         # Handling standard output:
         self.atoms_selected = list()
+        self.atom_count = dict()
         self.unbonded = 0
 
         self.stdout_handler = {"iterate sele, ID": {"collect": False,
@@ -51,7 +52,7 @@ class PymolSession(QObject):
                                                  "process": self.collect_dihedral,
                                                  "return": "cmd.get_dihedral:",
                                                  "signal": self.return_dihedral},
-                               "count_atoms:": {"collect": False,
+                               "count_atoms ": {"collect": False,
                                                  "process": self.return_atom_count,
                                                  "return": "count_atoms:",
                                                  "signal": None},
@@ -336,9 +337,13 @@ class PymolSession(QObject):
 
     @pyqtSlot()
     def return_atom_count(self, stdout):
-        if "count_atoms:" in stdout:
-            count = stdout.split()[1]
-            self.countAtomsSignal.emit(count)
+        if "count_atoms " in stdout:
+            self.atom_count[" ".join(stdout.split()[1:])] = None
+        elif "count_atoms:" in stdout:
+            for k in self.atom_count.keys():
+                if not self.atom_count[k]:
+                    self.atom_count[k] = stdout.split()[1]
+            self.countAtomsSignal.emit(self.atom_count)
 
     def handle_state(self, state):
         states = {

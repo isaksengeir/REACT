@@ -36,8 +36,8 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.fix_atoms = list()
         self.model_tmp = False
         self.model_final = False
-        self.count_terminals = {"nterm":True, "cterm":True, "count": 0}
         self.auto_added = False
+        self.atom_count = dict()
 
         # Connect signals from pymol:
         self.pymol.atomsSelectedSignal.connect(self.update_selected_atoms)
@@ -63,10 +63,8 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.ui.button_delete_selected.clicked.connect(self.delete_selected)
         self.ui.button_add_group.clicked.connect(self.build_fragment)
         self.ui.button_load_pdb.clicked.connect(self.load_pdb)
-
-        self.nterm = list()
-        self.cterm = list()
-        self.dihedrals = dict()
+        self.ui.button_finalize.clicked.connect(self.copy_model)
+        self.ui.button_export_model.clicked.connect(self.save_pdb_model)
 
     def load_pdb(self):
         file_, file_type = self.react.import_files(title_="Import PDB", filter_type="Protein data bank (*.pdb)", path=self.react.settings['workdir'])
@@ -95,19 +93,32 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.add_new_pdb(file_)
 
     def add_new_pdb(self, file_):
+        self.ui.list_model_summary.clear()
+        for i in range(8):
+            self.ui.list_model_summary.insertItem(i, "")
         self.ui.lineEdit_pdb_file.setText(file_)
         self.group_pdb_pymol(pdb_source=file_.split("/")[-1].split(".")[0], pdb_target="source")
         self.guess_highlight_ligand(pdb_file=file_, pymol_name="source")
+        self.pymol.pymol_cmd("count_atoms source")
+        self.pymol.pymol_cmd("count_atoms source and not sol.")
+
+        if self.ui.list_model_summary.count() > 0:
+            self.ui.list_model_summary.takeItem(0)
+        self.ui.list_model_summary.insertItem(0, "Source: %s" % file_)
 
     def tab_changed(self):
         """
 
         :return:
         """
+        if self.model_tmp:
+            self.pymol.pymol_cmd("count_atoms included")
+            self.pymol.pymol_cmd("count_atoms included and not sol.")
         tab_index = self.ui.tabWidget.currentIndex()
         if tab_index == 0:
             if self.model_tmp:
                 self.model_tmp = False
+                self.auto_added = False
             self.pymol.highlight(name="source", group="pdb_model")
             self.pymol.pymol_cmd("enable included or central")
             self.pymol.pymol_cmd("set mouse_selection_mode, 1")
@@ -120,12 +131,17 @@ class ModelPDB(QtWidgets.QMainWindow):
                 self.pymol.highlight(name="model_tmp", group="pdb_model")
                 self.pymol.pymol_cmd("set mouse_selection_mode, 0")
                 self.pymol.pymol_cmd("config_mouse three_button_viewing")
-                # self.pymol.pymol_cmd("config_mouse three_button_editing")
         elif tab_index == 2:
-            # TODO
-            # self.pymol.highlight(name="model_final", group="pdb_model")
+            if not self.model_tmp:
+                print("Please create a model first...")
+                self.ui.tabWidget.setCurrentIndex(0)
+                return
+            self.pymol.pymol_cmd("count_atoms model_tmp")
+            self.pymol.pymol_cmd("count_atoms model_tmp and not sol.")
+            self.copy_model()
             self.pymol.pymol_cmd("config_mouse three_button_editing")
-            pass
+
+
 
 
         #else:
@@ -188,17 +204,15 @@ class ModelPDB(QtWidgets.QMainWindow):
         else:
             self.selected_atoms["included"] = atoms
             self.pymol.set_selection(atoms=atoms, sele_name="included", object_name="source", group="pdb_model")
-
-        self.ui.lineEdit_atoms_in_model.setText(str(len(atoms)))
+        self.pymol.pymol_cmd("count_atoms included")
+        self.pymol.pymol_cmd("count_atoms included not sol.")
 
     @pyqtSlot(list)
     def update_nterm(self, resi):
-        self.nterm = resi
         self.get_terminal_dihedrals(term="nterm", residues=resi)
 
     @pyqtSlot(list)
     def update_cterm(self, resi):
-        self.cterm = resi
         self.get_terminal_dihedrals(term="cterm", residues=resi)
 
     @pyqtSlot(list)
@@ -214,16 +228,49 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.add_fragment(attach_to=dihedral[2], fragment=adding)
         self.pymol.set_dihedral(dihedral[0], dihedral[1], dihedral[2], dihedral[3], dihedral[4])
 
-    @pyqtSlot(str)
+    @pyqtSlot(dict)
     def update_atom_count(self, count):
-        if self.count_terminals["cterm"]:
-            self.count_terminals["count"] += int(count)
-            self.count_terminals["cterm"] = False
-        elif self.count_terminals["nterm"]:
-            self.count_terminals["count"] += int(count)
-            self.count_terminals["nterm"] = False
-        else:
-            self.ui.lineEdit_atoms_in_model.setText(count)
+        for k in count.keys():
+            self.atom_count[k] = count[k]
+
+        if "model_tmp" in self.atom_count.keys():
+            self.ui.lineEdit_atoms_in_model.setText(self.atom_count["model_tmp"])
+            self.ui.list_model_summary.takeItem(3)
+            self.ui.list_model_summary.insertItem(3, "Model: %s atoms in total" % self.atom_count["model_tmp"])
+
+        if "source" in self.atom_count.keys():
+            if self.ui.list_model_summary.count() > 1:
+                self.ui.list_model_summary.takeItem(1)
+            self.ui.list_model_summary.insertItem(1, "Source: %s atoms in total" % self.atom_count["source"])
+
+        if "source and not sol." in self.atom_count.keys():
+            if self.ui.list_model_summary.count() > 2:
+                self.ui.list_model_summary.takeItem(2)
+            self.ui.list_model_summary.insertItem(2,"Source: %s atoms excluding solvent" %
+                                                  self.atom_count["source and not sol."])
+
+        if "model_tmp and not sol." in self.atom_count.keys():
+            self.ui.list_model_summary.takeItem(4)
+            self.ui.list_model_summary.insertItem(4, "Model: %s atoms excluding solvent" %
+                                                  self.atom_count["model_tmp and not sol."])
+
+        if "included" in self.atom_count.keys():
+            if not self.model_tmp:
+                self.ui.lineEdit_atoms_in_model.setText(self.atom_count["included"])
+            self.ui.list_model_summary.takeItem(5)
+            self.ui.list_model_summary.insertItem(5, "Model: %s atoms from source" %
+                                                  self.atom_count["included"])
+            self.ui.list_model_summary.takeItem(6)
+            model_coverage = (float(self.atom_count["included"]) /
+                            float(self.atom_count["source"])) * 100.
+            self.ui.list_model_summary.insertItem(6, "Model covering %.2f %% of source" % model_coverage)
+
+        if "included and not sol." in self.atom_count.keys():
+            self.ui.list_model_summary.takeItem(7)
+            model_coverage2 = (float(self.atom_count["included and not sol."]) /
+                            float(self.atom_count["source and not sol."])) * 100.
+            self.ui.list_model_summary.insertItem(7, "Model covering %.2f %% of source excluding solvent" %
+                                                  model_coverage2)
 
     def update_inclusion_size(self):
         """
@@ -238,7 +285,6 @@ class ModelPDB(QtWidgets.QMainWindow):
             self.pymol.expand_sele(selection="central", sele_name="included", group="pdb_model", radius=expand_radius,
                                    by_res=self.ui.select_byres.isChecked(),
                                    include_solv=self.ui.include_solvent.isChecked())
-            # Collect expansion atom numbers
             # Delay this in case user does rappid changes...
             self.timer = QtCore.QTimer()
             self.timer.timeout.connect(self.delayed_get_atoms)
@@ -256,32 +302,41 @@ class ModelPDB(QtWidgets.QMainWindow):
             self.ui.tabWidget.setCurrentIndex(0)
             return
 
-        self.count_terminals["nterm"], self.count_terminals["cterm"] = True, True
-        self.count_terminals["count"] = 0
-        self.auto_added = False
         self.pymol.copy_sele_to_object(sele="included", target_name="model_tmp", group="pdb_model")
         self.pymol.pymol_cmd("disable source")
         self.pymol.pymol_cmd("hide cartoon, model_tmp")
+        self.pymol.pymol_cmd("show nonbonded, model_tmp")
+
         # Update included selection to now refer to model_tmp instead of source:
         self.pymol.pymol_cmd("select included, model_tmp")
+        self.pymol.pymol_cmd("count_atoms model_tmp")
+        self.pymol.pymol_cmd("count_atoms model_tmp and not sol.")
+
         # Identify terminals that have been chopped
         [self.pymol.find_unbonded(pymol_name="model_tmp", type=x, group="pdb_model") for x in ["nterm", "cterm"]]
-        self.pymol.pymol_cmd("show nonbonded, model_tmp")
         self.pymol.pymol_cmd("count_atoms nterm")
         self.pymol.pymol_cmd("count_atoms cterm")
 
         self.model_tmp = True
         self.ui.tabWidget.setCurrentIndex(1)
 
+    def copy_model(self, source="model_tmp", target="model_final"):
+        self.pymol.copy_sele_to_object(sele=source, target_name=target, group="pdb_model")
+        self.pymol.pymol_cmd("disable %s" % source)
+        self.pymol.pymol_cmd("color lightmagenta, %s and name C*" % target)
+        self.pymol.highlight(name="model_final", group="pdb_model")
+        self.ui.tabWidget.setCurrentIndex(2)
+
     def delete_selected(self):
         self.pymol.pymol_cmd("remove sele and model_tmp")
         self.pymol.pymol_cmd("count_atoms model_tmp")
+        self.pymol.pymol_cmd("count_atoms model_tmp and not sol.")
 
     def build_fragment(self):
         fragment = self.ui.groups_to_add.currentText()
-        #self.pymol.pymol_cmd("edit sele")
         self.pymol.add_fragment(attach_to="sele", fragment=fragment)
         self.pymol.pymol_cmd("count_atoms model_tmp")
+        self.pymol.pymol_cmd("count_atoms model_tmp and not sol.")
 
 
     def auto_add_terminals(self):
@@ -294,7 +349,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         for selection in ["nterm", "cterm"]:
             self.pymol.get_selected_atoms(sele=selection, type="int(resi)")
 
-        build_time = (self.count_terminals["count"]) * 250
+        build_time = (int(self.atom_count["nterm"]) + int(self.atom_count["cterm"])) * 300
         QtCore.QTimer.singleShot(build_time, lambda: self.pymol.pymol_cmd("select auto_added, included extend 5 and not "
                                                                     "included"))
         QtCore.QTimer.singleShot(build_time+25, lambda: self.pymol.pymol_cmd("group pdb_model, auto_added"))
@@ -324,12 +379,26 @@ class ModelPDB(QtWidgets.QMainWindow):
                 atoms.append("%s///%s/%s" % (prot, i, atom))
             self.pymol.get_dihedral(atoms[0], atoms[1], atoms[2], atoms[3])
 
-    def add_nterm_cap(self):
-        pass
-        editor_cmd = {"ace": "editor.atach_amino_acid", "methyl": "editor.attach_fragment"}
+    def save_pdb_model(self):
+        """
+        :return:
+        """
+        if not self.pymol:
+            return
 
-    def add_cterm_cap(self):
-        pass
+        temp_filepath = self.react.settings["workdir"] + '/'
+
+        pdb_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save PDB model", temp_filepath,
+                                                                   "PDB (*.pdb)")
+
+        print(pdb_path)
+        self.pymol.pymol_cmd("save %s, model_final" % pdb_path)
+
+        if self.ui.copy_to_project.isChecked():
+            self.react.add_files(paths=[pdb_path])
 
     def closeEvent(self, event):
         self.react.cluster_window = None
+
+        if self.pymol:
+            self.pymol.pymol_cmd("delete pdb_model")

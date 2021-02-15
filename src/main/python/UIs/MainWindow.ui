@@ -1065,7 +1065,7 @@ QPushButton:pressed
              </property>
              <property name="icon">
               <iconset resource="icons.qrc">
-               <normaloff>:/24x24/resources/icons/24px-PyMOL_logo_trans.png</normaloff>:/24x24/resources/icons/24px-PyMOL_logo_trans.png</iconset>
+               <normaloff>:/24x24/resources/icons/24px-PyMOL-OS_logo_trans.png</normaloff>:/24x24/resources/icons/24px-PyMOL-OS_logo_trans.png</iconset>
              </property>
              <property name="iconSize">
               <size>

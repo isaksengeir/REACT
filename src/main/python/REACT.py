@@ -153,9 +153,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.tabWidget.tabBar().currentChanged.connect(self.pymol_view_current_state)
         self.connect_pymol_structures(connect=True)
 
-        # Resize window to make it a bit smaller
-        #self.pymol.pymol_cmd("viewport 500, 400")
-
         self.load_all_states_pymol()
 
     def connect_pymol_structures(self, connect=True):
@@ -175,6 +172,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         """
         :return:
         """
+        if not self.pymol:
+            return
         state = self.get_current_state
         name = None
         if self.get_selected_filepath:
@@ -600,6 +599,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         self.states.clear()
         self.tabWidget.clear()
         self.textBrowser.clear()
+        if self.pymol:
+            self.pymol.pymol_cmd("delete *")
 
         self.proj_name = proj_path.split("/")[-1]        
         self.workdir = proj_path.replace(self.proj_name, "")
@@ -658,7 +659,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
         project["DFT"] = self.settings["DFT"]
         project["log"] = self.textBrowser.toPlainText()
 
-        temp_filepath = os.getcwd() + '/' + self.proj_name
+        temp_filepath = project["workdir"] + '/' + self.proj_name
 
         proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", temp_filepath, "REACT project (*.rxt)")
 
