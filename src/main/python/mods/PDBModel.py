@@ -118,7 +118,10 @@ class ModelPDB(QtWidgets.QMainWindow):
         if tab_index == 0:
             if self.model_tmp:
                 self.model_tmp = False
+                self.pymol.pymol_cmd("delete model_tmp")
+            if self.auto_added:
                 self.auto_added = False
+                self.pymol.pymol_cmd("delete auto_added")
             self.pymol.highlight(name="source", group="pdb_model")
             self.pymol.pymol_cmd("enable included or central")
             self.pymol.pymol_cmd("set mouse_selection_mode, 1")
@@ -140,6 +143,11 @@ class ModelPDB(QtWidgets.QMainWindow):
             self.pymol.pymol_cmd("count_atoms model_tmp and not sol.")
             self.copy_model()
             self.pymol.pymol_cmd("config_mouse three_button_editing")
+
+        if tab_index != 2:
+            if self.model_final:
+                self.pymol.pymol_cmd("delete model_final")
+                self.model_final = False
 
 
 
@@ -326,6 +334,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.pymol_cmd("color lightmagenta, %s and name C*" % target)
         self.pymol.highlight(name="model_final", group="pdb_model")
         self.ui.tabWidget.setCurrentIndex(2)
+        self.model_final = True
 
     def delete_selected(self):
         self.pymol.pymol_cmd("remove sele and model_tmp")
