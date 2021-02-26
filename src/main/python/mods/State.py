@@ -22,13 +22,13 @@ class State:
         filename = filepath.split("/")[-1]
         filetype = filename.split(".")[-1]
 
-        self.gfiles[filepath] = self.file_types[filetype](filepath)
+        self.gfiles[filepath] = self.file_types[filetype](filepath=filepath)
 
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
         if isinstance(self.gfiles[filepath], OutputFile):
 
             if self.gfiles[filepath].has_frequencies:
-                self.gfiles[filepath] = FrequenciesOut(filepath)
+                self.gfiles[filepath] = FrequenciesOut(filepath=filepath)
 
         return None
 
@@ -88,7 +88,7 @@ class State:
         gaussian_atoms = self.gfiles[filepath].get_coordinates
         molecules = list()
         for iteration in gaussian_atoms:
-            molecule = GaussianMolecule(iteration).get_molecule
+            molecule = GaussianMolecule(g_atoms=iteration).get_molecule
             molecules.append(molecule)
 
         return molecules
@@ -98,7 +98,7 @@ class State:
         :param molecule: = {1: {name: C, x:value, y: value, z: value}}
         :return: xyz_formatted (list)
         """
-        return XYZFile(atoms=molecule).get_formatted_xyz
+        return XYZFile(molecule=molecule).get_formatted_xyz
 
     def get_final_xyz(self, filepath):
         """

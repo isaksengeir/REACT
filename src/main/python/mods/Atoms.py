@@ -60,6 +60,19 @@ class Atom:
         return int(self.center_number)
 
 
+class XYZAtom(Atom):
+    """
+    Takes a line from a xyz file and creates an Atom object from it
+    """
+    def __init__(self, atom_line=None, index=None):
+        if atom_line:
+            atom = atom_line.split()[0]
+            x = float(atom_line.split()[1])
+            y = float(atom_line.split()[2])
+            z = float(atom_line.split()[3])
+            super(XYZAtom, self).__init__(atom, x, y, z, index)
+
+
 class GaussianAtom(Atom):
     """
     Class to store information for atom coordinates extracted from Gaussian output files.
@@ -75,11 +88,11 @@ class GaussianAtom(Atom):
             self.atomic_type = int(atom_line.split()[2])
 
             # Atom class attributes:
-            atom_nr = atom_line.split()[1]
+            atom = atom_line.split()[1]
             x_coordinate = float(atom_line.split()[3])
             y_coordinate = float(atom_line.split()[4])
             z_coordinate = float(atom_line.split()[5])
-            super(GaussianAtom, self).__init__(atom_nr, x_coordinate, y_coordinate, z_coordinate)
+            super(GaussianAtom, self).__init__(atom, x_coordinate, y_coordinate, z_coordinate, self.center_number)
 
         # atom = {index: int, name: C:str, X:float, Y:float, Z:float}
 
@@ -87,8 +100,36 @@ class GaussianAtom(Atom):
 class PDBAtom(Atom):
     """
     Subclass of the Atom class with additional info required by the PDB file format TODO
+    Takes a line from a pdb file at init
     """
-    def __init__(self):
-        pass
-        super(PDBAtom, self).__init__()
-        pass
+    def __init__(self, atom_line=None):
+        if atom_line:
+            self.pdb_atom_nr = int(atom_line[6:11])
+            atom = atom_line[76:79].strip()
+            x_coordinate = float(atom_line[26:].split()[0])
+            y_coordinate = float(atom_line[26:].split()[1])
+            z_coordinate = float(atom_line[26:].split()[2])
+            super(PDBAtom, self).__init__(atom, x_coordinate, y_coordinate, z_coordinate, self.pdb_atom_nr)
+
+            self.pdb_atom_name = atom_line[12:17].strip()
+            self.res_name = atom_line[16:21]
+            self.res_nr = int(atom_line[21:26])
+
+        else:
+            pass
+
+    @property
+    def get_pdb_atomnr(self):
+        return self.pdb_atom_nr
+
+    @property
+    def get_pdb_atom_name(self):
+        return self.pdb_atom_name
+
+    @property
+    def get_residue_name(self):
+        return self.res_name
+
+    @property
+    def get_residue_nr(self):
+        return self.res_nr

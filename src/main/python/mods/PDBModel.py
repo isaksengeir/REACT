@@ -11,7 +11,8 @@ class ModelPDB(QtWidgets.QMainWindow):
     workdir, DFT_settings and Ui_stylemode)
     """
     def __init__(self, parent):
-        super().__init__(parent, Qt.WindowStaysOnTopHint)
+        # super().__init__(parent, Qt.WindowStaysOnTopHint)
+        super().__init__(parent)
 
         self.react = parent
         self.ui = Ui_ClusterPDB()
@@ -411,3 +412,5 @@ class ModelPDB(QtWidgets.QMainWindow):
 
         if self.pymol:
             self.pymol.pymol_cmd("delete pdb_model")
+            self.pymol.pymol_cmd("set mouse_selection_mode, 1")
+            self.pymol.pymol_cmd("config_mouse three_button_viewing")

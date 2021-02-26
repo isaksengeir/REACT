@@ -283,7 +283,10 @@ class PymolSession(QObject):
         # print(stdout)
         if "CmdLoad:" in stdout:
             if len(self.files_to_delete) > 0:
-                os.remove(self.files_to_delete.pop(0))
+                try:
+                    os.remove(self.files_to_delete.pop(0))
+                except FileNotFoundError:
+                    pass
 
         for k in self.stdout_handler.keys():
             if k in stdout:

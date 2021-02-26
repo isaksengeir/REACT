@@ -215,10 +215,10 @@ class InputFile(GaussianFile):
 
 class OutputFile(GaussianFile):
 
-    def __init__(self, file_path):
-        super().__init__(file_path)
+    def __init__(self, filepath=None):
+        super().__init__(filepath)
 
-        self.file_path = file_path
+        self.file_path = filepath
 
         # Job converged or not?
         self.converged = {"Maximum Force": bool,
@@ -437,10 +437,10 @@ class OutputFile(GaussianFile):
 
 class FrequenciesOut(OutputFile):
 
-    def __init__(self, file_path):
-        super().__init__(file_path)
+    def __init__(self, filepath=None):
+        super().__init__(filepath)
 
-        self.file_path = file_path
+        self.file_path = filepath
 
         # frequency : IR Intensity
         self.freq_inten = dict()
