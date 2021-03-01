@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QColorDialog
 import random
+import numpy as np
 
 unicode_symbols = {"delta": "\u03B4", "Delta": "\u0394"}
 
@@ -119,3 +120,12 @@ def find_ligands_pdbfile(pdbfile):
 
     return residues
 
+
+def atom_distance(a1, a2):
+    """
+    :param a1: [x,y,z]
+    :param a2: [x,y,z]
+    :return: radois (float)
+    """
+    return np.sqrt((float(a2[0]) - float(a1[0]))**2 + (float(a2[1]) - float(a1[1]))**2 + (float(a2[2]) -
+                                                                                          float(a1[2]))**2)

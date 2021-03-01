@@ -20,7 +20,11 @@ class Atom:
             self.atomnr = int(atom)
             self.atomname = self.atomnr_atom[self.atomnr]
         else:
-            self.atomnr = self.atom_atomnr[atom]
+            try:
+                self.atomnr = self.atom_atomnr[atom]
+            except KeyError:
+                self.atomnr = None
+
             self.atomname = atom
 
         self.x = float(x)
