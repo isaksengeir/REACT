@@ -106,6 +106,7 @@ class PDBAtom(Atom):
         if atom_line:
             self.pdb_atom_nr = int(atom_line[6:11])
             atom = atom_line[76:79].strip()
+            atom = "".join([i for i in atom if not i.isdigit()])
             x_coordinate = float(atom_line[26:].split()[0])
             y_coordinate = float(atom_line[26:].split()[1])
             z_coordinate = float(atom_line[26:].split()[2])
@@ -113,7 +114,7 @@ class PDBAtom(Atom):
 
             self.pdb_atom_name = atom_line[12:17].strip()
             self.res_name = atom_line[16:21]
-            self.res_nr = int(atom_line[21:26])
+            self.res_nr = int("".join(i for i in atom_line[21:26] if i.isdigit()))
 
         else:
             pass

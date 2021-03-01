@@ -2,23 +2,25 @@
 from mods.Atoms import XYZAtom, GaussianAtom, PDBAtom
 
 
-class XYZFile:
-    def __init__(self, molecule=None, atoms=None, filepath=None):
-        #Atoms = list(Atom)
-        # molecule = {1: {name: C, x:value, y: value, z: value}} --> atoms[index][x]
-        if molecule:
-            self.molecule = molecule
-
+class Molecule:
+    """
+    Takes a list of Atom objects at init and creates molecule (dict)
+    molecule[i] = Atom
+    """
+    def __init__(self, atoms=None):
+        self.molecule = dict()
         if atoms:
-            # List of Atom objects
-            self.atoms = atoms
+            # TODO temporary fix here... in State.py or GaussianFile.py we pass a dictionary... re-implement to match..
+            if isinstance(atoms, dict):
+                self.molecule = self.atoms
+                self.atoms = self.atoms.values()
+            else:
+                self.atoms = atoms
+                self.make_molecule()
 
-        if filepath:
-            # read_xyz and fill self.atoms TODO
-            self.atoms = self.read_xyz(filepath)
-
-        if not molecule:
-            self.molecule = self.make_molecule()
+    def make_molecule(self):
+        for i in range(len(self.atoms)):
+            self.molecule[i+1] = self.atoms[i]
 
     @property
     def get_molecule(self):
@@ -29,48 +31,60 @@ class XYZFile:
         molecule_xyz = list()
 
         for i in sorted(self.molecule.keys()):
-            xyz_line = " %15s%14.8f%14.8f%14.8f" % (self.molecule[i]["name"].ljust(15),
-                                                    self.molecule[i]["x"], self.molecule[i]["y"], self.molecule[i]["z"])
+            xyz_line = " %15s%14.8f%14.8f%14.8f" % (self.molecule[i].get_atom_name.ljust(15),
+                                                    self.molecule[i].get_x, self.molecule[i].get_y,
+                                                    self.molecule[i].get_z)
+
             molecule_xyz.append(xyz_line)
 
         return molecule_xyz
 
-    def read_xyz(self, filepath):
+    @property
+    def get_atom_count(self):
+        return len(self.atoms)
+
+
+class XYZFile(Molecule):
+    def __init__(self, atoms=None, filepath=None):
+
+        if atoms:
+            # List of Atom objects
+            self.atoms = atoms
+
+        if filepath:
+            self.filepath = filepath
+            self.atoms = self.read_xyz()
+
+
+        super(XYZFile, self).__init__(atoms=self.atoms)
+
+    def read_xyz(self):
         """
         :param filepath: path to xyz file
         :return: dict with atoms - {atom_index: {name: C, x:value, y: value, z: value}}
         """
         index = 0
         atoms = list()
-        with open(filepath, "r") as xyz:
+        with open(self.filepath, "r") as xyz:
             for line in xyz:
                 if len(line.split()) > 3:
                     index += 1
                     atoms.append(XYZAtom(line, index))
         return atoms
 
-    def make_molecule(self):
-        molecule = dict()
-        for i in range(len(self.atoms)):
-            atom = self.atoms[i]
-            atom_index = atom.get_atom_index
-            molecule[atom_index] = dict()
-            molecule[atom_index]["name"] = atom.get_atom_name
-            molecule[atom_index]["x"] = atom.get_x
-            molecule[atom_index]["y"] = atom.get_y
-            molecule[atom_index]["z"] = atom.get_z
-
-        return molecule
-
     def convert_to_pdb(self):
         """
         Create PDB file from XYZ file
-        :return: TODO
+        :return: TODO (maybe this belongs in Molecule parent)
         """
         pass
 
+    @property
+    def get_filepath(self):
+        return self.filepath
 
-class GaussianMolecule(XYZFile, GaussianAtom):
+
+class GaussianMolecule(XYZFile):
     """
     Takes a list of GaussianAtom or Atom objects and creates a molecule
     """
@@ -82,7 +96,7 @@ class GaussianMolecule(XYZFile, GaussianAtom):
     # TODO Gaussian molecule probably need some unique properties not present in XYZ file
 
 
-class PDBFile(XYZFile, PDBAtom):
+class PDBFile(XYZFile):
     def __init__(self, pdb_atoms=None, filepath=None):
         if filepath:
             self.atoms = self.read_pdb(filepath)

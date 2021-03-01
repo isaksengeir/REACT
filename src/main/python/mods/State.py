@@ -98,7 +98,7 @@ class State:
         :param molecule: = {1: {name: C, x:value, y: value, z: value}}
         :return: xyz_formatted (list)
         """
-        return XYZFile(molecule=molecule).get_formatted_xyz
+        return XYZFile(atoms=molecule).get_formatted_xyz
 
     def get_final_xyz(self, filepath):
         """
