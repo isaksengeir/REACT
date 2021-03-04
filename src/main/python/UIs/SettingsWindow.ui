@@ -1079,15 +1079,15 @@ keywords:</string>
        <widget class="QComboBox" name="job_type_comboBox">
         <property name="geometry">
          <rect>
-          <x>30</x>
+          <x>89</x>
           <y>290</y>
-          <width>200</width>
+          <width>141</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>100</width>
           <height>0</height>
          </size>
         </property>

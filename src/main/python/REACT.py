@@ -36,10 +36,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow, PrintPlotOpen):
                                  "basis": ("6-31G", {"pol1": "d", "pol2": 'p', "diff": None}),
                                  "additional keys": ["empiricaldispersion=gd3"],
                                  "link 0"        : [],
-                                 "opt keys"      : ["noeigentest", "calcfc"],
+                                 "job keys"      : {"Opt (minimum)": ["noeigentest", "calcfc"], "Opt (TS)": [], "Freq": [], "IRC": [], "IRCMax": [], "SP": []},
                                  "user"    : {"functional": [], "basis": {}}}, 
                          "pymolpath": None,
                          "REACT pymol" : True,
+                         "pymol at launch": True,
                          "Ui": 1
                          }
         self.states = []
