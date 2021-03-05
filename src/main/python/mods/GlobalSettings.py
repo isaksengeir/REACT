@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 from UIs.SettingsWindow import Ui_SettingsWindow
-
+import copy
 
 class GlobalSettings(QtWidgets.QMainWindow):
     """
@@ -47,7 +47,7 @@ class GlobalSettings(QtWidgets.QMainWindow):
         #                  "pymol at launch": True,
         #                  "Ui": 1
         #                  }
-        self.settings = parent.settings
+        self.settings = copy.deepcopy(parent.settings)
 
         # fill functional and basis set comboboxes
         self.ui.comboBox_funct.addItems(self.DFT_options['functional'])
@@ -284,7 +284,7 @@ class GlobalSettings(QtWidgets.QMainWindow):
         self.settings["workdir"] = self.ui.cwd_lineEdit.text()
         self.settings["pymolpath"] = self.ui.pymol_lineEdit_2.text()
         
-        self.react.settings = self.settings
+        self.react.settings = copy.deepcopy(self.settings)
         self.close()
 
     
