@@ -78,7 +78,8 @@ class GlobalSettings(QtWidgets.QMainWindow):
             if item[0] == 'workdir':
                 self.ui.cwd_lineEdit.setText(item[1])
             if item[0] == 'pymolpath':
-                self.ui.pymol_lineEdit_2.setText(item[1])
+                if type(item[1]) != bool:
+                    self.ui.pymol_lineEdit_2.setText(item[1])
             if item[0] == 'REACT pymol':
                 if item[1]:
                     self.ui.checkBox.setChecked(True)
