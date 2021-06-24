@@ -21,7 +21,6 @@ from mods.AnalyseCalc import AnalyseCalc
 from mods.FileEditor import FileEditor
 from mods.PDBModel import ModelPDB
 
-# from fbs_runtime.application_context.PyQt5 import ApplicationContext # fbs removed for good?
 from mods.ThreadWorkers import Worker
 from threading import Lock
 from mods.PymolProcess import PymolSession

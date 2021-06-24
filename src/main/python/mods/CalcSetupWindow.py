@@ -1,18 +1,15 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from UIs.CalcSetupWindow import Ui_CalcSetupWindow
-from UIs.CalcSetupMeny import Ui_setupMeny
+from UIs.SetupWindow import Ui_SetupWindow
+#from UIs.CalcSetupMeny import Ui_setupMeny
 
 
-
-class CalcSetupWindow(QtWidgets.QMainWindow, Ui_CalcSetupWindow):
+class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def __init__(self, parent):
         super(CalcSetupWindow, self).__init__(parent)
         self.react = parent
-        self.ui = Ui_CalcSetupWindow()
+        self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
-        self.meny = CalcSetupMeny(self.react)
-        self.meny.show()
 
         self.DFT_options = {'functional': ['B3LYP', 'rB3LYP', 'M062X'],
                     'basis': {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
@@ -42,28 +39,33 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_CalcSetupWindow):
         #                        "user"           : {"functional": list(), "basis": dict()}}
 
         self.settings = parent.settings["DFT"]
-        self.curr_choices = {"job type": "optimization", "job keys": self.settings["opt keys"],
-                             "functional": self.settings["functional"], "basis": self.settings["basis"][0],
-                             "pol1": self.settings["basis"][1]["pol1"], "pol2": self.settings["basis"][1]["pol2"],
-                             "diff": self.settings["basis"][1]["diff"], "link 0": self.settings["link 0"],
-                             "additional keys": self.settings["additional keys"]}
 
-        self.read_settings_set_window()
+        # TODO RE-implement this:
+        #self.curr_choices = {"job type": "optimization", "job keys": self.settings["opt keys"],
+        #                     "functional": self.settings["functional"], "basis": self.settings["basis"][0],
+        #                     "pol1": self.settings["basis"][1]["pol1"], "pol2": self.settings["basis"][1]["pol2"],
+        #                     "diff": self.settings["basis"][1]["diff"], "link 0": self.settings["link 0"],
+        #                     "additional keys": self.settings["additional keys"]}
 
-        self.ui.add_button1.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_jobkey, self.ui.job_keys, "opt keys"))
-        self.ui.del_button1.clicked.connect(lambda: self.del_item_from_list(self.ui.job_keys, "opt keys"))
-        self.ui.add_button_2.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_addkeys, self.ui.add_keys, "additional keys"))
-        self.ui.del_button_2.clicked.connect(lambda: self.del_item_from_list(self.ui.add_keys, "additional keys"))
-        self.ui.add_button_3.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_link0, self.link0_keys, "link 0"))
-        self.ui.del_button_3.clicked.connect(lambda: self.del_item_from_list(self.ui.link0_keys, "link 0"))
-        self.ui.job_type_combobox.textActivated.connect(lambda: self.combobox_update(self.job_type_combobox, "job type"))
-        self.ui.func_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.func_comboBox, "functional"))
-        self.ui.basis1_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis1_comboBox, "basis"))
-        self.ui.basis2_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis2_comboBox, "diff"))
-        self.ui.basis3_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis3_comboBox, "pol1"))
-        self.ui.basis4_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis4_comboBox, "pol2"))
+        # TODO RE-implement:
+        # self.read_settings_set_window()
 
-        self.ui.cancel_button.clicked.connect(self.on_cancel)
+
+        # TODO RE-implement these:
+        #self.ui.add_button1.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_jobkey, self.ui.job_keys, "opt keys"))
+        #self.ui.del_button1.clicked.connect(lambda: self.del_item_from_list(self.ui.job_keys, "opt keys"))
+        #self.ui.add_button_2.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_addkeys, self.ui.add_keys, "additional keys"))
+        #self.ui.del_button_2.clicked.connect(lambda: self.del_item_from_list(self.ui.add_keys, "additional keys"))
+        #self.ui.add_button_3.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_link0, self.link0_keys, "link 0"))
+        #self.ui.del_button_3.clicked.connect(lambda: self.del_item_from_list(self.ui.link0_keys, "link 0"))
+        #self.ui.job_type_combobox.textActivated.connect(lambda: self.combobox_update(self.job_type_combobox, "job type"))
+        #self.ui.func_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.func_comboBox, "functional"))
+        #self.ui.basis1_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis1_comboBox, "basis"))
+        #self.ui.basis2_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis2_comboBox, "diff"))
+        #self.ui.basis3_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis3_comboBox, "pol1"))
+        #self.ui.basis4_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis4_comboBox, "pol2"))
+
+        #self.ui.cancel_button.clicked.connect(self.on_cancel)
 
     def combobox_update(self, widget, key):
         
@@ -186,28 +188,5 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_CalcSetupWindow):
         Qlist.takeItem(Qlist.currentRow())
 
     def on_cancel(self):
-        self.meny.close()
         self.close()
 
-
-class CalcSetupMeny(QtWidgets.QMainWindow, Ui_setupMeny):
-    def __init__(self, parent):
-        super(CalcSetupMeny, self).__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.react = parent
-        self.ui = Ui_setupMeny()
-        self.ui.setupUi(self)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.clicked = False
-        self.move(300,300)
-
-    def mousePressEvent(self, ev):
-        self.old_pos = ev.screenPos()
-
-    def mouseMoveEvent(self, ev):
-        if self.clicked:
-            dx = self.old_pos.x() - ev.screenPos().x()
-            dy = self.old_pos.y() - ev.screenPos().y()
-            self.move(self.pos().x() - dx, self.pos().y() - dy)
-        self.old_pos = ev.screenPos()
-        self.clicked = True
-        return QtWidgets.QWidget.mouseMoveEvent(self, ev)
