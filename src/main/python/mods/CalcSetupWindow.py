@@ -1,7 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
 from UIs.SetupWindow import Ui_SetupWindow
-#from UIs.CalcSetupMeny import Ui_setupMeny
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
@@ -10,6 +8,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.react = parent
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle("REACT - Calculation setup")
 
         self.DFT_options = {'functional': ['B3LYP', 'rB3LYP', 'M062X'],
                     'basis': {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
