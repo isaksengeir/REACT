@@ -17,7 +17,6 @@ class DFT:
         # self.hessian = "calcfc"  
         self.job_options = []
         self.route_options = []
-        self.added_
 
         self.all_functionals = ['B3LYP', 'rB3LYP', 'M062X']
         self.all_basis = {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},

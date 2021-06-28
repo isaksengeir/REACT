@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SetupWindow(object):
     def setupUi(self, SetupWindow):
         SetupWindow.setObjectName("SetupWindow")
-        SetupWindow.resize(572, 495)
+        SetupWindow.resize(624, 581)
         self.centralwidget = QtWidgets.QWidget(SetupWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -23,6 +23,404 @@ class Ui_SetupWindow(object):
         self.tabWidget.setObjectName("tabWidget")
         self.tab_main = QtWidgets.QWidget()
         self.tab_main.setObjectName("tab_main")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.tab_main)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.gridLayout_10 = QtWidgets.QGridLayout()
+        self.gridLayout_10.setContentsMargins(-1, 10, -1, -1)
+        self.gridLayout_10.setObjectName("gridLayout_10")
+        self.gridLayout_7 = QtWidgets.QGridLayout()
+        self.gridLayout_7.setObjectName("gridLayout_7")
+        self.verticalLayout_9 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.Button_add_job = QtWidgets.QPushButton(self.tab_main)
+        self.Button_add_job.setMinimumSize(QtCore.QSize(24, 24))
+        self.Button_add_job.setMaximumSize(QtCore.QSize(24, 24))
+        self.Button_add_job.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
+        self.Button_add_job.setText("")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/arrow-plus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.Button_add_job.setIcon(icon)
+        self.Button_add_job.setIconSize(QtCore.QSize(24, 24))
+        self.Button_add_job.setFlat(True)
+        self.Button_add_job.setObjectName("Button_add_job")
+        self.verticalLayout_9.addWidget(self.Button_add_job)
+        self.Button_del_job = QtWidgets.QPushButton(self.tab_main)
+        self.Button_del_job.setMinimumSize(QtCore.QSize(24, 24))
+        self.Button_del_job.setMaximumSize(QtCore.QSize(24, 24))
+        self.Button_del_job.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
+        self.Button_del_job.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/arrow-minus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.Button_del_job.setIcon(icon1)
+        self.Button_del_job.setIconSize(QtCore.QSize(24, 24))
+        self.Button_del_job.setFlat(True)
+        self.Button_del_job.setObjectName("Button_del_job")
+        self.verticalLayout_9.addWidget(self.Button_del_job)
+        self.gridLayout_7.addLayout(self.verticalLayout_9, 1, 1, 2, 1)
+        self.LineEdit_add_job = QtWidgets.QLineEdit(self.tab_main)
+        self.LineEdit_add_job.setMinimumSize(QtCore.QSize(190, 21))
+        self.LineEdit_add_job.setMaximumSize(QtCore.QSize(16777215, 21))
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.LineEdit_add_job.setFont(font)
+        self.LineEdit_add_job.setText("")
+        self.LineEdit_add_job.setObjectName("LineEdit_add_job")
+        self.gridLayout_7.addWidget(self.LineEdit_add_job, 1, 0, 1, 1)
+        self.additional_job = QtWidgets.QLabel(self.tab_main)
+        self.additional_job.setMinimumSize(QtCore.QSize(150, 15))
+        self.additional_job.setMaximumSize(QtCore.QSize(100, 50))
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.additional_job.setFont(font)
+        self.additional_job.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.additional_job.setObjectName("additional_job")
+        self.gridLayout_7.addWidget(self.additional_job, 0, 0, 1, 1)
+        self.List_add_job = QtWidgets.QListWidget(self.tab_main)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.List_add_job.sizePolicy().hasHeightForWidth())
+        self.List_add_job.setSizePolicy(sizePolicy)
+        self.List_add_job.setMinimumSize(QtCore.QSize(200, 50))
+        self.List_add_job.setMaximumSize(QtCore.QSize(1529996, 16777215))
+        self.List_add_job.setStyleSheet("QListWidget{    \n"
+" background-color: rgb(20,20,20);        \n"
+"  border:None;\n"
+"  margin-top:0px;    \n"
+"  margin-left:0px;\n"
+"  margin-right:0px;    \n"
+" }")
+        self.List_add_job.setObjectName("List_add_job")
+        self.gridLayout_7.addWidget(self.List_add_job, 2, 0, 1, 1)
+        self.gridLayout_10.addLayout(self.gridLayout_7, 2, 1, 1, 1)
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_8.addItem(spacerItem)
+        self.basis_label_1 = QtWidgets.QLabel(self.tab_main)
+        self.basis_label_1.setMinimumSize(QtCore.QSize(62, 0))
+        self.basis_label_1.setMaximumSize(QtCore.QSize(62, 16777215))
+        self.basis_label_1.setObjectName("basis_label_1")
+        self.horizontalLayout_8.addWidget(self.basis_label_1)
+        self.comboBox_basis1 = QtWidgets.QComboBox(self.tab_main)
+        self.comboBox_basis1.setMinimumSize(QtCore.QSize(100, 0))
+        self.comboBox_basis1.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.comboBox_basis1.setEditable(False)
+        self.comboBox_basis1.setObjectName("comboBox_basis1")
+        self.horizontalLayout_8.addWidget(self.comboBox_basis1)
+        self.comboBox_basis2 = QtWidgets.QComboBox(self.tab_main)
+        self.comboBox_basis2.setMinimumSize(QtCore.QSize(53, 0))
+        self.comboBox_basis2.setMaximumSize(QtCore.QSize(53, 16777215))
+        self.comboBox_basis2.setEditable(False)
+        self.comboBox_basis2.setObjectName("comboBox_basis2")
+        self.horizontalLayout_8.addWidget(self.comboBox_basis2)
+        self.label_5 = QtWidgets.QLabel(self.tab_main)
+        self.label_5.setMinimumSize(QtCore.QSize(13, 26))
+        self.label_5.setMaximumSize(QtCore.QSize(13, 16))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label_5.setFont(font)
+        self.label_5.setScaledContents(False)
+        self.label_5.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout_8.addWidget(self.label_5)
+        self.comboBox_basis3 = QtWidgets.QComboBox(self.tab_main)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox_basis3.sizePolicy().hasHeightForWidth())
+        self.comboBox_basis3.setSizePolicy(sizePolicy)
+        self.comboBox_basis3.setMinimumSize(QtCore.QSize(65, 0))
+        self.comboBox_basis3.setMaximumSize(QtCore.QSize(65, 16777215))
+        self.comboBox_basis3.setEditable(False)
+        self.comboBox_basis3.setObjectName("comboBox_basis3")
+        self.horizontalLayout_8.addWidget(self.comboBox_basis3)
+        self.label_7 = QtWidgets.QLabel(self.tab_main)
+        self.label_7.setMinimumSize(QtCore.QSize(16, 26))
+        self.label_7.setMaximumSize(QtCore.QSize(16, 16))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label_7.setFont(font)
+        self.label_7.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout_8.addWidget(self.label_7)
+        self.comboBox_basis4 = QtWidgets.QComboBox(self.tab_main)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox_basis4.sizePolicy().hasHeightForWidth())
+        self.comboBox_basis4.setSizePolicy(sizePolicy)
+        self.comboBox_basis4.setMinimumSize(QtCore.QSize(65, 0))
+        self.comboBox_basis4.setMaximumSize(QtCore.QSize(51, 16777215))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.comboBox_basis4.setFont(font)
+        self.comboBox_basis4.setEditable(False)
+        self.comboBox_basis4.setObjectName("comboBox_basis4")
+        self.horizontalLayout_8.addWidget(self.comboBox_basis4)
+        self.label_6 = QtWidgets.QLabel(self.tab_main)
+        self.label_6.setMinimumSize(QtCore.QSize(12, 26))
+        self.label_6.setMaximumSize(QtCore.QSize(12, 16))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label_6.setFont(font)
+        self.label_6.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_6.setObjectName("label_6")
+        self.horizontalLayout_8.addWidget(self.label_6)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_8.addItem(spacerItem1)
+        self.gridLayout_10.addLayout(self.horizontalLayout_8, 1, 1, 1, 1)
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem2)
+        self.funct_label_1 = QtWidgets.QLabel(self.tab_main)
+        self.funct_label_1.setMinimumSize(QtCore.QSize(70, 0))
+        self.funct_label_1.setMaximumSize(QtCore.QSize(70, 16777215))
+        self.funct_label_1.setObjectName("funct_label_1")
+        self.horizontalLayout_7.addWidget(self.funct_label_1)
+        self.comboBox_funct = QtWidgets.QComboBox(self.tab_main)
+        self.comboBox_funct.setMinimumSize(QtCore.QSize(100, 0))
+        self.comboBox_funct.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.comboBox_funct.setEditable(False)
+        self.comboBox_funct.setObjectName("comboBox_funct")
+        self.horizontalLayout_7.addWidget(self.comboBox_funct)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_7.addItem(spacerItem3)
+        self.gridLayout_10.addLayout(self.horizontalLayout_7, 0, 1, 1, 1)
+        self.label_route_2 = QtWidgets.QLabel(self.tab_main)
+        self.label_route_2.setMinimumSize(QtCore.QSize(90, 50))
+        self.label_route_2.setMaximumSize(QtCore.QSize(100, 50))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
+        self.label_route_2.setFont(font)
+        self.label_route_2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_route_2.setObjectName("label_route_2")
+        self.gridLayout_10.addWidget(self.label_route_2, 1, 0, 1, 1)
+        self.verticalLayout_4.addLayout(self.gridLayout_10)
+        self.line = QtWidgets.QFrame(self.tab_main)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.verticalLayout_4.addWidget(self.line)
+        self.gridLayout_9 = QtWidgets.QGridLayout()
+        self.gridLayout_9.setObjectName("gridLayout_9")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_3.setContentsMargins(-1, 0, -1, -1)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.checkBox_mem = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_mem.setObjectName("checkBox_mem")
+        self.horizontalLayout_3.addWidget(self.checkBox_mem)
+        self.lineEdit_mem = QtWidgets.QLineEdit(self.tab_main)
+        self.lineEdit_mem.setObjectName("lineEdit_mem")
+        self.horizontalLayout_3.addWidget(self.lineEdit_mem)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.checkBox_chk = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_chk.setObjectName("checkBox_chk")
+        self.horizontalLayout.addWidget(self.checkBox_chk)
+        self.lineEdit_chk = QtWidgets.QLineEdit(self.tab_main)
+        self.lineEdit_chk.setObjectName("lineEdit_chk")
+        self.horizontalLayout.addWidget(self.lineEdit_chk)
+        self.verticalLayout_3.addLayout(self.horizontalLayout)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.checkBox_schk = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_schk.setObjectName("checkBox_schk")
+        self.horizontalLayout_5.addWidget(self.checkBox_schk)
+        self.lineEdit_schk = QtWidgets.QLineEdit(self.tab_main)
+        self.lineEdit_schk.setObjectName("lineEdit_schk")
+        self.horizontalLayout_5.addWidget(self.lineEdit_schk)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_5)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.checkBox_oldchk = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_oldchk.setObjectName("checkBox_oldchk")
+        self.horizontalLayout_6.addWidget(self.checkBox_oldchk)
+        self.lineEdit_oldchk = QtWidgets.QLineEdit(self.tab_main)
+        self.lineEdit_oldchk.setMinimumSize(QtCore.QSize(130, 21))
+        self.lineEdit_oldchk.setObjectName("lineEdit_oldchk")
+        self.horizontalLayout_6.addWidget(self.lineEdit_oldchk)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_6)
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.checkBox_rwf = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_rwf.setObjectName("checkBox_rwf")
+        self.horizontalLayout_4.addWidget(self.checkBox_rwf)
+        self.lineEdit_rwf = QtWidgets.QLineEdit(self.tab_main)
+        self.lineEdit_rwf.setObjectName("lineEdit_rwf")
+        self.horizontalLayout_4.addWidget(self.lineEdit_rwf)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
+        self.gridLayout_9.addLayout(self.verticalLayout_3, 0, 1, 3, 1)
+        self.gridLayout_8 = QtWidgets.QGridLayout()
+        self.gridLayout_8.setObjectName("gridLayout_8")
+        self.verticalLayout_8 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        self.button_add_route = QtWidgets.QPushButton(self.tab_main)
+        self.button_add_route.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_add_route.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_add_route.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
+        self.button_add_route.setText("")
+        self.button_add_route.setIcon(icon)
+        self.button_add_route.setIconSize(QtCore.QSize(24, 24))
+        self.button_add_route.setFlat(True)
+        self.button_add_route.setObjectName("button_add_route")
+        self.verticalLayout_8.addWidget(self.button_add_route)
+        self.button_del_route = QtWidgets.QPushButton(self.tab_main)
+        self.button_del_route.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_del_route.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_del_route.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
+        self.button_del_route.setText("")
+        self.button_del_route.setIcon(icon1)
+        self.button_del_route.setIconSize(QtCore.QSize(24, 24))
+        self.button_del_route.setFlat(True)
+        self.button_del_route.setObjectName("button_del_route")
+        self.verticalLayout_8.addWidget(self.button_del_route)
+        self.gridLayout_8.addLayout(self.verticalLayout_8, 2, 1, 2, 1)
+        self.label_add_route = QtWidgets.QLabel(self.tab_main)
+        self.label_add_route.setMaximumSize(QtCore.QSize(16777215, 10))
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.label_add_route.setFont(font)
+        self.label_add_route.setObjectName("label_add_route")
+        self.gridLayout_8.addWidget(self.label_add_route, 1, 0, 1, 1)
+        self.lineEdit_route = QtWidgets.QLineEdit(self.tab_main)
+        self.lineEdit_route.setMinimumSize(QtCore.QSize(190, 21))
+        self.lineEdit_route.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.lineEdit_route.setFont(font)
+        self.lineEdit_route.setText("")
+        self.lineEdit_route.setObjectName("lineEdit_route")
+        self.gridLayout_8.addWidget(self.lineEdit_route, 2, 0, 1, 1)
+        self.list_route = QtWidgets.QListWidget(self.tab_main)
+        self.list_route.setMinimumSize(QtCore.QSize(190, 50))
+        self.list_route.setMaximumSize(QtCore.QSize(190000, 16777215))
+        self.list_route.setStyleSheet("QListWidget{    \n"
+" background-color: rgb(20,20,20);        \n"
+"  border:None;\n"
+"  margin-top:0px;    \n"
+"  margin-left:0px;\n"
+"  margin-right:0px;    \n"
+" }")
+        self.list_route.setObjectName("list_route")
+        self.gridLayout_8.addWidget(self.list_route, 3, 0, 1, 1)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_8.addItem(spacerItem4, 0, 0, 1, 1)
+        self.gridLayout_9.addLayout(self.gridLayout_8, 2, 2, 1, 1)
+        self.checkBox_errorsave = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_errorsave.setMinimumSize(QtCore.QSize(0, 30))
+        self.checkBox_errorsave.setObjectName("checkBox_errorsave")
+        self.gridLayout_9.addWidget(self.checkBox_errorsave, 1, 2, 1, 1)
+        self.label_route = QtWidgets.QLabel(self.tab_main)
+        self.label_route.setMinimumSize(QtCore.QSize(90, 50))
+        self.label_route.setMaximumSize(QtCore.QSize(100, 50))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
+        self.label_route.setFont(font)
+        self.label_route.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_route.setObjectName("label_route")
+        self.gridLayout_9.addWidget(self.label_route, 0, 0, 2, 1)
+        self.checkBox_save = QtWidgets.QCheckBox(self.tab_main)
+        self.checkBox_save.setMinimumSize(QtCore.QSize(0, 30))
+        self.checkBox_save.setObjectName("checkBox_save")
+        self.gridLayout_9.addWidget(self.checkBox_save, 0, 2, 1, 1)
+        self.verticalLayout_4.addLayout(self.gridLayout_9)
         self.tabWidget.addTab(self.tab_main, "")
         self.tab_freeze = QtWidgets.QWidget()
         self.tab_freeze.setObjectName("tab_freeze")
@@ -58,8 +456,8 @@ class Ui_SetupWindow(object):
         self.list_model.setObjectName("list_model")
         self.gridLayout_2.addWidget(self.list_model, 1, 0, 1, 1)
         self.gridLayout_5.addLayout(self.gridLayout_2, 0, 0, 3, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_5.addItem(spacerItem, 0, 1, 1, 1)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_5.addItem(spacerItem5, 0, 1, 1, 1)
         self.gridLayout_3 = QtWidgets.QGridLayout()
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.label_2 = QtWidgets.QLabel(self.tab_freeze)
@@ -104,8 +502,6 @@ class Ui_SetupWindow(object):
 "    background-color: rgb(42, 42, 42);\n"
 "}")
         self.button_add_state.setText("")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/arrow-plus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.button_add_state.setIcon(icon)
         self.button_add_state.setIconSize(QtCore.QSize(24, 24))
         self.button_add_state.setFlat(True)
@@ -138,16 +534,14 @@ class Ui_SetupWindow(object):
 "    background-color: rgb(42, 42, 42);\n"
 "}")
         self.button_delete_state.setText("")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/24x24/resources/icons/arrow-minus.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.button_delete_state.setIcon(icon1)
         self.button_delete_state.setIconSize(QtCore.QSize(24, 24))
         self.button_delete_state.setFlat(True)
         self.button_delete_state.setObjectName("button_delete_state")
         self.gridLayout_4.addWidget(self.button_delete_state, 1, 0, 1, 1)
         self.gridLayout_5.addLayout(self.gridLayout_4, 1, 1, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_5.addItem(spacerItem1, 2, 1, 1, 1)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_5.addItem(spacerItem6, 2, 1, 1, 1)
         self.verticalLayout_2.addLayout(self.gridLayout_5)
         self.tabWidget.addTab(self.tab_freeze, "")
         self.tab_scan = QtWidgets.QWidget()
@@ -178,12 +572,29 @@ class Ui_SetupWindow(object):
         SetupWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(SetupWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(SetupWindow)
 
     def retranslateUi(self, SetupWindow):
         _translate = QtCore.QCoreApplication.translate
         SetupWindow.setWindowTitle(_translate("SetupWindow", "MainWindow"))
+        self.additional_job.setText(_translate("SetupWindow", "Additional job details:"))
+        self.basis_label_1.setText(_translate("SetupWindow", "Basis set:"))
+        self.label_5.setText(_translate("SetupWindow", "("))
+        self.label_7.setText(_translate("SetupWindow", " ,"))
+        self.label_6.setText(_translate("SetupWindow", " )"))
+        self.funct_label_1.setText(_translate("SetupWindow", "Functional:"))
+        self.label_route_2.setText(_translate("SetupWindow", "Job details"))
+        self.checkBox_mem.setText(_translate("SetupWindow", "Memory"))
+        self.checkBox_chk.setText(_translate("SetupWindow", "Chk"))
+        self.checkBox_schk.setText(_translate("SetupWindow", "SChk"))
+        self.checkBox_oldchk.setText(_translate("SetupWindow", "OldChk"))
+        self.checkBox_rwf.setText(_translate("SetupWindow", "RWF"))
+        self.label_add_route.setText(_translate("SetupWindow", "Additional route details:"))
+        self.checkBox_errorsave.setText(_translate("SetupWindow", "ErrorSave"))
+        self.label_route.setText(_translate("SetupWindow", "Route section\n"
+"details"))
+        self.checkBox_save.setText(_translate("SetupWindow", "Save"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_main), _translate("SetupWindow", "Main"))
         self.comboBox_freezetype.setItemText(0, _translate("SetupWindow", "Atom"))
         self.comboBox_freezetype.setItemText(1, _translate("SetupWindow", "Bond"))
