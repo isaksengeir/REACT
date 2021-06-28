@@ -101,7 +101,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_plotter.clicked.connect(self.open_plotter)
         self.button_power_off.clicked.connect(self.power_off_on)
         self.button_pymol.clicked.connect(self.start_pymol)
-        self.button_calc_setup.clicked.connect(self.calc_setup)
+        self.button_calc_setup.clicked.connect(self.open_calc_setup)
 
         self.power = True
 
@@ -844,6 +844,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         editor = FileEditor(self, filepath)
         editor.show()
+
+    def open_calc_setup(self):
+        if not self.tabWidget.currentWidget().currentItem():
+            self.append_text("\n No file selected - select a file to prepare calculation on")
+            return
+        self.setup_window = CalcSetupWindow(self)
+        self.setup_window.show()
 
     def power_off_on(self):
         """
