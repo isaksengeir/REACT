@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QColorDialog
 import random
 import numpy as np
+import json
 
 unicode_symbols = {"delta": "\u03B4", "Delta": "\u0394"}
 
@@ -77,6 +78,18 @@ def json_hook_int_please(obj):
             new_dict[k] = obj[k]
         
     return new_dict
+
+
+def load_json(json_path, json_hook=False):
+    with open(json_path, 'r') as json_file:
+        obj = json.load(json_file, object_hook=json_hook)
+
+    return obj
+
+
+def dump_json(json_path, obj):
+    with open(json_path, 'w') as json_file:
+        json_file.dump(obj)
 
 
 def write_file(list_stuff, path):

@@ -20,7 +20,7 @@ from mods.GlobalSettings import GlobalSettings
 from mods.AnalyseCalc import AnalyseCalc
 from mods.FileEditor import FileEditor
 from mods.PDBModel import ModelPDB
-
+from mods.DFT import DFT
 from mods.ThreadWorkers import Worker
 from threading import Lock
 from mods.PymolProcess import PymolSession
@@ -40,8 +40,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #    try:
         #        self.settings = cf.load_json(self.react_path + '.react_settings.json')
                 
-
-
+        self.DFT = DFT(self.react_path)
 
 
         # Global settings
@@ -130,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("\nMultithreading with\nmaximum %d threads" % self.threadpool.maxThreadCount())
 
     def calc_setup(self):
-        self.setup_window = CalcSetupWindow(self)
+        self.setup_window = CalcSetupWindow(self, self.DFT)
         self.setup_window.show()
 
 
