@@ -9,17 +9,22 @@ class DFT:
     def __init__(self, react_path):
 
         self.react_path = react_path
-        self.functional = "B3LYP"
-        self.basis = ("6-31G", {"pol1" : "d", "pol2" : "p", "diff" : None})
-        self.job_mem = 16
-        self.chk_true = True
-        self.empiricaldispersion = "gd3"
+        self._job_type = "Optimization"
+        self._functional = "B3LYP"
+        self._basis = "6-31G"
+        self._basis_funct = {"pol1" : "d", "pol2" : "p", "diff" : None}
+        self._job_mem = 16
+        self._chk_true = True
+        self._empiricaldispersion = "gd3"
         # self.hessian = "calcfc"  
-        self.job_options = []
-        self.route_options = []
 
-        self.all_functionals = ['B3LYP', 'rB3LYP', 'M062X']
-        self.all_basis = {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
+        # additional keywords currently used by default
+        self._job_options = []
+        self._route_options = []
+
+        self._all_job_types = ["Single point", "Optimization", "Frequency", "Optimization + Freqency", "IRC", "IRCMax"]
+        self._all_functionals = ['B3LYP', 'rB3LYP', 'M062X']
+        self._all_basis = {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
                           '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
                           '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
                           '6-31G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
@@ -32,6 +37,10 @@ class DFT:
                                   'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
                                   'diff': ['', '+', '++']}
                           }
+
+        # to store all keywords added by the user
+        self._all_job_options = []
+        self._all_route_options = []
 
         self.read_saved_settings()
 
@@ -50,6 +59,7 @@ class DFT:
             self.job_options = saved["job_options"]
             self.route_options = saved["route_options"]  
         except:
+            # TODO raise some warning that default settings are set instead
             return
 
     def save_settings(self):
@@ -66,38 +76,50 @@ class DFT:
             return
 
     @property
-    def get_basis(self):
-        return self.basis
+    def job_type(self):
+        return self._job_type
 
     @property
-    def get_functional(self):
-        return self.functional
+    def basis(self):
+        return self._basis
+    
+    @property
+    def basis_funct(self):
+        return self._basis_funct
 
     @property
-    def get_job_mem(self):
-        return self.job_mem
+    def functional(self):
+        return self._functional
 
     @property
-    def get_chk_true(self):
-        return self.chk_true
+    def job_mem(self):
+        return self._job_mem
 
     @property
-    def get_empiricaldisperion(self):
-        return self.empiricaldispersion
+    def chk_true(self):
+        return self._chk_true
 
     @property
-    def get_job_options(self):
-        return self.job_options
+    def empiricaldisperion(self):
+        return self._empiricaldispersion
 
     @property
-    def get_route_options(self):
-        return self.route_options
+    def job_options(self):
+        return self._job_options
 
     @property
-    def get_all_basis(self):
-        return self.all_basis
+    def route_options(self):
+        return self._route_options
 
     @property
-    def get_all_functionals(self):
-        return self.all_functionals
+    def all_basis(self):
+        return self._all_basis
+
+    @property
+    def all_functionals(self):
+        return self._all_functionals
+
+    @property
+    def all_job_types(self):
+        return self._all_job_types
         

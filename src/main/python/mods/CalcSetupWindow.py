@@ -11,44 +11,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("REACT - Calculation setup")
 
-        self.DFT_options = {'functional': ['B3LYP', 'rB3LYP', 'M062X'],
-                    'basis': {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
-                                  '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
-                                  '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
-                                  '6-31G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-                                            'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-                                            'diff': ['', '+', '++']},
-                                  '6-311G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-                                             'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-                                             'diff': ['', '+', '++']},
-                                  'D95': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-                                          'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-                                          'diff': ['', '+', '++']}
-                                   }
-                    }
 
-        # Copy current DFT setings from REACT. 
-        # Some of the values in this variable may be None or False, else, 
-        # It should look like this:
-        #
-        # self.settings["DFT"]: {"functional"     : str(),
-        #                        "basis"          : (str(), {"pol1": str(), "pol2": str(), "diff": str()}),
-        #                        "additional keys": [],
-        #                        "link 0"         : [],
-        #                        "opt keys"       : [],
-        #                        "user"           : {"functional": list(), "basis": dict()}}
-
-        self.settings = parent.settings["DFT"]
-
-        # TODO RE-implement this:
-        #self.curr_choices = {"job type": "optimization", "job keys": self.settings["opt keys"],
-        #                     "functional": self.settings["functional"], "basis": self.settings["basis"][0],
-        #                     "pol1": self.settings["basis"][1]["pol1"], "pol2": self.settings["basis"][1]["pol2"],
-        #                     "diff": self.settings["basis"][1]["diff"], "link 0": self.settings["link 0"],
-        #                     "additional keys": self.settings["additional keys"]}
-
-        # TODO RE-implement:
-        # self.read_settings_set_window()
 
         # TODO RE-implement these:
         #self.ui.add_button1.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_jobkey, self.ui.job_keys, "opt keys"))
@@ -64,9 +27,61 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         #self.ui.basis3_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis3_comboBox, "pol1"))
         #self.ui.basis4_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis4_comboBox, "pol2"))
 
-        #self.ui.cancel_button.clicked.connect(self.on_cancel)
-
         self.read_selected_file()
+        self.fill_main_tab()
+
+        #self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list())
+        self.ui.comboBox_basis1.textActivated.connect(self.update_basis_boxes)
+        self.ui.comboBox_job_type.textActivated.connect(self.update_job_checkBoxes)
+
+    def update_job_checkBoxes(self):
+        """
+        Update placeholder checkBoxes according to selected job type
+
+        :return:
+        """
+        # TODO implement!
+        pass
+
+    def fill_main_tab(self):
+        """
+        Add all options to all comboBoxes + set current default settings
+
+        :return:
+        """
+        self.ui.comboBox_job_type.addItems(self.DFT.all_job_types)
+        self.ui.comboBox_funct.addItems(self.DFT.all_functionals)
+        self.ui.comboBox_basis1.addItems([x for x in self.DFT.all_basis])
+        self.ui.List_add_job.addItems(self.DFT.job_options)
+        self.ui.list_route.addItems(self.DFT.route_options)
+
+        self.ui.comboBox_job_type.setCurrentText(self.DFT.job_type)
+        self.ui.comboBox_funct.setCurrentText(self.DFT.functional)
+        self.ui.comboBox_basis1.setCurrentText(self.DFT.basis)
+
+        self.update_basis_boxes()
+
+    def update_basis_boxes(self):
+        """
+        Update basis functions comboBoxes according to current basis
+
+        :return:
+        """
+
+        self.ui.comboBox_basis2.clear()
+        self.ui.comboBox_basis3.clear()
+        self.ui.comboBox_basis4.clear()
+
+        basis = self.ui.comboBox_basis1.currentText()
+
+        self.ui.comboBox_basis2.addItems(self.DFT.all_basis[basis]["diff"])
+        self.ui.comboBox_basis3.addItems(self.DFT.all_basis[basis]["pol1"])
+        self.ui.comboBox_basis4.addItems(self.DFT.all_basis[basis]["pol2"])
+
+        if basis == self.DFT.basis:
+            self.ui.comboBox_basis2.setCurrentText(self.DFT.basis_funct["diff"])
+            self.ui.comboBox_basis3.setCurrentText(self.DFT.basis_funct["pol1"])
+            self.ui.comboBox_basis4.setCurrentText(self.DFT.basis_funct["pol2"])
 
     def read_selected_file(self):
         """
@@ -94,53 +109,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
 
 
-    def combobox_update(self, widget, key):
-        
-        text = widget.currentText()
-
-        self.curr_choices[key] = text
-        if key == "basis":
-            self.update_basis_options(text)
-
-        print(self.curr_choices)
-
-    def read_settings_set_window(self):
-        """
-        Checks for additional functional, basis sets or additional keys from
-        self.react.settings. Will then fill all fields and set current options
-        """
-        self.ui.job_type_combobox.blockSignals(True)
-        self.ui.func_comboBox.blockSignals(True)
-        self.ui.basis1_comboBox.blockSignals(True)
-        self.ui.basis2_comboBox.blockSignals(True)
-        self.ui.basis3_comboBox.blockSignals(True)
-        self.ui.basis4_comboBox.blockSignals(True)
-
-        # fill comboboxes and lists
-        self.ui.job_type_combobox.addItems(["Optimization (minimum)", "Optimization (TS)", "Frequency"])
-        self.ui.func_comboBox.addItems(self.DFT_options["functional"] + self.settings["user"]["functional"])
-        self.ui.basis1_comboBox.addItems([x for x in self.DFT_options['basis']])
-        self.ui.basis1_comboBox.addItems([x for x in self.settings["user"]["basis"] if x not in self.DFT_options['basis']])
-        self.ui.job_keys.addItems(self.curr_choices["job keys"])
-        self.ui.add_keys.addItems(self.curr_choices["additional keys"])
-        self.ui.link0_keys.addItems(self.curr_choices["link 0"])
-
-        # set comboboxes according to current settings
-        self.ui.func_comboBox.setCurrentText(self.settings["functional"])
-        self.ui.basis1_comboBox.setCurrentText(self.settings["basis"][0])
-        self.update_basis_options(self.settings["basis"][0])
-        self.ui.basis2_comboBox.setCurrentText(self.settings["basis"][1]["diff"])
-        self.ui.basis3_comboBox.setCurrentText(self.settings["basis"][1]["pol1"])
-        self.ui.basis4_comboBox.setCurrentText(self.settings["basis"][1]["pol2"])
-
-        self.ui.job_type_combobox.blockSignals(False)
-        self.ui.func_comboBox.blockSignals(False)
-        self.ui.basis1_comboBox.blockSignals(False)
-        self.ui.basis2_comboBox.blockSignals(False)
-        self.ui.basis3_comboBox.blockSignals(False)
-        self.ui.basis4_comboBox.blockSignals(False)
 
     def update_basis_options(self, basis):
+        """
+        # TODO delete, after moved/copied to Settings.
+        """
         self.ui.basis2_comboBox.blockSignals(True)
         self.ui.basis3_comboBox.blockSignals(True)
         self.ui.basis4_comboBox.blockSignals(True)
