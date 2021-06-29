@@ -50,7 +50,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # TODO RE-implement:
         # self.read_settings_set_window()
 
-
         # TODO RE-implement these:
         #self.ui.add_button1.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_jobkey, self.ui.job_keys, "opt keys"))
         #self.ui.del_button1.clicked.connect(lambda: self.del_item_from_list(self.ui.job_keys, "opt keys"))
@@ -66,6 +65,34 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         #self.ui.basis4_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis4_comboBox, "pol2"))
 
         #self.ui.cancel_button.clicked.connect(self.on_cancel)
+
+        self.read_selected_file()
+
+    def read_selected_file(self):
+        """
+
+        :return:
+        """
+
+        state = self.react.get_current_state
+        filepath = self.react.tabWidget.currentWidget().currentItem().text()
+
+        #TODO can we remove this dependency of doing 'state - 1' ?
+        mol_obj = self.react.states[state - 1].get_molecule_object(filepath)
+        xyz = mol_obj.get_formatted_xyz
+        print(filepath)
+        if "pdb" in filepath.split(".")[-1]:
+            # insert pdb atoms in model atoms
+            for i in range(len(mol_obj.atoms)):
+                atom = mol_obj.atoms[i]
+                print(atom.get_pdb_line)
+                self.ui.list_model.insertItem(i, atom.get_pdb_line)
+
+        else:
+            # insert xyz atoms in model atoms
+            self.ui.button_auto_freeze.setEnabled(False)
+
+
 
     def combobox_update(self, widget, key):
         

@@ -119,7 +119,7 @@ class PDBAtom(Atom):
             self.pdb_atom_name = atom_line[12:17].strip()
             self.res_name = atom_line[16:21]
             self.res_nr = int("".join(i for i in atom_line[21:26] if i.isdigit()))
-
+            self.formated_pdb_line = atom_line.strip("\n")
         else:
             pass
 
@@ -138,3 +138,7 @@ class PDBAtom(Atom):
     @property
     def get_residue_nr(self):
         return self.res_nr
+
+    @property
+    def get_pdb_line(self):
+        return self.formated_pdb_line

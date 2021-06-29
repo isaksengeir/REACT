@@ -44,7 +44,8 @@ class FileEditor(QtWidgets.QMainWindow):
 
         else:
             self.ui.comboBox.addItem(self.filetype)
-        
+
+        # TODO We should utilize objects of Atom and Molecule here instead of reading a file
         with open(self.filepath, 'r') as f:
             text = f.read()
 

@@ -43,10 +43,14 @@ class Molecule:
     def get_atom_count(self):
         return len(self.atoms)
 
+    #def get_atom_index(self, index=None):
+    #    for atom in self.molecule:
+
+
 
 class XYZFile(Molecule):
     def __init__(self, atoms=None, filepath=None):
-
+        #Atoms = list(Atom)
         if atoms:
             # List of Atom objects
             self.atoms = atoms
@@ -54,7 +58,6 @@ class XYZFile(Molecule):
         if filepath:
             self.filepath = filepath
             self.atoms = self.read_xyz()
-
 
         super(XYZFile, self).__init__(atoms=self.atoms)
 
@@ -113,9 +116,6 @@ class PDBFile(XYZFile):
                     atoms.append(PDBAtom(line))
         return atoms
 
-    def convert_to_xyz(self):
-        """
-        Create XYZ file from PDB file
-        :return: TODO
-        """
-        pass
+
+
+

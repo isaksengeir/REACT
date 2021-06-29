@@ -809,8 +809,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def create_cluster(self):
         """
         """
-        #dialog = DialogMessage(self, "Create Cluster not yet available:(")
-        #dialog.exec_()
         if self.cluster_window:
             self.cluster_window.raise_()
         else:

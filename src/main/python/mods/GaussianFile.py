@@ -434,6 +434,12 @@ class OutputFile(GaussianFile):
             freq = True
         return freq
 
+    @property
+    def get_formatted_xyz(self):
+        atoms = self.get_coordinates[-1]
+        gmolecule = GaussianMolecule(g_atoms=atoms)
+        return gmolecule.get_formatted_xyz
+
 
 class FrequenciesOut(OutputFile):
 
@@ -503,9 +509,7 @@ class FrequenciesOut(OutputFile):
                                               " ".join(line.split()[coord_start:coord_end]))
                         g_atoms.append(GaussianAtom(g_line))
                     else:
-                        # TODO need to include all 3 sets here, not just the first:
-                        self.freq_displacement[frequency] = GaussianMolecule(g_atoms=g_atoms).g_molecule
-                        found_displacement = False
+                        self.freq_displacement[frequency] = GaussianMolecule(g_atoms=g_atoms)
                         return self.freq_displacement[frequency]
 
                 if found_frequency and "Atom  AN      X      Y      Z" in line:
@@ -517,21 +521,20 @@ class FrequenciesOut(OutputFile):
         :param steps: number of structures to create
         :return: list of gaussian molecules, where the first is the original optimised molecules.
         """
-        molecule = self.get_final_molecule.g_molecule
-
-        displacement = self.get_displacement(freq)
+        molecule = self.get_final_molecule.get_molecule
+        displacement = self.get_displacement(freq).get_molecule
 
         molecules = list()
         molecules.append(molecule)
-        coord = ["x","y","z"]
 
         # Forward direction (N steps)
         for i in range(steps):
             mol_disp = copy.deepcopy(molecule)
             for atom in mol_disp.keys():
-                for x in coord:
-                    mol_disp[atom][x] = float(mol_disp[atom][x])
-                    mol_disp[atom][x] += float(displacement[atom][x]) * scale * (i/steps)
+                mol_disp[atom].x += float(displacement[atom].x) * scale * (i/steps)
+                mol_disp[atom].y += float(displacement[atom].y) * scale * (i / steps)
+                mol_disp[atom].z += float(displacement[atom].z) * scale * (i / steps)
+
             molecules.append(mol_disp)
         # Reversed direction
         for i in range(len(molecules) - 1, 0, -1):

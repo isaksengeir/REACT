@@ -51,6 +51,9 @@ class State:
         return [x for x in self.gfiles.keys()]
         #return [x.get_filepath for x in self.gfiles.values()] because get_filepath is now a property (and not a method)?
 
+    def get_molecule_object(self, filepath):
+        return self.gfiles[filepath]
+
     def get_energy(self, filepath):
         """
         :return: final SCF Done value

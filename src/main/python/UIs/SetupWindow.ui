@@ -943,7 +943,7 @@ details</string>
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QPushButton" name="button_auto_freeze_2">
+           <widget class="QPushButton" name="button_add_from_pymol">
             <property name="text">
              <string>Add Pymol selected</string>
             </property>
@@ -975,6 +975,16 @@ details</string>
                 <width>300</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Courier</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">border 2px solid rgb(143, 23, 119);
+</string>
               </property>
              </widget>
             </item>
@@ -1021,6 +1031,15 @@ details</string>
                 <width>150</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Courier</family>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">border 2px solid rgb(143, 23, 119)</string>
               </property>
              </widget>
             </item>
