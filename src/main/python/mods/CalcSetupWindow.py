@@ -3,9 +3,10 @@ from UIs.SetupWindow import Ui_SetupWindow
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
-    def __init__(self, parent):
+    def __init__(self, parent, DFT):
         super(CalcSetupWindow, self).__init__(parent)
         self.react = parent
+        self.DFT = DFT
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("REACT - Calculation setup")
