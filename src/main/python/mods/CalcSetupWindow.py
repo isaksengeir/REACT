@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 from UIs.SetupWindow import Ui_SetupWindow
+from mods.GaussianInput import GaussianInput
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
@@ -10,29 +11,24 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("REACT - Calculation setup")
+        self.job = GaussianInput()
+        self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
+        self.filename = self.filepath.split("/")[-1]
+        #TODO can we remove this dependency of doing 'state - 1' ?
+        self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
 
-
-
-        # TODO RE-implement these:
-        #self.ui.add_button1.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_jobkey, self.ui.job_keys, "opt keys"))
-        #self.ui.del_button1.clicked.connect(lambda: self.del_item_from_list(self.ui.job_keys, "opt keys"))
-        #self.ui.add_button_2.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_addkeys, self.ui.add_keys, "additional keys"))
-        #self.ui.del_button_2.clicked.connect(lambda: self.del_item_from_list(self.ui.add_keys, "additional keys"))
-        #self.ui.add_button_3.clicked.connect(lambda: self.add_item_to_list(self.ui.linedit_link0, self.link0_keys, "link 0"))
-        #self.ui.del_button_3.clicked.connect(lambda: self.del_item_from_list(self.ui.link0_keys, "link 0"))
-        #self.ui.job_type_combobox.textActivated.connect(lambda: self.combobox_update(self.job_type_combobox, "job type"))
-        #self.ui.func_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.func_comboBox, "functional"))
-        #self.ui.basis1_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis1_comboBox, "basis"))
-        #self.ui.basis2_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis2_comboBox, "diff"))
-        #self.ui.basis3_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis3_comboBox, "pol1"))
-        #self.ui.basis4_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.basis4_comboBox, "pol2"))
 
         self.read_selected_file()
         self.fill_main_tab()
 
-        #self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list())
+        self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.job.job_options))
+        self.ui.Button_del_job.clicked.connect(lambda: self.del_item_from_list(self.ui.List_add_job, self.job.job_options))
+        self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.job.link0_options))
+        self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.job.link0_options))
         self.ui.comboBox_basis1.textActivated.connect(self.update_basis_boxes)
         self.ui.comboBox_job_type.textActivated.connect(self.update_job_checkBoxes)
+        self.ui.button_cancel.clicked.connect(self.on_cancel)
+        self.ui.button_write.clicked.connect(self.on_write)
 
     def update_job_checkBoxes(self):
         """
@@ -49,11 +45,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
+
+        self.ui.lineEdit_filename.setText(self.filename.split(".")[0] + ".com")
         self.ui.comboBox_job_type.addItems(self.DFT.all_job_types)
         self.ui.comboBox_funct.addItems(self.DFT.all_functionals)
         self.ui.comboBox_basis1.addItems([x for x in self.DFT.all_basis])
         self.ui.List_add_job.addItems(self.DFT.job_options)
-        self.ui.list_route.addItems(self.DFT.route_options)
+        self.ui.list_link0.addItems(self.DFT.link0_options)
 
         self.ui.comboBox_job_type.setCurrentText(self.DFT.job_type)
         self.ui.comboBox_funct.setCurrentText(self.DFT.functional)
@@ -79,27 +77,21 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis4.addItems(self.DFT.all_basis[basis]["pol2"])
 
         if basis == self.DFT.basis:
-            self.ui.comboBox_basis2.setCurrentText(self.DFT.basis_funct["diff"])
-            self.ui.comboBox_basis3.setCurrentText(self.DFT.basis_funct["pol1"])
-            self.ui.comboBox_basis4.setCurrentText(self.DFT.basis_funct["pol2"])
+            self.ui.comboBox_basis2.setCurrentText(self.DFT.basis_diff)
+            self.ui.comboBox_basis3.setCurrentText(self.DFT.basis_pol1)
+            self.ui.comboBox_basis4.setCurrentText(self.DFT.basis_pol2)
 
     def read_selected_file(self):
         """
 
         :return:
         """
-
-        state = self.react.get_current_state
-        filepath = self.react.tabWidget.currentWidget().currentItem().text()
-
-        #TODO can we remove this dependency of doing 'state - 1' ?
-        mol_obj = self.react.states[state - 1].get_molecule_object(filepath)
-        xyz = mol_obj.get_formatted_xyz
-        print(filepath)
-        if "pdb" in filepath.split(".")[-1]:
+        xyz = self.mol_obj.get_formatted_xyz
+        print(self.filepath)
+        if "pdb" in self.filepath.split(".")[-1]:
             # insert pdb atoms in model atoms
-            for i in range(len(mol_obj.atoms)):
-                atom = mol_obj.atoms[i]
+            for i in range(len(self.mol_obj.atoms)):
+                atom = self.mol_obj.atoms[i]
                 print(atom.get_pdb_line)
                 self.ui.list_model.insertItem(i, atom.get_pdb_line)
 
@@ -163,30 +155,47 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         #self.curr_choices["diff"] = self.ui.basis2_comboBox.currentText()
         #self.curr_choices["diff"] = self.ui.basis2_comboBox.currentText()
 
-    def add_item_to_list(self, Qtextinput, Qlist, DFT_key):
+    def add_item_to_list(self, Qtextinput, Qlist, job_list):
         """
         :param Qtextinput: QLineEdit
         :param Qlist: QListWidget
-        :param DFT_key: str: key to access correct variable in self.settings
+        :param original_list: list to store item
         Adds the text input from user (past to Qtextinput) to correct
-        QlistWidget and updates self.settings accordingly.
+        QlistWidget and append item to list.
         """
         user_input = Qtextinput.text()
-        if user_input and user_input not in self.curr_choices[DFT_key]:
-            self.curr_choices[DFT_key].append(user_input)
+        if user_input and user_input not in job_list:
+            job_list.append(user_input)
             Qlist.addItem(user_input)
 
-    def del_item_from_list(self, Qlist, DFT_key):
+    def del_item_from_list(self, Qlist, job_list):
         """
         :param Qlist: QListWidget
-        :param DFT_key: str: key to access correct variable in self.settings
+        :param job_list: list to delete from
         Removes item in QlistWdiget and updates self.settings accordingly.
         """
         item_text = Qlist.currentItem().text()
-        if item_text in self.curr_choices[DFT_key]:
-            self.curr_choices[DFT_key].remove(item_text)
+        if item_text in job_list:
+            job_list.remove(item_text)
         Qlist.takeItem(Qlist.currentRow())
 
     def on_cancel(self):
         self.close()
+
+    def on_write(self):
+        """
+        Write all data to Inputfile object.
+        # TODO how to return this object to react after closing the window?
+        """
+
+        self.job.filename = self.ui.lineEdit_filename.text()
+        self.job.job_type = self.ui.comboBox_job_type.currentText()
+        self.job.basis = self.ui.comboBox_basis1.currentText()
+        self.job.basis_diff = self.ui.comboBox_basis2.currentText()
+        self.job.basis_pol1 = self.ui.comboBox_basis3.currentText()
+        self.job.basis_pol2 = self.ui.comboBox_basis4.currentText()
+        #self.job.job_mem = self.ui
+
+        self.close()
+
 
