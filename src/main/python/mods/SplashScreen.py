@@ -45,12 +45,12 @@ class SplashScreen(QtWidgets.QMainWindow, Ui_SplashScreen):
         if counter == 30:
             self.ui.label_loading.setText("loading... User Interface & libraries")
         if counter == 60:
-            if self.parent.settings['REACT pymol']:
+            if self.parent.settings.REACT_pymol:
                 self.ui.label_loading.setText("loading... Open Source Pymol")
 
         if counter == 45:
             # Launch open source pymol at login:
-            if self.parent.settings["pymol at launch"]:
+            if self.parent.settings.pymol_at_launch:
                 #if self.parent.settings['REACT pymol']:
                 self.parent.start_pymol()
 

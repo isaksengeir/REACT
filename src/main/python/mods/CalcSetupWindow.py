@@ -1,17 +1,16 @@
 from PyQt5 import QtWidgets
 from UIs.SetupWindow import Ui_SetupWindow
-from mods.GaussianInput import GaussianInput
+from mods.GaussianFile import InputFile
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
-    def __init__(self, parent, DFT):
+    def __init__(self, parent, filepath):
         super(CalcSetupWindow, self).__init__(parent)
         self.react = parent
-        self.DFT = DFT
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("REACT - Calculation setup")
-        self.job = GaussianInput()
+        self.job = InputFile(parent, filepath)
         self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
         self.filename = self.filepath.split("/")[-1]
         #TODO can we remove this dependency of doing 'state - 1' ?
@@ -22,7 +21,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.fill_main_tab()
 
         self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.job.job_options))
-        self.ui.Button_del_job.clicked.connect(lambda: self.del_item_from_list(self.ui.List_add_job, self.job.job_options))
+        self.ui.Button_del_job.clicked.connect(lambda:  self.del_item_from_list(self.ui.List_add_job, self.job.job_options))
         self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.job.link0_options))
         self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.job.link0_options))
         self.ui.comboBox_basis1.textActivated.connect(self.update_basis_boxes)
@@ -194,7 +193,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.job.basis_diff = self.ui.comboBox_basis2.currentText()
         self.job.basis_pol1 = self.ui.comboBox_basis3.currentText()
         self.job.basis_pol2 = self.ui.comboBox_basis4.currentText()
-        #self.job.job_mem = self.ui
+        self.react.states[self.react.get_current_state - 1].add_instance(self.job)
+        
 
         self.close()
 

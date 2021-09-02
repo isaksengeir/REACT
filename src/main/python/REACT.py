@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import time
+from copy import deepcopy
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QThreadPool, QTimer
@@ -11,16 +12,14 @@ import mods.common_functions as cf
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
-from mods.PrintPlotOpen import PrintPlotOpen
 from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
 from mods.CalcSetupWindow import CalcSetupWindow
 from mods.ReactPlot import PlotEnergyDiagram
 from mods.Plotter import Plotter
-from mods.GlobalSettings import GlobalSettings
+from mods.Settings import Settings, SettingsTheWindow
 from mods.AnalyseCalc import AnalyseCalc
 from mods.FileEditor import FileEditor
 from mods.PDBModel import ModelPDB
-from mods.DFT import DFT
 from mods.ThreadWorkers import Worker
 from threading import Lock
 from mods.PymolProcess import PymolSession
@@ -32,30 +31,12 @@ from mods.ReactPlot import PlotGdata
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
-        self.setupUi(self)
+        self.setupUi(self) 
         self.setWindowTitle("REACT - Main")
 
         self.react_path = os.getcwd()
-        #if os.path.isfile(self.react_path + '.react_settings.json'):
-        #    try:
-        #        self.settings = cf.load_json(self.react_path + '.react_settings.json')
-                
-        self.DFT = DFT(self.react_path)
+        self.settings = Settings(self)
 
-
-        # Global settings
-        self.settings = {"workdir": os.getcwd(),
-                         "DFT": {"functional": "B3LYP",
-                                 "basis": ("6-31G", {"pol1": "d", "pol2": 'p', "diff": None}),
-                                 "additional keys": ["empiricaldispersion=gd3"],
-                                 "link 0"        : [],
-                                 "job keys"      : {"Opt (minimum)": ["noeigentest", "calcfc"], "Opt (TS)": [], "Freq": [], "IRC": [], "IRCMax": [], "SP": []},
-                                 "user"    : {"functional": [], "basis": {}}}, 
-                         "pymolpath": False,
-                         "REACT pymol" : True,
-                         "pymol at launch": True,
-                         "Ui dark": True
-                         }
         self.states = []
         self.proj_name = 'new_project'
 
@@ -95,8 +76,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
         self.button_plot_ene_diagram.clicked.connect(self.plot_energy_diagram)
-        self.button_save_project.clicked.connect(self.save_project)
-        self.button_open_project.clicked.connect(self.import_project)
+        #self.button_save_project.clicked.connect(self.save_project)
+        #self.button_open_project.clicked.connect(self.import_project)
         self.button_create_cluster.clicked.connect(self.create_cluster)
         self.button_plotter.clicked.connect(self.open_plotter)
         self.button_power_off.clicked.connect(self.power_off_on)
@@ -138,7 +119,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pymol.close()
             return
 
-        if self.settings['REACT pymol']:
+        if self.settings.REACT_pymol:
             if os.path.isdir('OpenSourcePymol/dist/OpenSourcePymol.app'):
                 pymol_path = 'OpenSourcePymol/dist/OpenSourcePymol.app'
             elif os.path.isdir("%s/OpenSourcePymol/dist/OpenSourcePymol.app" % '/'.join(sys.path[0].split('/')[0:-1])):
@@ -148,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.append_text(sys.path[0])
                 return
         else:
-            pymol_path = self.settings['pymolpath']
+            pymol_path = self.settings.pymolpath
 
         if not pymol_path:
             self.append_text("No PyMol path set. Please see settings.")
@@ -252,7 +233,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         xyz_list = self.states[state - 1].get_all_xyz(filepath)
         del xyz_list[-1]
         i = 0
-        base_path = "%s/%s" % (self.settings["workdir"], filepath.split("/")[-1].split(".")[0])
+        base_path = "%s/%s" % (self.settings.workdir, filepath.split("/")[-1].split(".")[0])
 
         for xyz in xyz_list:
             xyz_path = "%s_scf%03d.xyz" % (base_path, i)
@@ -331,7 +312,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.add_state()
 
         #path = os.getcwd()  # wordkdir TODO set this as global at some point
-        path = self.settings['workdir']
+        path = self.settings.workdir
         filter_type = "Gaussian output files (*.out);; Gaussian input files (*.com *.inp);; " \
                       "Geometry files (*.pdb *.xyz)"
         title_ = "Import File"
@@ -534,7 +515,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         Add state (new tab) to tabBar widget with a ListWidget child.
         """
-        self.states.append(State())
+        self.states.append(State(self))
 
         #new state:
         state = self.count_states + 1
@@ -584,106 +565,106 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def create_xyz_filecontent(self, filepath):
         return self.states[self.tabWidget.currentIndex()].create_xyz_filecontent(filepath)
-
-    def import_project(self):
-        """
-        Import project-file and creates new state instances accordingly. Deletes all states in workplace.
-        TODO import logfile
-        """
-        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project",
-                                                                 self.settings['workdir'], filter="Project (*.rxt)")
-
-        #To avoid error if dialogwindow is opened, but no file is selected
-        if proj_path == '':
-            return
-        
-        if self.unsaved_proj:
-            #TODO set self.unsaved_proj = True when approriate
-            #when Save is clicked: signal = 1, else signal = 0. 
-            #TODO save project when signal == 1, else: discard project
-            dialog = DialogSaveProject(self)
-            signal = dialog.exec_()
-            
-        #delete states currently in workspace
-        self.states.clear()
-        self.tabWidget.clear()
-        self.textBrowser.clear()
-        if self.pymol:
-            self.pymol.pymol_cmd("delete *")
-
-        self.proj_name = proj_path.split("/")[-1]        
-        self.workdir = proj_path.replace(self.proj_name, "")
-        self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
-
-        with open(proj_path, 'r') as proj_file:
-            proj = json.load(proj_file, object_hook=cf.json_hook_int_please)
-
-        for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
-            self._import_project_pop_and_assign(proj, key)
-
-    def _import_project_pop_and_assign(self, project, key):
-
-        try:
-            proj_item = project.pop(key)
-
-            if key == 'states':
-                for state in proj_item.items():
-                    self.add_state()
-                    self.add_files(state[1])
-
-                    # each state has to be completely loaded before moving on to text,
-                    # to ensure the multithreading assigns files to correct state. 
-                    self.threadpool.waitForDone()
-            if key == 'included files':
-                    self.included_files = proj_item
-            if key == 'log':
-                    self.textBrowser.appendPlainText(proj_item)
-            else:
-                    self.settings[key] = proj_item
-        except:
-            self.append_text(f'Failed to load "{key}" from "{self.proj_name}"')
-
-    def save_project(self):
-        """
-        exports a *.rxt (identical to JSON) file containing:
-        project = {'states'        : {1: [file1,file2,..],
-                                      2: [file1,file2,..]
-                                      },
-                   'included files': self.included_files,
-                   'settings'      : self.settings,
-                   'log'           : self.textBrowser.toPlainText()
-                   }
-        """
-        project = {}
-        states = {}
-
-        self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
-
-        for state_index in range(len(self.states)):      
-            states[state_index+1] = self.states[state_index].get_all_gpaths
-        
-        project["states"] = states
-        project["included files"] = self.included_files 
-        project["workdir"] = self.settings["workdir"]
-        project["DFT"] = self.settings["DFT"]
-        project["log"] = self.textBrowser.toPlainText()
-
-        temp_filepath = project["workdir"] + '/' + self.proj_name
-
-        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", temp_filepath, "REACT project (*.rxt)")
-
-        if proj_path == '':
-            return
-
-        self.proj_name = proj_path.split("/")[-1]  
-        
-        #change project name title in workspace
-        new_proj_title = proj_path.split('/')[-1].replace('.rxt', '')    
-        self.label_projectname.setText(new_proj_title)
-
-        with open(proj_path, 'w') as f:
-            json.dump(project, f)
-
+#
+    #def import_project(self):
+    #    """
+    #    Import project-file and creates new state instances accordingly. Deletes all states in workplace.
+    #    TODO import logfile
+    #    """
+    #    proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project",
+    #                                                             self.settings.workdir, filter="Project (*.rxt)")
+#
+    #    #To avoid error if dialogwindow is opened, but no file is selected
+    #    if proj_path == '':
+    #        return
+    #    
+    #    if self.unsaved_proj:
+    #        #TODO set self.unsaved_proj = True when approriate
+    #        #when Save is clicked: signal = 1, else signal = 0. 
+    #        #TODO save project when signal == 1, else: discard project
+    #        dialog = DialogSaveProject(self)
+    #        signal = dialog.exec_()
+    #        
+    #    #delete states currently in workspace
+    #    self.states.clear()
+    #    self.tabWidget.clear()
+    #    self.textBrowser.clear()
+    #    if self.pymol:
+    #        self.pymol.pymol_cmd("delete *")
+#
+    #    self.proj_name = proj_path.split("/")[-1]        
+    #    self.workdir = proj_path.replace(self.proj_name, "")
+    #    self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
+#
+    #    with open(proj_path, 'r') as proj_file:
+    #        proj = json.load(proj_file, object_hook=cf.json_hook_int_please)
+#
+    #    for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
+    #        self._import_project_pop_and_assign(proj, key)
+#
+    #def _import_project_pop_and_assign(self, project, key):
+#
+    #    try:
+    #        proj_item = project.pop(key)
+#
+    #        if key == 'states':
+    #            for state in proj_item.items():
+    #                self.add_state()
+    #                self.add_files(state[1])
+#
+    #                # each state has to be completely loaded before moving on to text,
+    #                # to ensure the multithreading assigns files to correct state. 
+    #                self.threadpool.waitForDone()
+    #        if key == 'included files':
+    #                self.included_files = proj_item
+    #        if key == 'log':
+    #                self.textBrowser.appendPlainText(proj_item)
+    #        else:
+    #                self.settings[key] = proj_item
+    #    except:
+    #        self.append_text(f'Failed to load "{key}" from "{self.proj_name}"')
+#
+    #def save_project(self):
+    #    """
+    #    exports a *.rxt (identical to JSON) file containing:
+    #    project = {'states'        : {1: [file1,file2,..],
+    #                                  2: [file1,file2,..]
+    #                                  },
+    #               'included files': self.included_files,
+    #               'settings'      : self.settings,
+    #               'log'           : self.textBrowser.toPlainText()
+    #               }
+    #    """
+    #    project = {}
+    #    states = {}
+#
+    #    self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
+#
+    #    for state_index in range(len(self.states)):      
+    #        states[state_index+1] = self.states[state_index].get_all_gpaths
+    #    
+    #    project["states"] = states
+    #    project["included files"] = self.included_files 
+    #    project["workdir"] = self.settings["workdir"]
+    #    project["DFT"] = self.settings["DFT"]
+    #    project["log"] = self.textBrowser.toPlainText()
+#
+    #    temp_filepath = project["workdir"] + '/' + self.proj_name
+#
+    #    proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", temp_filepath, "REACT project (*.rxt)")
+#
+    #    if proj_path == '':
+    #        return
+#
+    #    self.proj_name = proj_path.split("/")[-1]  
+    #    
+    #    #change project name title in workspace
+    #    new_proj_title = proj_path.split('/')[-1].replace('.rxt', '')    
+    #    self.label_projectname.setText(new_proj_title)
+#
+    #    with open(proj_path, 'w') as f:
+    #        json.dump(project, f)
+#
     def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
         """
         Opens file dialog where multiple files can be selected.
@@ -787,7 +768,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                              "\nPerhaps the window is hidden?")
             self.settings_window.raise_()
         else:
-            self.settings_window = GlobalSettings(self)
+            self.settings_window = SettingsTheWindow(self)
             self.settings_window.show()
 
     def open_analyse(self):
@@ -842,9 +823,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.tabWidget.currentWidget().currentItem():
             self.append_text("\n No file selected - select a file to prepare calculation on")
             return
-        self.setup_window = CalcSetupWindow(self, self.DFT)
-        self.setup_window.show()
 
+        self.setup_window = CalcSetupWindow(self, self.current_file)
+        self.setup_window.show()
+    
     def power_off_on(self):
         """
         power down when power button is clicked
@@ -888,6 +870,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return: integer (total number of states)
         """
         return self.tabWidget.count()
+
+    @property
+    def current_file(self):
+        """
+        :return: current file (filepath, in text)
+        """
+        return self.tabWidget.currentWidget().currentItem().text()
 
     def closeEvent(self, event):
         if self.pymol:

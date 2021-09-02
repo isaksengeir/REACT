@@ -3,7 +3,8 @@ from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
 
 
 class State:
-    def __init__(self):
+    def __init__(self, parent):
+        self.parent = parent
         # File types --> sublass assignment
         self.file_types = {"com": InputFile,
                            "inp": InputFile,
@@ -22,15 +23,25 @@ class State:
         filename = filepath.split("/")[-1]
         filetype = filename.split(".")[-1]
 
-        self.gfiles[filepath] = self.file_types[filetype](filepath=filepath)
+        self.gfiles[filepath] = self.file_types[filetype](self.parent, filepath)
+
+        print(f'{self.gfiles}')
 
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
         if isinstance(self.gfiles[filepath], OutputFile):
 
             if self.gfiles[filepath].has_frequencies:
-                self.gfiles[filepath] = FrequenciesOut(filepath=filepath)
+                self.gfiles[filepath] = FrequenciesOut(filepath)
 
         return None
+
+    def add_instance(self, gaussian_instance):
+        """
+        Add already excisting Gaussian instance to state
+        """
+        filename = gaussian_instance.filename
+        filetype = gaussian_instance.filetype
+
 
     def del_gfiles(self, files_to_del):
         """
@@ -52,6 +63,7 @@ class State:
         #return [x.get_filepath for x in self.gfiles.values()] because get_filepath is now a property (and not a method)?
 
     def get_molecule_object(self, filepath):
+        print(f'this is states: {self.gfiles}')
         return self.gfiles[filepath]
 
     def get_energy(self, filepath):
@@ -130,12 +142,6 @@ class State:
 
         return xyz
 
-    def get_routecard(self, filepath):
-        """
-        :param filepath:
-        :return: a dictionary of job details.
-        """
-        return self.gfiles[filepath].get_routecard
 
     def has_solvent(self, filepath):
         """
@@ -191,29 +197,31 @@ class State:
         """
         Create inputfile content (not file), based on coordiantes from an outputfile or from *.xyz file,
         or from XYZfile object?
+        TODO
         """
+        pass
         
         # if coordinates argument is a file associated with this state. NB works for inp/out only, what if file is *.xyz?
-        content = ""
-        gaussian_filetypes = ["out", "inp", "com"]
-        if path.split(".")[-1] in gaussian_filetypes:
-            routecard = self.gfiles[path].get_routecard
-            charge_multiplicity = self.gfiles[path].get_charge_multiplicity
-            xyz = self.get_final_xyz(path)
-
-
-            #TODO doesn't work if any of these variables are of NoneType!
-            content = routecard + '\n\n' + charge_multiplicity[0] + ' ' + charge_multiplicity[1] +  '\n'
-
-            for line in xyz:
-                content += line + '\n'
-
-        elif path.split(".")[-1] == "xyz":
-            # content = self.gfiles[path].get_formatted_xyz gives error?
-            #TODO get global settings, get coordinates, make inputfile content
-            content = "Empty since this hasn't been implemented yet..."
-
-        return content
+        #content = ""
+        #gaussian_filetypes = ["out", "inp", "com"]
+        #if path.split(".")[-1] in gaussian_filetypes:
+        #    routecard = self.gfiles[path].get_routecard
+        #    charge_multiplicity = self.gfiles[path].get_charge_multiplicity
+        #    xyz = self.get_final_xyz(path)
+#
+#
+        #    #TODO doesn't work if any of these variables are of NoneType!
+        #    content = routecard + '\n\n' + charge_multiplicity[0] + ' ' + charge_multiplicity[1] +  '\n'
+#
+        #    for line in xyz:
+        #        content += line + '\n'
+#
+        #elif path.split(".")[-1] == "xyz":
+        #    # content = self.gfiles[path].get_formatted_xyz gives error?
+        #    #TODO get global settings, get coordinates, make inputfile content
+        #    content = "Empty since this hasn't been implemented yet..."
+#
+        #return content
 
     def create_xyz_filecontent(self, filepath):
 
