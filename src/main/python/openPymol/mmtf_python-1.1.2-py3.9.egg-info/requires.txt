@@ -1,7 +1,0 @@
-msgpack>=0.5.6
-
-[dev]
-check-manifest
-
-[test]
-coverage
