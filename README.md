@@ -1,4 +1,4 @@
-# REACT  <img src="/src/main/icons/mac/128.png" height="128" align="right" />
+# REACT  <img src="/resources/platform_icons/mac/128.png" height="128" align="right" />
 Development of a GUI for setting up and analysing DFT reaction (free) energies.
 
 We recomend that you set up your python environment with homebrew. If you do not have homebrew, you can install this with 
