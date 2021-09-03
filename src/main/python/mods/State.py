@@ -31,7 +31,7 @@ class State:
         if isinstance(self.gfiles[filepath], OutputFile):
 
             if self.gfiles[filepath].has_frequencies:
-                self.gfiles[filepath] = FrequenciesOut(filepath)
+                self.gfiles[filepath] = FrequenciesOut(self.parent, filepath)
 
         return None
 
@@ -100,7 +100,7 @@ class State:
         :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
         """
         # Get list of GaussianAtom objects (per iteration):
-        gaussian_atoms = self.gfiles[filepath].get_coordinates
+        gaussian_atoms = self.gfiles[filepath].coordinates
         molecules = list()
         for iteration in gaussian_atoms:
             molecule = GaussianMolecule(g_atoms=iteration).get_molecule

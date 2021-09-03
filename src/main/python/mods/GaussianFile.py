@@ -426,7 +426,7 @@ class OutputFile(GaussianFile):
 
         # Read output on init to get key job details
         self.read_gaussianfile()
-
+        self._coordinates = self.get_coordinates()
         self._converged = self.is_converged()
         self._final_molecule = self.get_final_molecule()
         self._solvent = self.has_solvent()
@@ -517,8 +517,6 @@ class OutputFile(GaussianFile):
                 #             self.charge = temp[2]
                 #             self.multiplicity = temp[5]
 
-        print(self.coordinates)
-
 
     def is_converged(self):
         """
@@ -548,6 +546,8 @@ class OutputFile(GaussianFile):
         """
         # list with GaussianAtom objects per geometry optimization --> iter_atoms[-1] is the final atom coordinates
         iter_atoms = list()
+
+        print('now in get_coordinates')
 
         atoms = list()
         with open(self.filepath, 'r') as gout:
@@ -595,7 +595,7 @@ class OutputFile(GaussianFile):
         return freq
 
     def get_formatted_xyz(self):
-        atoms = self.get_coordinates[-1]
+        atoms = self.coordinates[-1]
         gmolecule = GaussianMolecule(g_atoms=atoms)
         return gmolecule.get_formatted_xyz
     

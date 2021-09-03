@@ -6,15 +6,15 @@ from mods.GaussianFile import InputFile
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def __init__(self, parent, filepath):
         super(CalcSetupWindow, self).__init__(parent)
-        self.react = parent
+        self.parent = parent
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("REACT - Calculation setup")
         self.job = InputFile(parent, filepath)
-        self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
+        self.filepath = self.parent.tabWidget.currentWidget().currentItem().text()
         self.filename = self.filepath.split("/")[-1]
         #TODO can we remove this dependency of doing 'state - 1' ?
-        self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
+        self.mol_obj = self.parent.states[self.parent.get_current_state - 1].get_molecule_object(self.filepath)
 
 
         self.read_selected_file()
@@ -46,15 +46,15 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
 
         self.ui.lineEdit_filename.setText(self.filename.split(".")[0] + ".com")
-        self.ui.comboBox_job_type.addItems(self.DFT.all_job_types)
-        self.ui.comboBox_funct.addItems(self.DFT.all_functionals)
-        self.ui.comboBox_basis1.addItems([x for x in self.DFT.all_basis])
-        self.ui.List_add_job.addItems(self.DFT.job_options)
-        self.ui.list_link0.addItems(self.DFT.link0_options)
+        self.ui.comboBox_job_type.addItems(self.parent.settings.job_options)
+        self.ui.comboBox_funct.addItems(self.parent.settings.functional_options)
+        self.ui.comboBox_basis1.addItems([x for x in self.parent.settings.basis_options])
+        #self.ui.List_add_job.addItems(self.)
+        self.ui.list_link0.addItems(self.parent.settings.link0_options)
 
-        self.ui.comboBox_job_type.setCurrentText(self.DFT.job_type)
-        self.ui.comboBox_funct.setCurrentText(self.DFT.functional)
-        self.ui.comboBox_basis1.setCurrentText(self.DFT.basis)
+        #self.ui.comboBox_job_type.setCurrentText()
+        self.ui.comboBox_funct.setCurrentText(self.parent.settings.functional)
+        self.ui.comboBox_basis1.setCurrentText(self.parent.settings.basis)
 
         self.update_basis_boxes()
 
@@ -64,21 +64,18 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
+        basis = self.ui.comboBox_basis1.currentText()
 
         self.ui.comboBox_basis2.clear()
         self.ui.comboBox_basis3.clear()
         self.ui.comboBox_basis4.clear()
 
-        basis = self.ui.comboBox_basis1.currentText()
 
-        self.ui.comboBox_basis2.addItems(self.DFT.all_basis[basis]["diff"])
-        self.ui.comboBox_basis3.addItems(self.DFT.all_basis[basis]["pol1"])
-        self.ui.comboBox_basis4.addItems(self.DFT.all_basis[basis]["pol2"])
 
-        if basis == self.DFT.basis:
-            self.ui.comboBox_basis2.setCurrentText(self.DFT.basis_diff)
-            self.ui.comboBox_basis3.setCurrentText(self.DFT.basis_pol1)
-            self.ui.comboBox_basis4.setCurrentText(self.DFT.basis_pol2)
+        self.ui.comboBox_basis2.addItems(self.parent.settings.basis_options[basis]['diff'])
+        self.ui.comboBox_basis3.addItems(self.parent.settings.basis_options[basis]['pol1'])
+        self.ui.comboBox_basis4.addItems(self.parent.settings.basis_options[basis]['pol2'])
+
 
     def read_selected_file(self):
         """
@@ -113,38 +110,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.basis3_comboBox.clear()
         self.ui.basis4_comboBox.clear()
 
-        if basis in self.settings["user"]["basis"] and\
-           basis in self.DFT_options["basis"]:
-            #in case basis is in both, merge diff and pol options
-            basis_options = {"diff": [], "pol1": [], "pol2": []}
+        basis = self.ui.comboBox_basis1.currentText()
 
-            for key in ["diff", "pol1", "pol2"]:
-
-                temp = self.DFT_options['basis'][basis][key]
-                basis_options[key].extend(temp)
-
-                temp = self.settings["user"]["basis"][basis][key]
-                basis_options[key].extend(temp)
-
-                # removes any duplicates in list
-                basis_options[key] = list(set(basis_options[key]))
-
-        elif basis in self.DFT_options['basis']:
-            basis_options = self.DFT_options['basis'][basis]
-        elif basis in self.settings["user"]["basis"]:
-            basis_options = self.settings["user"]["basis"][basis]
-
-
-        for item in basis_options.items():
-            if item[0] == "diff":
-                if item[1]:
-                    self.ui.basis2_comboBox.addItems(item[1])
-            if item[0] == "pol1":
-                if item[1]:
-                    self.ui.basis3_comboBox.addItems(item[1])
-            if item[0] == "pol2":
-                if item[1]:
-                    self.ui.basis4_comboBox.addItems(item[1])
+        self.ui.basis2_comboBox.addItems(self.settings.basis_options[basis]['diff'])
+        self.ui.basis3_comboBox.addItems(self.settings.basis_options[basis]['pol1'])
+        self.ui.basis4_comboBox.addItems(self.settings.basis_options[basis]['pol2'])
 
 
         self.ui.basis2_comboBox.blockSignals(False)
@@ -193,7 +163,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.job.basis_diff = self.ui.comboBox_basis2.currentText()
         self.job.basis_pol1 = self.ui.comboBox_basis3.currentText()
         self.job.basis_pol2 = self.ui.comboBox_basis4.currentText()
-        self.react.states[self.react.get_current_state - 1].add_instance(self.job)
+        self.parent.states[self.parent.get_current_state - 1].add_instance(self.job)
         
 
         self.close()

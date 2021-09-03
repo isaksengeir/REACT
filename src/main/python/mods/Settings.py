@@ -177,7 +177,7 @@ class Settings():
         self.schk = False
         self.oldchk = False
         self.job_options = {"Opt (minimum)": ["noeigentest", "calcfc"], "Opt (TS)": [], "Freq": [], "IRC": [], "IRCMax": [], "SP": []}
-        self.link0_options = None
+        self.link0_options = []
         self.basis_options = {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
                                                 '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
                                                 '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
