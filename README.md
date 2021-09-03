@@ -4,6 +4,10 @@ Development of a GUI for setting up and analysing DFT reaction (free) energies.
 We recomend that you set up your python environment with homebrew. If you do not have homebrew, you can install this with 
 <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
 
+**Quick install:**
+* `./install.sh`
+
+Install python environment from requirements.txt. 
 
 <strong>General dependencies</strong>
 <ul>
