@@ -4,9 +4,9 @@ block_cipher = None
 
 
 a = Analysis(['REACT.py'],
-             pathex=['/Users/gvi022/Onedrive - UiT Office 365/programming/REACT/src/main/python'],
+             pathex=['/Users/gvi022/programming/REACT/'],
              binaries=[],
-             datas=[("/Users/gvi022/Onedrive - UiT Office 365/programming/REACT/src/main/python/OpenSourcePymol/dist/OpenSourcePymol.app/", "OpenSourcePymol/dist/OpenSourcePymol.app/")],
+             datas=[("/Users/gvi022/programming/REACT/OpenSourcePymol/dist/OpenSourcePymol.app/", "OpenSourcePymol/dist/OpenSourcePymol.app/")],
              hiddenimports=["PyQt5.sip"],
              hookspath=[],
              runtime_hooks=[],

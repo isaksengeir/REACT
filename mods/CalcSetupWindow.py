@@ -70,8 +70,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis3.clear()
         self.ui.comboBox_basis4.clear()
 
-
-
         self.ui.comboBox_basis2.addItems(self.parent.settings.basis_options[basis]['diff'])
         self.ui.comboBox_basis3.addItems(self.parent.settings.basis_options[basis]['pol1'])
         self.ui.comboBox_basis4.addItems(self.parent.settings.basis_options[basis]['pol2'])
@@ -94,9 +92,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         else:
             # insert xyz atoms in model atoms
             self.ui.button_auto_freeze.setEnabled(False)
-
-
-
 
     def update_basis_options(self, basis):
         """

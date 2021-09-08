@@ -1,3 +1,6 @@
 UIs/__pycache__/
 __pycache__/
 target/
+/mods/
+/dist/
+/venv/
