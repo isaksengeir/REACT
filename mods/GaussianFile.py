@@ -1,6 +1,7 @@
 import distutils.util
 from mods.Atoms import GaussianAtom, Atom
 from mods.MoleculeFile import GaussianMolecule
+import copy
 import re
 import os
 
@@ -432,24 +433,39 @@ class OutputFile(GaussianFile):
         self._solvent = self.has_solvent()
         self._frequencies = self.has_frequencies()
         self._formatted_xyz = self.get_formatted_xyz()
+        self._energy = self.get_energy()
 
+    @property
+    def energy(self):
+        return self._energy
 
     @property
     def converged(self):
         return self._converged
 
     @property
+    def scf_convergence(self):
+        return self.get_scf_convergence()
+
+    @property
     def final_molecule(self):
         return self._final_molecule
+
     @property
     def solvent(self):
         return self._solvent
+
     @property
     def frequencies(self):
         return self._frequencies
+
     @property
     def formatted_xyz(self):
         return self._formatted_xyz
+
+    @energy.setter
+    def energy(self, value):
+        self._energy = value
 
     @converged.setter
     def converged(self, value):
@@ -458,9 +474,11 @@ class OutputFile(GaussianFile):
     @final_molecule.setter
     def final_molecule(self, value):
         self._final_molecule = value
+
     @solvent.setter
     def solvent(self, value):
         self._solvent = value
+
     @frequencies.setter
     def frequencies(self, value):
         self._frequencies = value
@@ -517,7 +535,6 @@ class OutputFile(GaussianFile):
                 #             self.charge = temp[2]
                 #             self.multiplicity = temp[5]
 
-
     def is_converged(self):
         """
         Set self.converged True if 4 SCF convergence criterias are met - else False
@@ -537,7 +554,49 @@ class OutputFile(GaussianFile):
                 converged = False
 
         return converged
-    
+
+    def get_energy(self):
+        """
+        :return: final SCF Done energy stored in self.g_outdata
+        """
+        return self.g_outdata["SCF Done"]
+
+    def get_scf_convergence(self):
+        """
+        Reads output file and returns all SCF Done energies
+        :return: energies, MaximumForce, RMS Force, Maximum Displacement, RMS Displacement
+        """
+        # SCF Done 4
+        scf = list()
+
+        # "Maximum Force" 2
+        max_force = list()
+
+        # "RMS     Force" 2
+        rms_force = list()
+
+        # "Maximum Displacement" 2
+        max_displacement = list()
+
+        # "RMS     Displacement" 2
+        rms_displacement = list()
+        scf_data = {"SCF Done": list(),
+                    "Maximum Force": list(),
+                    "RMS     Force": list(),
+                    "Maximum Displacement": list(),
+                    "RMS     Displacement": list()}
+
+        with open(self.filepath) as out:
+            for line in out:
+                if any(g_key in line for g_key in scf_data.keys()):
+                    g_key = [term for term in scf_data.keys() if term in line][0]
+                    split_int = 2
+                    if g_key == "SCF Done":
+                        split_int = 4
+                    scf_data[g_key].append(float(line.split()[split_int]))
+
+        return scf_data
+
     def get_coordinates(self):
         """
         Extract xyz from a gaussian output file and creates GaussianAtom objects
@@ -599,7 +658,6 @@ class OutputFile(GaussianFile):
         gmolecule = GaussianMolecule(g_atoms=atoms)
         return gmolecule.get_formatted_xyz
     
-    
 
 class FrequenciesOut(OutputFile):
 
@@ -613,7 +671,6 @@ class FrequenciesOut(OutputFile):
 
         # frequency : {atom nr: name, x:float, y: float, z:float}
         self.freq_displacement = dict()
-
 
         self.read_frequencies()
 

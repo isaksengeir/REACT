@@ -885,16 +885,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.pymol.close()
             except:
                 pass
-### fbs code below not needed if we can not use fbs ###
-# Instantiate ApplicationContext https://build-system.fman.io/manual/#your-python-code
-#appctxt = ApplicationContext()
-# Create window and show
-#window = MainWindow()
-# window.show() <- handled by splash screen - leave commented out
-
-#exit_code = appctxt.app.exec_()
-#sys.exit(exit_code)
-### fbs code end ###
 
 
 if __name__ == '__main__':

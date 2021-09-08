@@ -70,7 +70,7 @@ class State:
         """
         :return: final SCF Done value
         """
-        return self.gfiles[filepath].get_energy
+        return self.gfiles[filepath].energy
 
     def check_convergence(self, filepath):
         """
@@ -85,7 +85,7 @@ class State:
         :param filename:
         :return:
         """
-        return self.gfiles[filepath].get_scf_convergence
+        return self.gfiles[filepath].scf_convergence
 
     def update_fileobject(self, filepath):
         """

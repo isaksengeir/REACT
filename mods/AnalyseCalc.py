@@ -118,7 +118,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         # Load files to pymol, and/or write xyz files.
         i = 0
-        base_name = "%s/%s" % (self.react.settings["workdir"], g_file.split("/")[-1].split(".")[0])
+        base_name = "%s/%s" % ( self.react.settings.workdir, g_file.split("/")[-1].split(".")[0])
         for vib in xyz_vib:
             xyz_path = "%s_tmp%03d.xyz" % (base_name, i)
             cf.write_file(vib, xyz_path)
