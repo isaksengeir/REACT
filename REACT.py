@@ -2,7 +2,6 @@ import sys
 import os
 import json
 import time
-from copy import deepcopy
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QThreadPool, QTimer
@@ -76,8 +75,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_print_scf.clicked.connect(self.plot_scf)
         self.button_print_relativeE.clicked.connect(self.print_relative_energy)
         self.button_plot_ene_diagram.clicked.connect(self.plot_energy_diagram)
-        #self.button_save_project.clicked.connect(self.save_project)
-        #self.button_open_project.clicked.connect(self.import_project)
+        self.button_save_project.clicked.connect(self.save_project)
+        self.button_open_project.clicked.connect(self.import_project)
         self.button_create_cluster.clicked.connect(self.create_cluster)
         self.button_plotter.clicked.connect(self.open_plotter)
         self.button_power_off.clicked.connect(self.power_off_on)
@@ -565,106 +564,103 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def create_xyz_filecontent(self, filepath):
         return self.states[self.tabWidget.currentIndex()].create_xyz_filecontent(filepath)
-#
-    #def import_project(self):
-    #    """
-    #    Import project-file and creates new state instances accordingly. Deletes all states in workplace.
-    #    TODO import logfile
-    #    """
-    #    proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project",
-    #                                                             self.settings.workdir, filter="Project (*.rxt)")
-#
-    #    #To avoid error if dialogwindow is opened, but no file is selected
-    #    if proj_path == '':
-    #        return
-    #    
-    #    if self.unsaved_proj:
-    #        #TODO set self.unsaved_proj = True when approriate
-    #        #when Save is clicked: signal = 1, else signal = 0. 
-    #        #TODO save project when signal == 1, else: discard project
-    #        dialog = DialogSaveProject(self)
-    #        signal = dialog.exec_()
-    #        
-    #    #delete states currently in workspace
-    #    self.states.clear()
-    #    self.tabWidget.clear()
-    #    self.textBrowser.clear()
-    #    if self.pymol:
-    #        self.pymol.pymol_cmd("delete *")
-#
-    #    self.proj_name = proj_path.split("/")[-1]        
-    #    self.workdir = proj_path.replace(self.proj_name, "")
-    #    self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
-#
-    #    with open(proj_path, 'r') as proj_file:
-    #        proj = json.load(proj_file, object_hook=cf.json_hook_int_please)
-#
-    #    for key in ['states', 'included files', 'workdir', 'DFT', 'log']:
-    #        self._import_project_pop_and_assign(proj, key)
-#
-    #def _import_project_pop_and_assign(self, project, key):
-#
-    #    try:
-    #        proj_item = project.pop(key)
-#
-    #        if key == 'states':
-    #            for state in proj_item.items():
-    #                self.add_state()
-    #                self.add_files(state[1])
-#
-    #                # each state has to be completely loaded before moving on to text,
-    #                # to ensure the multithreading assigns files to correct state. 
-    #                self.threadpool.waitForDone()
-    #        if key == 'included files':
-    #                self.included_files = proj_item
-    #        if key == 'log':
-    #                self.textBrowser.appendPlainText(proj_item)
-    #        else:
-    #                self.settings[key] = proj_item
-    #    except:
-    #        self.append_text(f'Failed to load "{key}" from "{self.proj_name}"')
-#
-    #def save_project(self):
-    #    """
-    #    exports a *.rxt (identical to JSON) file containing:
-    #    project = {'states'        : {1: [file1,file2,..],
-    #                                  2: [file1,file2,..]
-    #                                  },
-    #               'included files': self.included_files,
-    #               'settings'      : self.settings,
-    #               'log'           : self.textBrowser.toPlainText()
-    #               }
-    #    """
-    #    project = {}
-    #    states = {}
-#
-    #    self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
-#
-    #    for state_index in range(len(self.states)):      
-    #        states[state_index+1] = self.states[state_index].get_all_gpaths
-    #    
-    #    project["states"] = states
-    #    project["included files"] = self.included_files 
-    #    project["workdir"] = self.settings["workdir"]
-    #    project["DFT"] = self.settings["DFT"]
-    #    project["log"] = self.textBrowser.toPlainText()
-#
-    #    temp_filepath = project["workdir"] + '/' + self.proj_name
-#
-    #    proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", temp_filepath, "REACT project (*.rxt)")
-#
-    #    if proj_path == '':
-    #        return
-#
-    #    self.proj_name = proj_path.split("/")[-1]  
-    #    
-    #    #change project name title in workspace
-    #    new_proj_title = proj_path.split('/')[-1].replace('.rxt', '')    
-    #    self.label_projectname.setText(new_proj_title)
-#
-    #    with open(proj_path, 'w') as f:
-    #        json.dump(project, f)
-#
+
+    def import_project(self):
+        """
+        Import project-file and creates new state instances accordingly.
+        """
+        proj_path, type_ = QtWidgets.QFileDialog.getOpenFileName(self, "Import project",
+                                                                 self.settings.workdir, filter="Project (*.rxt)")
+
+        #To avoid error if dialogwindow is opened, but no file is selected
+        if proj_path == '':
+            return
+        
+        if self.unsaved_proj:
+            #TODO set self.unsaved_proj = True when approriate
+            #when Save is clicked: signal = 1, else signal = 0. 
+            #TODO save project when signal == 1, else: discard project
+            dialog = DialogSaveProject(self)
+            signal = dialog.exec_()
+            
+        #delete states currently in workspace
+        self.states.clear()
+        self.tabWidget.clear()
+        self.textBrowser.clear()
+        if self.pymol:
+            self.pymol.pymol_cmd("delete *")
+
+        self.proj_name = proj_path.split("/")[-1]        
+        self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
+
+        with open(proj_path, 'r') as proj_file:
+            proj = json.load(proj_file, object_hook=cf.json_hook_int_please)
+
+        for key in ['states', 'included files', 'workdir', 'log']:
+            self._import_project_pop_and_assign(proj, key)
+
+    def _import_project_pop_and_assign(self, project, key):
+
+        try:
+            proj_item = project.pop(key)
+
+            if key == 'states':
+                for state in proj_item.items():
+                    self.add_state()
+                    self.add_files(state[1])
+
+                    # each state has to be completely loaded before moving on to text,
+                    # to ensure the multithreading assigns files to correct state. 
+                    self.threadpool.waitForDone()
+            if key == 'included files':
+                    self.included_files = proj_item
+            if key == 'log':
+                    self.textBrowser.appendPlainText(proj_item)
+            elif key == 'workdir':
+                    self.settings.workdir = proj_item
+        except:
+            self.append_text(f'Failed to load "{key}" from "{self.proj_name}"')
+
+    def save_project(self):
+        """
+        exports a *.rxt (identical to JSON) file containing:
+        project = {'states'        : {1: [file1,file2,..],
+                                      2: [file1,file2,..]
+                                      },
+                   'included files': self.included_files,
+                   'workdir'      : self.settings.workdir
+                   'log'           : self.textBrowser.toPlainText()
+                   }
+        """
+        project = {}
+        states = {}
+
+        self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
+
+        for state_index in range(len(self.states)):      
+            states[state_index+1] = self.states[state_index].get_all_gpaths
+
+        project["states"] = states
+        project["included files"] = self.included_files
+        project["workdir"] = self.settings.workdir
+        project["log"] = self.textBrowser.toPlainText()
+
+        temp_filepath = self.settings.workdir + '/' + self.proj_name
+
+        proj_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save project", temp_filepath, "REACT project (*.rxt)")
+
+        if proj_path == '':
+            return
+
+        self.proj_name = proj_path.split("/")[-1]
+
+        #change project name title in workspace
+        new_proj_title = proj_path.split('/')[-1].replace('.rxt', '')    
+        self.label_projectname.setText(new_proj_title)
+
+        with open(proj_path, 'w') as f:
+            json.dump(project, f)
+
     def import_files(self, title_="Import files", filter_type="Any files (*.*)", path=os.getcwd()):
         """
         Opens file dialog where multiple files can be selected.
