@@ -68,7 +68,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.ui.button_export_model.clicked.connect(self.save_pdb_model)
 
     def load_pdb(self):
-        file_, file_type = self.react.import_files(title_="Import PDB", filter_type="Protein data bank (*.pdb)", path=self.react.settings['workdir'])
+        file_, file_type = self.react.import_files(title_="Import PDB", filter_type="Protein data bank (*.pdb)", path=self.react.settings.workdir)
         if not file_:
             return
         file_ = file_[0]
@@ -396,7 +396,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         if not self.pymol:
             return
 
-        temp_filepath = self.react.settings["workdir"] + '/'
+        temp_filepath = self.react.settings.workdir + '/'
 
         pdb_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save PDB model", temp_filepath,
                                                                    "PDB (*.pdb)")
@@ -405,7 +405,9 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.pymol_cmd("save %s, model_final" % pdb_path)
 
         if self.ui.copy_to_project.isChecked():
+            #TODO this now happens too fast for some reason - pymol has not writte file before it is being tried opened.
             self.react.add_files(paths=[pdb_path])
+
 
     def closeEvent(self, event):
         self.react.cluster_window = None
