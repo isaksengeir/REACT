@@ -6,15 +6,20 @@ from mods.GaussianFile import InputFile
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def __init__(self, parent, filepath):
         super(CalcSetupWindow, self).__init__(parent)
-        self.parent = parent
+        self.react = parent
+
+        self.pymol = False
+        if self.react.pymol:
+            self.pymol = self.react.pymol
+
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("REACT - Calculation setup")
         self.job = InputFile(parent, filepath)
-        self.filepath = self.parent.tabWidget.currentWidget().currentItem().text()
+        self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
         self.filename = self.filepath.split("/")[-1]
         #TODO can we remove this dependency of doing 'state - 1' ?
-        self.mol_obj = self.parent.states[self.parent.get_current_state - 1].get_molecule_object(self.filepath)
+        self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
 
 
         self.read_selected_file()
@@ -28,6 +33,29 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_job_type.textActivated.connect(self.update_job_checkBoxes)
         self.ui.button_cancel.clicked.connect(self.on_cancel)
         self.ui.button_write.clicked.connect(self.on_write)
+
+        self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
+        self.ui.list_model.setSelectionMode(2)
+
+    def model_atom_clicked(self):
+        if not self.pymol:
+            return
+
+        atoms = list()
+        for i in self.ui.list_model.selectedIndexes():
+            if ".pdb" in self.filename:
+                #atoms.append(i.text().split()[1])
+                atoms.append(self.ui.list_model.item(i.row()).text().split()[1])
+            else:
+                atoms.append(str(i.row()+1))
+
+        self.update_pymol_selection(atoms=atoms)
+
+    def update_pymol_selection(self, atoms):
+        group = "state_%d" % self.react.get_current_state
+        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.filename.split(".")[0], group=group)
+        
+        
 
     def update_job_checkBoxes(self):
         """
@@ -46,15 +74,15 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
 
         self.ui.lineEdit_filename.setText(self.filename.split(".")[0] + ".com")
-        self.ui.comboBox_job_type.addItems(self.parent.settings.job_options)
-        self.ui.comboBox_funct.addItems(self.parent.settings.functional_options)
-        self.ui.comboBox_basis1.addItems([x for x in self.parent.settings.basis_options])
+        self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
+        self.ui.comboBox_funct.addItems(self.react.settings.functional_options)
+        self.ui.comboBox_basis1.addItems([x for x in self.react.settings.basis_options])
         #self.ui.List_add_job.addItems(self.)
-        self.ui.list_link0.addItems(self.parent.settings.link0_options)
+        self.ui.list_link0.addItems(self.react.settings.link0_options)
 
         #self.ui.comboBox_job_type.setCurrentText()
-        self.ui.comboBox_funct.setCurrentText(self.parent.settings.functional)
-        self.ui.comboBox_basis1.setCurrentText(self.parent.settings.basis)
+        self.ui.comboBox_funct.setCurrentText(self.react.settings.functional)
+        self.ui.comboBox_basis1.setCurrentText(self.react.settings.basis)
 
         self.update_basis_boxes()
 
@@ -70,9 +98,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis3.clear()
         self.ui.comboBox_basis4.clear()
 
-        self.ui.comboBox_basis2.addItems(self.parent.settings.basis_options[basis]['diff'])
-        self.ui.comboBox_basis3.addItems(self.parent.settings.basis_options[basis]['pol1'])
-        self.ui.comboBox_basis4.addItems(self.parent.settings.basis_options[basis]['pol2'])
+        self.ui.comboBox_basis2.addItems(self.react.settings.basis_options[basis]['diff'])
+        self.ui.comboBox_basis3.addItems(self.react.settings.basis_options[basis]['pol1'])
+        self.ui.comboBox_basis4.addItems(self.react.settings.basis_options[basis]['pol2'])
 
 
     def read_selected_file(self):
@@ -158,7 +186,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.job.basis_diff = self.ui.comboBox_basis2.currentText()
         self.job.basis_pol1 = self.ui.comboBox_basis3.currentText()
         self.job.basis_pol2 = self.ui.comboBox_basis4.currentText()
-        self.parent.states[self.parent.get_current_state - 1].add_instance(self.job)
+        self.react.states[self.react.get_current_state - 1].add_instance(self.job)
         
 
         self.close()
