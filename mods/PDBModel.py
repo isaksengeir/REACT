@@ -1,8 +1,10 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.PDB_clusterWindow import Ui_ClusterPDB
 from mods.DialogsAndExceptions import DialogMessage
 from mods.common_functions import find_ligands_pdbfile
+import os
+
 
 
 class ModelPDB(QtWidgets.QMainWindow):
@@ -68,7 +70,8 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.ui.button_export_model.clicked.connect(self.save_pdb_model)
 
     def load_pdb(self):
-        file_, file_type = self.react.import_files(title_="Import PDB", filter_type="Protein data bank (*.pdb)", path=self.react.settings.workdir)
+        file_, file_type = self.react.import_files(title_="Import PDB", filter_type="Protein data bank (*.pdb)",
+                                                   path=self.react.settings.workdir)
         if not file_:
             return
         file_ = file_[0]
@@ -149,9 +152,6 @@ class ModelPDB(QtWidgets.QMainWindow):
             if self.model_final:
                 self.pymol.pymol_cmd("delete model_final")
                 self.model_final = False
-
-
-
 
         #else:
         #    self.pymol.pymol_cmd("config_mouse three_button_viewing")
@@ -348,7 +348,6 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.pymol_cmd("count_atoms model_tmp")
         self.pymol.pymol_cmd("count_atoms model_tmp and not sol.")
 
-
     def auto_add_terminals(self):
         """
         :return:
@@ -398,15 +397,14 @@ class ModelPDB(QtWidgets.QMainWindow):
 
         temp_filepath = self.react.settings.workdir + '/'
 
-        pdb_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save PDB model", temp_filepath,
-                                                                   "PDB (*.pdb)")
+        pdb_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save PDB model", temp_filepath, "PDB (*.pdb)")
 
-        print(pdb_path)
         self.pymol.pymol_cmd("save %s, model_final" % pdb_path)
 
         if self.ui.copy_to_project.isChecked():
-            #TODO this now happens too fast for some reason - pymol has not writte file before it is being tried opened.
-            self.react.add_files(paths=[pdb_path])
+            # We need to wait for file to be written:
+            QTimer.singleShot(100, lambda: self.react.add_files([pdb_path]))
+
 
 
     def closeEvent(self, event):

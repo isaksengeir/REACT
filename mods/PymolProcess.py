@@ -55,7 +55,7 @@ class PymolSession(QObject):
                                "count_atoms ": {"collect": False,
                                                  "process": self.return_atom_count,
                                                  "return": "count_atoms:",
-                                                 "signal": None},
+                                                 "signal": None}
                                }
 
         self.start_pymol()
@@ -363,7 +363,6 @@ class PymolSession(QObject):
         if QProcess.NotRunning:
             self.disconnect_pymol()
 
-
     def handle_stderr(self):
         data = self.session.readAllStandardError()
         stderr = bytes(data).decode("utf8")
@@ -386,6 +385,5 @@ class PymolSession(QObject):
         self.react.tabWidget.tabBar().currentChanged.disconnect(self.react.pymol_view_current_state)
         self.react.connect_pymol_structures(connect=False)
         self.delete_all_files()
-
 
 

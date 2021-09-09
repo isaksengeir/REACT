@@ -409,8 +409,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.timer2.stop()
                 sys.exit()
 
-
-
             self.progressBar.setValue(int(val))
 
     def thread_complete(self):
