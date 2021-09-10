@@ -34,31 +34,62 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_cancel.clicked.connect(self.on_cancel)
         self.ui.button_write.clicked.connect(self.on_write)
 
+
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
+        self.atoms_to_select = 1
+        self.ui.comboBox_freezetype.currentTextChanged.connect(self.change_selection_mode)
 
-        self.selected_atoms = list()
+        # Keep track of atoms selected (for multiple selection options)
+        self.selected_indexes = list()
 
+    def change_selection_mode(self):
+        if self.ui.comboBox_freezetype.currentText() == "Atoms":
+            self.ui.list_model.setSelectionMode(1)
+        else:
+            self.ui.list_model.setSelectionMode(2)
+
+        select = {"Atom": 1, "Bond": 2, "Angle": 3, "Dihedral": 4}
+        self.atoms_to_select = select[self.ui.comboBox_freezetype.currentText()]
 
     def model_atom_clicked(self):
-        if not self.pymol:
-            return
+        """
+        When selection i atom list is changed, update, and communicate with pymol
+        """
+
+        sele = self.ui.list_model.selectedIndexes()
+
+        while len(sele) > self.atoms_to_select:
+            if len(self.selected_indexes) > 0:
+                self.ui.list_model.item(self.selected_indexes.pop(0).row()).setSelected(False)
+            else:
+                self.ui.list_model.item(sele.pop(0).row()).setSelected(False)
+            sele = self.ui.list_model.selectedIndexes()
+
+        self.selected_indexes = sele
 
         atoms = list()
-        for i in self.ui.list_model.selectedIndexes():
+        for i in self.selected_indexes:
             if ".pdb" in self.filename:
                 #atoms.append(i.text().split()[1])
                 atoms.append(self.ui.list_model.item(i.row()).text().split()[1])
             else:
                 atoms.append(str(i.row()+1))
 
-        self.update_pymol_selection(atoms=atoms)
+        if self.pymol:
+            self.update_pymol_selection(atoms=atoms)
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
         self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.filename.split(".")[0], group=group)
-        
-        
+
+    def add_freeze_atoms(self):
+        """
+        Adds selected atoms to freeze section - append F to end of str for freeze
+        """
+        type = "F"
+        g_cmd = {"Atom": "X", "Bond": "B", "Angle": "A", "Dihedral": "D"}
+        self.list_freeze_atoms.insertItem(0, f"{g_cmd[self.ui.comboBox_freezetype.currentText()]} 1 2 {type}")
 
     def update_job_checkBoxes(self):
         """
