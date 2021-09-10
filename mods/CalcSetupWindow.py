@@ -34,6 +34,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_cancel.clicked.connect(self.on_cancel)
         self.ui.button_write.clicked.connect(self.on_write)
 
+        self.ui.button_add_freeze.clicked.connect(self.add_freeze_atoms)
+        self.ui.button_delete_freeze.clicked.connect(self.remove_freeze_atoms)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -89,7 +91,33 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         type = "F"
         g_cmd = {"Atom": "X", "Bond": "B", "Angle": "A", "Dihedral": "D"}
-        self.list_freeze_atoms.insertItem(0, f"{g_cmd[self.ui.comboBox_freezetype.currentText()]} 1 2 {type}")
+        atoms = ""
+        for i in self.selected_indexes:
+            atoms += f"{i.row()} "
+            if self.pymol:
+                if ".pdb" in self.filename:
+                    atomnr = self.ui.list_model.item(i.row()).text().split()[1]
+                else:
+                    atomnr = i.row()
+                self.pymol_spheres(atomnr)
+
+        self.ui.list_freeze_atoms.insertItem(0, f"{g_cmd[self.ui.comboBox_freezetype.currentText()]} {atoms} {type}")
+
+    def remove_freeze_atoms(self):
+        """
+
+        """
+        # Get str from selection:
+        to_del = self.ui.list_freeze_atoms.currentItem().text()
+        print("To del")
+
+    def pymol_spheres(self, atom_nr):
+        """
+
+        """
+        group = "state_%d" % self.react.get_current_state
+        self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.filename.split('.')[0]}")
+        self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.filename.split('.')[0]}")
 
     def update_job_checkBoxes(self):
         """

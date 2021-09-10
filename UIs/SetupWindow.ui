@@ -23,7 +23,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_main">
        <attribute name="title">
@@ -293,7 +293,7 @@ QPushButton:pressed
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/24x24/resources/icons/arrow-plus.png</normaloff>:/24x24/resources/icons/arrow-plus.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -350,7 +350,7 @@ QPushButton:pressed
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/24x24/resources/icons/arrow-minus.png</normaloff>:/24x24/resources/icons/arrow-minus.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -769,7 +769,7 @@ QPushButton:pressed
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/24x24/resources/icons/arrow-plus.png</normaloff>:/24x24/resources/icons/arrow-plus.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -826,7 +826,7 @@ QPushButton:pressed
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="icons.qrc">
+                 <iconset>
                   <normaloff>:/24x24/resources/icons/arrow-minus.png</normaloff>:/24x24/resources/icons/arrow-minus.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -1117,7 +1117,7 @@ QPushButton:pressed
           <item row="1" column="1">
            <layout class="QGridLayout" name="gridLayout_4">
             <item row="0" column="0">
-             <widget class="QPushButton" name="button_add_state">
+             <widget class="QPushButton" name="button_add_freeze">
               <property name="minimumSize">
                <size>
                 <width>24</width>
@@ -1159,7 +1159,7 @@ QPushButton:pressed
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/24x24/resources/icons/arrow-plus.png</normaloff>:/24x24/resources/icons/arrow-plus.png</iconset>
               </property>
               <property name="iconSize">
@@ -1174,7 +1174,7 @@ QPushButton:pressed
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QPushButton" name="button_delete_state">
+             <widget class="QPushButton" name="button_delete_freeze">
               <property name="minimumSize">
                <size>
                 <width>24</width>
@@ -1216,7 +1216,7 @@ QPushButton:pressed
                <string/>
               </property>
               <property name="icon">
-               <iconset resource="icons.qrc">
+               <iconset>
                 <normaloff>:/24x24/resources/icons/arrow-minus.png</normaloff>:/24x24/resources/icons/arrow-minus.png</iconset>
               </property>
               <property name="iconSize">
