@@ -35,7 +35,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_write.clicked.connect(self.on_write)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
-        self.ui.list_model.setSelectionMode(2)
+        self.ui.list_model.setSelectionMode(1)
+
+        self.selected_atoms = list()
+
 
     def model_atom_clicked(self):
         if not self.pymol:
