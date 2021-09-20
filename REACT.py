@@ -486,15 +486,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Algorithm for updating list of states: temporary new list is created, 
 
         """
-        # new list of pointers to State-objects. Poiners are appened one by one by the followin for-loop,
+        # new list of pointers to State-objects. Pointers are appended one by one by the following for-loop,
         # thus, according to the new order of tabs. Tabs still have their original labels, which are used to retrive correct pointer.
         new_pointers = []
         new_included_files = dict()
 
-        for tab_index in range(self.tabWidget.count()):
+        for tab_index in range(len(self.states)):
             state = self.tabWidget.tabText(tab_index)
-
-            new_pointers.append(self.states[int(state) - 1])
+            new_pointers.append(self.states[tab_index])
             if state != str(tab_index+1):
                 self.tabWidget.setTabText(tab_index, str(tab_index+1))
                 # swap values of state and tab_index+1
@@ -535,9 +534,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def delete_state(self):
         """
         Deletes current state (tab) from tabBar widget together with QListWidget child.
-        TODO
         """
         tab_index = self.tabWidget.currentIndex()
+        state = tab_index + 1
 
         #Avoid crash when there are not tabs
         if tab_index < 0:
@@ -545,14 +544,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Delete from self.included_files
         if self.included_files:
-            self.included_files[tab_index+1] = {0: "", 1: "", 2: "", 3: ""}
+            self.included_files[state] = {0: "", 1: "", 2: "", 3: ""}
             if self.analyse_window:
                 self.analyse_window.update_state_included_files()
 
         self.tabWidget.widget(tab_index).deleteLater()
         self.states.pop(tab_index)
+
+        # This is important here:
+        QTimer.singleShot(100, self.update_tab_names)
+
         if self.pymol:
-            self.pymol.pymol_cmd("delete state_%s" % str(tab_index + 1))
+            self.pymol.pymol_cmd("delete state_%s" % str(state))
 
     def create_input_content(self, filepath):
         """
