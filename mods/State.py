@@ -42,7 +42,6 @@ class State:
         filename = gaussian_instance.filename
         filetype = gaussian_instance.filetype
 
-
     def del_gfiles(self, files_to_del):
         """
         Removes all files in files_to_del list from state.
@@ -77,7 +76,7 @@ class State:
         :param filename:
         :return: None (not geometry optimization), False (not converged) or True (converged)
         """
-        return self.gfiles[filepath].is_converged
+        return self.gfiles[filepath].converged
 
     def get_scf(self, filepath):
         """
@@ -142,27 +141,26 @@ class State:
 
         return xyz
 
-
     def has_solvent(self, filepath):
         """
         :param filepath:
         :return: bool
         """
-        return self.gfiles[filepath].has_solvent
+        return self.gfiles[filepath].solvent
 
     def has_frequencies(self, filepath):
         """
         :param filepath:
         :return: bool
         """
-        return self.gfiles[filepath].has_frequencies
+        return self.gfiles[filepath].frequencies
 
     def get_thermal_dg(self, filepath):
         """
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].has_frequencies:
+        if self.gfiles[filepath].frequencies:
             return self.gfiles[filepath].get_thermal_dg
 
     def get_thermal_dh(self, filepath):
@@ -170,7 +168,7 @@ class State:
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].has_frequencies:
+        if self.gfiles[filepath].frequencies:
             return self.gfiles[filepath].get_thermal_dh
 
     def get_thermal_de(self, filepath):
@@ -178,7 +176,7 @@ class State:
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].has_frequencies:
+        if self.gfiles[filepath].frequencies:
             return self.gfiles[filepath].get_thermal_de
 
     def get_zpe(self, filepath):
@@ -186,11 +184,11 @@ class State:
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].has_frequencies:
+        if self.gfiles[filepath].frequencies:
             return self.gfiles[filepath].get_thermal_zpe
 
     def get_frequencies(self, filepath):
-        if self.gfiles[filepath].has_frequencies:
+        if self.gfiles[filepath].frequencies:
             return self.gfiles[filepath].get_frequencies
 
     def create_input_content(self, path):

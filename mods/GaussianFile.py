@@ -789,28 +789,28 @@ class FrequenciesOut(OutputFile):
 
     @property
     def get_thermal_dg(self):
-        if self.has_frequencies:
+        if self._frequencies:
             return self.g_outdata["Thermal correction to Gibbs Free Energy"]
         else:
             return None
 
     @property
     def get_thermal_de(self):
-        if self.has_frequencies:
+        if self._frequencies:
             return self.g_outdata["Thermal correction to Energy"]
         else:
             return None
 
     @property
     def get_thermal_dh(self):
-        if self.has_frequencies:
+        if self._frequencies:
             return self.g_outdata["Thermal correction to Enthalpy"]
         else:
             return None
 
     @property
     def get_zpe(self):
-        if self.has_frequencies:
+        if self._frequencies:
             return self.g_outdata["Zero-point correction"]
 
     # Animate frequencies

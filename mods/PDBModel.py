@@ -405,8 +405,6 @@ class ModelPDB(QtWidgets.QMainWindow):
             # We need to wait for file to be written:
             QTimer.singleShot(100, lambda: self.react.add_files([pdb_path]))
 
-
-
     def closeEvent(self, event):
         self.react.cluster_window = None
 

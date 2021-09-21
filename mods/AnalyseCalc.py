@@ -29,7 +29,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.ui.button_frq_pymol.clicked.connect(self.animate_frequency)
 
         self.ui.button_next_state.clicked.connect(lambda: self.change_state(i=1))
-        self.ui.button_prev_state.clicked.connect(lambda:self.change_state(i=-1))
+        self.ui.button_prev_state.clicked.connect(lambda: self.change_state(i=-1))
 
         self.ui.horizontalSlider_scale.valueChanged.connect(self.update_scale)
 
@@ -214,9 +214,10 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         Add energies to states. If they do not exist, they are False.
         :return:
         """
+        self.energies = dict()
         for state in self.react.included_files.keys():
             if state not in self.energies.keys():
-                self.energies[state] = {0: False, 1: False, 2: False, 3: False}
+                self.energies[state] = {0: None, 1: None, 2: None, 3: None}
 
             for term in self.react.included_files[state].keys():
                 # Check if state term has file (file length for now)
@@ -234,7 +235,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                     else:
                         self.energies[state][term] = state_object.get_energy(filepath)
                 else:
-                    self.energies[state][term] = False
+                    self.energies[state][term] = None
 
     def get_relative_energies(self):
         """
@@ -242,7 +243,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         :return:
         """
         de = dict()
-
+        self.update_energies()
         for state in sorted(self.energies.keys()):
             de[state] = dict()
             for term in self.energies[state].keys():
@@ -614,6 +615,9 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         self.react.tabWidget.tabBar().currentChanged.disconnect(self.update_state_included_files)
         if self.pymol:
             self.pymol.pymol_cmd("mstop")
+
+            # TODO delete frequency animation.. a bit risky to do delete w_* ... figure out a safer delete.
+            self.pymol.pymol_cmd("delete w_*")
 
 
 

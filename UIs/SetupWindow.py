@@ -23,6 +23,10 @@ class Ui_SetupWindow(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.tabWidget.setStyleSheet("QListWidget\n"
+"{\n"
+"border : 2px solid rgb(143, 23, 119);\n"
+"}")
         self.tabWidget.setObjectName("tabWidget")
         self.tab_main = QtWidgets.QWidget()
         self.tab_main.setObjectName("tab_main")
@@ -470,6 +474,8 @@ class Ui_SetupWindow(object):
         self.comboBox_freezetype.setObjectName("comboBox_freezetype")
         self.comboBox_freezetype.addItem("")
         self.comboBox_freezetype.addItem("")
+        self.comboBox_freezetype.addItem("")
+        self.comboBox_freezetype.addItem("")
         self.gridLayout_6.addWidget(self.comboBox_freezetype, 0, 0, 1, 1)
         self.button_auto_freeze = QtWidgets.QPushButton(self.tab_freeze)
         self.button_auto_freeze.setObjectName("button_auto_freeze")
@@ -496,6 +502,7 @@ class Ui_SetupWindow(object):
         font.setPointSize(11)
         self.list_model.setFont(font)
         self.list_model.setStyleSheet("border 2px solid rgb(143, 23, 119);\n"
+"\n"
 "")
         self.list_model.setObjectName("list_model")
         self.gridLayout_2.addWidget(self.list_model, 1, 0, 1, 1)
@@ -598,6 +605,11 @@ class Ui_SetupWindow(object):
         self.tabWidget.addTab(self.tab_scan, "")
         self.tab_view = QtWidgets.QWidget()
         self.tab_view.setObjectName("tab_view")
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.tab_view)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.text_preview = QtWidgets.QPlainTextEdit(self.tab_view)
+        self.text_preview.setObjectName("text_preview")
+        self.verticalLayout_5.addWidget(self.text_preview)
         self.tabWidget.addTab(self.tab_view, "")
         self.verticalLayout.addWidget(self.tabWidget)
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
@@ -624,7 +636,7 @@ class Ui_SetupWindow(object):
         SetupWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(SetupWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(SetupWindow)
 
     def retranslateUi(self, SetupWindow):
@@ -655,12 +667,15 @@ class Ui_SetupWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_main), _translate("SetupWindow", "Main"))
         self.comboBox_freezetype.setItemText(0, _translate("SetupWindow", "Atom"))
         self.comboBox_freezetype.setItemText(1, _translate("SetupWindow", "Bond"))
+        self.comboBox_freezetype.setItemText(2, _translate("SetupWindow", "Angle"))
+        self.comboBox_freezetype.setItemText(3, _translate("SetupWindow", "Dihedral"))
         self.button_auto_freeze.setText(_translate("SetupWindow", "Auto-freeze"))
         self.button_add_from_pymol.setText(_translate("SetupWindow", "Add Pymol selected"))
         self.label.setText(_translate("SetupWindow", "Atoms in model"))
         self.label_2.setText(_translate("SetupWindow", "Atoms to freeze"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_freeze), _translate("SetupWindow", "Freeze"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_scan), _translate("SetupWindow", "Scan"))
+        self.text_preview.setPlainText(_translate("SetupWindow", "< insert preview of gaussian input file here >"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_view), _translate("SetupWindow", "Preview"))
         self.button_cancel.setText(_translate("SetupWindow", "Cancel"))
         self.button_write.setText(_translate("SetupWindow", "Write"))

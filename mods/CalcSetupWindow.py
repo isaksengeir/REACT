@@ -11,16 +11,17 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.pymol = False
         if self.react.pymol:
             self.pymol = self.react.pymol
+            self.pymol.pymol_cmd("set mouse_selection_mode, 0")
 
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
+        # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
         self.job = InputFile(parent, filepath)
         self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
         self.filename = self.filepath.split("/")[-1]
-        #TODO can we remove this dependency of doing 'state - 1' ?
-        self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
 
+        self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
 
         self.read_selected_file()
         self.fill_main_tab()
@@ -93,27 +94,32 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         g_cmd = {"Atom": "X", "Bond": "B", "Angle": "A", "Dihedral": "D"}
         atoms = ""
         for i in self.selected_indexes:
-            atoms += f"{i.row()} "
+            atom_index = i.row() + 1
+
+            if ".pdb" in self.filename:
+                atomnr = self.ui.list_model.item(i.row()).text().split()[1]
+            else:
+                atomnr = atom_index
             if self.pymol:
-                if ".pdb" in self.filename:
-                    atomnr = self.ui.list_model.item(i.row()).text().split()[1]
-                else:
-                    atomnr = i.row()
                 self.pymol_spheres(atomnr)
+
+            # Indepennt of pdb or not, input for gaussian will be xyz, and we must use the relative index:
+            atoms += f"{atom_index } "
 
         self.ui.list_freeze_atoms.insertItem(0, f"{g_cmd[self.ui.comboBox_freezetype.currentText()]} {atoms} {type}")
 
     def remove_freeze_atoms(self):
         """
-
+        Removes selected freeze atoms/bonds/angles/torsions
         """
-        # Get str from selection:
-        to_del = self.ui.list_freeze_atoms.currentItem().text()
-        print("To del")
+        # Get rows for selected to delete:
+        to_del = [self.ui.list_freeze_atoms.row(x) for x in self.ui.list_freeze_atoms.selectedItems()]
+        for row in to_del:
+            self.ui.list_freeze_atoms.takeItem(row)
 
     def pymol_spheres(self, atom_nr):
         """
-
+        Indicate withe spheres atoms to be frozen / modredundant
         """
         group = "state_%d" % self.react.get_current_state
         self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.filename.split('.')[0]}")
@@ -240,6 +246,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         Write all data to Inputfile object.
         # TODO how to return this object to react after closing the window?
+        # TODO reply --> just open the .com file in the current state (tab) of REACT after write?
+        # TODO on_write should probably just write whatever is in the preview window to a file.
         """
 
         self.job.filename = self.ui.lineEdit_filename.text()
@@ -249,8 +257,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.job.basis_pol1 = self.ui.comboBox_basis3.currentText()
         self.job.basis_pol2 = self.ui.comboBox_basis4.currentText()
         self.react.states[self.react.get_current_state - 1].add_instance(self.job)
-        
 
         self.close()
 
+    def closeEvent(self, event):
+        if self.pymol:
+            self.pymol.pymol_cmd("set mouse_selection_mode, 1")
 

@@ -142,6 +142,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tabWidget.tabBar().currentChanged.connect(self.pymol_view_current_state)
         self.connect_pymol_structures(connect=True)
 
+        self.pymol.pymol_cmd("group state_%d" % 1)
         self.load_all_states_pymol()
 
     def connect_pymol_structures(self, connect=True):
@@ -207,9 +208,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.pymol:
             return
 
-        for state in range(1, self.count_states + 1):
-            for filepath in self.states[state-1].get_all_gpaths:
+        for i in range(len(self.states)):
+            state = i + 1
+            for filepath in self.states[i].get_all_gpaths:
+                print(filepath)
                 self.file_to_pymol(filepath, state, set_defaults=False)
+            self.pymol.pymol_cmd(f"group state_{state}")
 
         self.pymol.set_default_rep()
 
@@ -506,6 +510,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.states = new_pointers
         self.included_files = new_included_files
+
+        # TODO this does not change states with files in pymol !
+        self.pymol.pymol_cmd("delete state_*")
+        QTimer.singleShot(100, self.load_all_states_pymol)
 
     def add_state(self):
         """

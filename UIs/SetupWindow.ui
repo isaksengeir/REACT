@@ -22,8 +22,14 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">QListWidget
+{
+border : 2px solid rgb(143, 23, 119);
+}</string>
+      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_main">
        <attribute name="title">
@@ -1002,6 +1008,16 @@ QPushButton:pressed
               <string>Bond</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>Angle</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Dihedral</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="0" column="1">
@@ -1053,6 +1069,7 @@ QPushButton:pressed
               </property>
               <property name="styleSheet">
                <string notr="true">border 2px solid rgb(143, 23, 119);
+
 </string>
               </property>
              </widget>
@@ -1258,6 +1275,15 @@ QPushButton:pressed
        <attribute name="title">
         <string>Preview</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QPlainTextEdit" name="text_preview">
+          <property name="plainText">
+           <string>&lt; insert preview of gaussian input file here &gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
