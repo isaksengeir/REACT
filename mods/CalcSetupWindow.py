@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from UIs.SetupWindow import Ui_SetupWindow
 from mods.GaussianFile import InputFile
+from mods.common_functions import atom_distance
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
@@ -12,6 +13,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.react.pymol:
             self.pymol = self.react.pymol
             self.pymol.pymol_cmd("set mouse_selection_mode, 0")
+            self.pymol.pymol_cmd("hide cartoon")
 
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
@@ -37,6 +39,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.ui.button_add_freeze.clicked.connect(self.add_freeze_atoms)
         self.ui.button_delete_freeze.clicked.connect(self.remove_freeze_atoms)
+        self.ui.button_auto_freeze.clicked.connect(self.auto_freeze_atoms)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -184,15 +187,25 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         for i in range(len(atoms)):
             self.ui.list_model.insertItem(i, atoms[i])
 
-
-        #if "pdb" in self.filepath.split(".")[-1]:
-        #    # insert pdb atoms in model atoms
-        #    for i in range(len(self.mol_obj.atoms)):
-        #        atom = self.mol_obj.atoms[i]
-        #        print(atom.get_pdb_line)
-        #        self.ui.list_model.insertItem(i, atom.get_pdb_line)
-
-
+    def auto_freeze_atoms(self):
+        """
+        Goes through PDB atoms and tries to figure out base on pdb atom names and distances what atoms
+        are terminal/chopped region atoms that should be frozen.
+        """
+        expected = ["CA", "C", "H", "N", "O"]
+        atoms = self.mol_obj.atoms
+        for atom in atoms:
+            pdb_name = atom.get_pdb_atom_name
+            if pdb_name in ["C", "N"]:
+                atoms.pop(0)
+                for next_atom in atoms:
+                    radius = atom_distance(atom.get_coordinate, next_atom.get_coordinate)
+                    if radius < 1.7:
+                        if next_atom.get_pdb_atom_name not in expected:
+                            atom_nr = next_atom.get_atom_index
+                            self.ui.list_freeze_atoms.insertItem(0, f"X {atom_nr} F")
+                            if self.pymol:
+                                self.pymol_spheres(atom_nr)
 
     def update_basis_options(self, basis):
         """
