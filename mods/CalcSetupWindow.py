@@ -23,7 +23,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
 
-        self.read_selected_file()
+        self.insert_model_atoms()
         self.fill_main_tab()
 
         self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.job.job_options))
@@ -170,24 +170,29 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis3.addItems(self.react.settings.basis_options[basis]['pol1'])
         self.ui.comboBox_basis4.addItems(self.react.settings.basis_options[basis]['pol2'])
 
-
-    def read_selected_file(self):
+    def insert_model_atoms(self):
         """
-
         :return:
         """
-        xyz = self.mol_obj.get_formatted_xyz
-        print(self.filepath)
-        if "pdb" in self.filepath.split(".")[-1]:
-            # insert pdb atoms in model atoms
-            for i in range(len(self.mol_obj.atoms)):
-                atom = self.mol_obj.atoms[i]
-                print(atom.get_pdb_line)
-                self.ui.list_model.insertItem(i, atom.get_pdb_line)
 
+        if "pdb" in self.filepath.split(".")[-1]:
+            atoms = self.mol_obj.formatted_pdb
         else:
-            # insert xyz atoms in model atoms
             self.ui.button_auto_freeze.setEnabled(False)
+            atoms = self.mol_obj.formatted_xyz
+
+        for i in range(len(atoms)):
+            self.ui.list_model.insertItem(i, atoms[i])
+
+
+        #if "pdb" in self.filepath.split(".")[-1]:
+        #    # insert pdb atoms in model atoms
+        #    for i in range(len(self.mol_obj.atoms)):
+        #        atom = self.mol_obj.atoms[i]
+        #        print(atom.get_pdb_line)
+        #        self.ui.list_model.insertItem(i, atom.get_pdb_line)
+
+
 
     def update_basis_options(self, basis):
         """

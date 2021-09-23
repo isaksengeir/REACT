@@ -653,6 +653,7 @@ class OutputFile(GaussianFile):
             freq = True
         return freq
 
+
     def get_formatted_xyz(self):
         atoms = self.coordinates[-1]
         gmolecule = GaussianMolecule(g_atoms=atoms)

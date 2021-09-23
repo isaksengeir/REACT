@@ -31,21 +31,13 @@ class Molecule:
         molecule_xyz = list()
 
         for i in sorted(self.molecule.keys()):
-            xyz_line = " %15s%14.8f%14.8f%14.8f" % (self.molecule[i].get_atom_name.ljust(15),
-                                                    self.molecule[i].get_x, self.molecule[i].get_y,
-                                                    self.molecule[i].get_z)
-
-            molecule_xyz.append(xyz_line)
+            molecule_xyz.append(self.molecule[i].formatted_xyz)
 
         return molecule_xyz
 
     @property
     def get_atom_count(self):
         return len(self.atoms)
-
-    #def get_atom_index(self, index=None):
-    #    for atom in self.molecule:
-
 
 
 class XYZFile(Molecule):
@@ -115,6 +107,13 @@ class PDBFile(XYZFile):
                 if line.startswith("ATOM") or line.startswith("HETATM"):
                     atoms.append(PDBAtom(line))
         return atoms
+
+    @property
+    def formatted_pdb(self):
+        pdb_list = list()
+        for i in sorted(self.molecule.keys()):
+            pdb_list.append(self.molecule[i].get_pdb_line)
+        return pdb_list
 
 
 

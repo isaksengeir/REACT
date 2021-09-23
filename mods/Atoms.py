@@ -52,6 +52,10 @@ class Atom:
         return coordinates
 
     @property
+    def formatted_xyz(self):
+        return " %15s%14.8f%14.8f%14.8f" % (self.atomname.ljust(15), self.x, self.y, self.z)
+
+    @property
     def get_atom_name(self):
         return self.atomname
 
