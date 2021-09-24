@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SetupWindow(object):
     def setupUi(self, SetupWindow):
         SetupWindow.setObjectName("SetupWindow")
-        SetupWindow.resize(624, 645)
+        SetupWindow.resize(692, 645)
         font = QtGui.QFont()
         font.setPointSize(13)
         SetupWindow.setFont(font)
@@ -24,6 +24,11 @@ class Ui_SetupWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setStyleSheet("QListWidget\n"
+"{\n"
+"border : 2px solid rgb(143, 23, 119);\n"
+"}\n"
+"\n"
+"QPlainTextEdit\n"
 "{\n"
 "border : 2px solid rgb(143, 23, 119);\n"
 "}")
@@ -466,8 +471,10 @@ class Ui_SetupWindow(object):
         self.tabWidget.addTab(self.tab_main, "")
         self.tab_freeze = QtWidgets.QWidget()
         self.tab_freeze.setObjectName("tab_freeze")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.tab_freeze)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_11 = QtWidgets.QHBoxLayout(self.tab_freeze)
+        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
+        self.gridLayout_11 = QtWidgets.QGridLayout()
+        self.gridLayout_11.setObjectName("gridLayout_11")
         self.gridLayout_6 = QtWidgets.QGridLayout()
         self.gridLayout_6.setObjectName("gridLayout_6")
         self.comboBox_freezetype = QtWidgets.QComboBox(self.tab_freeze)
@@ -483,18 +490,20 @@ class Ui_SetupWindow(object):
         self.button_add_from_pymol = QtWidgets.QPushButton(self.tab_freeze)
         self.button_add_from_pymol.setObjectName("button_add_from_pymol")
         self.gridLayout_6.addWidget(self.button_add_from_pymol, 0, 2, 1, 1)
-        self.verticalLayout_2.addLayout(self.gridLayout_6)
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout_6.addItem(spacerItem4, 0, 3, 1, 1)
+        self.gridLayout_11.addLayout(self.gridLayout_6, 0, 0, 1, 1)
         self.gridLayout_5 = QtWidgets.QGridLayout()
         self.gridLayout_5.setObjectName("gridLayout_5")
-        self.gridLayout_2 = QtWidgets.QGridLayout()
-        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout_4 = QtWidgets.QGridLayout()
+        self.gridLayout_4.setObjectName("gridLayout_4")
         self.label = QtWidgets.QLabel(self.tab_freeze)
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.label, 0, 0, 1, 1)
         self.list_model = QtWidgets.QListWidget(self.tab_freeze)
         self.list_model.setMinimumSize(QtCore.QSize(300, 0))
         font = QtGui.QFont()
@@ -505,32 +514,10 @@ class Ui_SetupWindow(object):
 "\n"
 "")
         self.list_model.setObjectName("list_model")
-        self.gridLayout_2.addWidget(self.list_model, 1, 0, 1, 1)
-        self.gridLayout_5.addLayout(self.gridLayout_2, 0, 0, 3, 1)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_5.addItem(spacerItem4, 0, 1, 1, 1)
-        self.gridLayout_3 = QtWidgets.QGridLayout()
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.label_2 = QtWidgets.QLabel(self.tab_freeze)
-        font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_2.setFont(font)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout_3.addWidget(self.label_2, 0, 0, 1, 1)
-        self.list_freeze_atoms = QtWidgets.QListWidget(self.tab_freeze)
-        self.list_freeze_atoms.setMinimumSize(QtCore.QSize(150, 0))
-        self.list_freeze_atoms.setMaximumSize(QtCore.QSize(150, 16777215))
-        font = QtGui.QFont()
-        font.setFamily("Courier")
-        font.setPointSize(11)
-        self.list_freeze_atoms.setFont(font)
-        self.list_freeze_atoms.setStyleSheet("border 2px solid rgb(143, 23, 119)")
-        self.list_freeze_atoms.setObjectName("list_freeze_atoms")
-        self.gridLayout_3.addWidget(self.list_freeze_atoms, 1, 0, 1, 1)
-        self.gridLayout_5.addLayout(self.gridLayout_3, 0, 2, 3, 1)
-        self.gridLayout_4 = QtWidgets.QGridLayout()
-        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.gridLayout_4.addWidget(self.list_model, 1, 0, 1, 1)
+        self.gridLayout_5.addLayout(self.gridLayout_4, 0, 0, 2, 1)
+        self.gridLayout_2 = QtWidgets.QGridLayout()
+        self.gridLayout_2.setObjectName("gridLayout_2")
         self.button_add_freeze = QtWidgets.QPushButton(self.tab_freeze)
         self.button_add_freeze.setMinimumSize(QtCore.QSize(24, 24))
         self.button_add_freeze.setMaximumSize(QtCore.QSize(24, 24))
@@ -562,7 +549,9 @@ class Ui_SetupWindow(object):
         self.button_add_freeze.setIconSize(QtCore.QSize(24, 24))
         self.button_add_freeze.setFlat(True)
         self.button_add_freeze.setObjectName("button_add_freeze")
-        self.gridLayout_4.addWidget(self.button_add_freeze, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.button_add_freeze, 2, 0, 1, 1)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem5, 4, 0, 1, 1)
         self.button_delete_freeze = QtWidgets.QPushButton(self.tab_freeze)
         self.button_delete_freeze.setMinimumSize(QtCore.QSize(24, 24))
         self.button_delete_freeze.setMaximumSize(QtCore.QSize(24, 24))
@@ -594,15 +583,164 @@ class Ui_SetupWindow(object):
         self.button_delete_freeze.setIconSize(QtCore.QSize(24, 24))
         self.button_delete_freeze.setFlat(True)
         self.button_delete_freeze.setObjectName("button_delete_freeze")
-        self.gridLayout_4.addWidget(self.button_delete_freeze, 1, 0, 1, 1)
-        self.gridLayout_5.addLayout(self.gridLayout_4, 1, 1, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_5.addItem(spacerItem5, 2, 1, 1, 1)
-        self.verticalLayout_2.addLayout(self.gridLayout_5)
+        self.gridLayout_2.addWidget(self.button_delete_freeze, 3, 0, 1, 1)
+        self.list_freeze_atoms = QtWidgets.QListWidget(self.tab_freeze)
+        self.list_freeze_atoms.setMinimumSize(QtCore.QSize(150, 0))
+        self.list_freeze_atoms.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        font = QtGui.QFont()
+        font.setFamily("Courier")
+        font.setPointSize(11)
+        self.list_freeze_atoms.setFont(font)
+        self.list_freeze_atoms.setStyleSheet("border 2px solid rgb(143, 23, 119)")
+        self.list_freeze_atoms.setObjectName("list_freeze_atoms")
+        self.gridLayout_2.addWidget(self.list_freeze_atoms, 1, 1, 4, 1)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem6, 0, 0, 2, 1)
+        self.label_2 = QtWidgets.QLabel(self.tab_freeze)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_2.setFont(font)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_2.addWidget(self.label_2, 0, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.gridLayout_5.addLayout(self.gridLayout_2, 0, 1, 1, 1)
+        self.gridLayout_3 = QtWidgets.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        spacerItem7 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_3.addItem(spacerItem7, 0, 0, 3, 1)
+        self.label_8 = QtWidgets.QLabel(self.tab_freeze)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_8.setFont(font)
+        self.label_8.setObjectName("label_8")
+        self.gridLayout_3.addWidget(self.label_8, 0, 2, 1, 1, QtCore.Qt.AlignHCenter)
+        self.spinbox_radius = QtWidgets.QDoubleSpinBox(self.tab_freeze)
+        self.spinbox_radius.setDecimals(2)
+        self.spinbox_radius.setMinimum(-99.0)
+        self.spinbox_radius.setMaximum(99.0)
+        self.spinbox_radius.setSingleStep(0.1)
+        self.spinbox_radius.setProperty("value", 1.0)
+        self.spinbox_radius.setObjectName("spinbox_radius")
+        self.gridLayout_3.addWidget(self.spinbox_radius, 1, 1, 1, 1)
+        self.spinbox_scan_pm = QtWidgets.QDoubleSpinBox(self.tab_freeze)
+        self.spinbox_scan_pm.setDecimals(2)
+        self.spinbox_scan_pm.setMinimum(-99.0)
+        self.spinbox_scan_pm.setMaximum(99.0)
+        self.spinbox_scan_pm.setSingleStep(0.1)
+        self.spinbox_scan_pm.setProperty("value", 1.0)
+        self.spinbox_scan_pm.setObjectName("spinbox_scan_pm")
+        self.gridLayout_3.addWidget(self.spinbox_scan_pm, 1, 2, 1, 1)
+        self.spinbox_scan_increment = QtWidgets.QDoubleSpinBox(self.tab_freeze)
+        self.spinbox_scan_increment.setDecimals(2)
+        self.spinbox_scan_increment.setMinimum(-99.0)
+        self.spinbox_scan_increment.setMaximum(99.0)
+        self.spinbox_scan_increment.setSingleStep(0.1)
+        self.spinbox_scan_increment.setProperty("value", 0.1)
+        self.spinbox_scan_increment.setObjectName("spinbox_scan_increment")
+        self.gridLayout_3.addWidget(self.spinbox_scan_increment, 1, 3, 1, 1)
+        self.label_9 = QtWidgets.QLabel(self.tab_freeze)
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_9.setFont(font)
+        self.label_9.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_9.setObjectName("label_9")
+        self.gridLayout_3.addWidget(self.label_9, 2, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_10 = QtWidgets.QLabel(self.tab_freeze)
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_10.setFont(font)
+        self.label_10.setObjectName("label_10")
+        self.gridLayout_3.addWidget(self.label_10, 2, 2, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_11 = QtWidgets.QLabel(self.tab_freeze)
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_11.setFont(font)
+        self.label_11.setObjectName("label_11")
+        self.gridLayout_3.addWidget(self.label_11, 2, 3, 1, 1, QtCore.Qt.AlignHCenter)
+        self.button_add_scan = QtWidgets.QPushButton(self.tab_freeze)
+        self.button_add_scan.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_add_scan.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_add_scan.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
+        self.button_add_scan.setText("")
+        self.button_add_scan.setIcon(icon)
+        self.button_add_scan.setIconSize(QtCore.QSize(24, 24))
+        self.button_add_scan.setFlat(True)
+        self.button_add_scan.setObjectName("button_add_scan")
+        self.gridLayout_3.addWidget(self.button_add_scan, 3, 0, 1, 1)
+        self.list_freeze_atoms_2 = QtWidgets.QListWidget(self.tab_freeze)
+        self.list_freeze_atoms_2.setMinimumSize(QtCore.QSize(150, 0))
+        self.list_freeze_atoms_2.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        font = QtGui.QFont()
+        font.setFamily("Courier")
+        font.setPointSize(11)
+        self.list_freeze_atoms_2.setFont(font)
+        self.list_freeze_atoms_2.setStyleSheet("border 2px solid rgb(143, 23, 119)")
+        self.list_freeze_atoms_2.setObjectName("list_freeze_atoms_2")
+        self.gridLayout_3.addWidget(self.list_freeze_atoms_2, 3, 1, 3, 3)
+        self.button_delete_scan = QtWidgets.QPushButton(self.tab_freeze)
+        self.button_delete_scan.setMinimumSize(QtCore.QSize(24, 24))
+        self.button_delete_scan.setMaximumSize(QtCore.QSize(24, 24))
+        self.button_delete_scan.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(143, 23, 119);\n"
+"      color: white;\n"
+"\n"
+"}\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color:rgb(143, 23, 119);\n"
+"\n"
+"    border-style: outset;\n"
+"    border-width: 0px;\n"
+"    border-radius:10px;\n"
+"\n"
+"    \n"
+"    /*border-color: rgb(12, 103, 213);*/\n"
+"}\n"
+"QPushButton:pressed\n"
+"{\n"
+"       /*background-color:rgb(17, 145, 255);\n"
+"    color: black*/\n"
+"    background-color: rgb(42, 42, 42);\n"
+"}")
+        self.button_delete_scan.setText("")
+        self.button_delete_scan.setIcon(icon1)
+        self.button_delete_scan.setIconSize(QtCore.QSize(24, 24))
+        self.button_delete_scan.setFlat(True)
+        self.button_delete_scan.setObjectName("button_delete_scan")
+        self.gridLayout_3.addWidget(self.button_delete_scan, 4, 0, 1, 1)
+        spacerItem8 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_3.addItem(spacerItem8, 5, 0, 1, 1)
+        self.gridLayout_5.addLayout(self.gridLayout_3, 1, 1, 1, 1)
+        self.gridLayout_11.addLayout(self.gridLayout_5, 1, 0, 1, 1)
+        self.horizontalLayout_11.addLayout(self.gridLayout_11)
         self.tabWidget.addTab(self.tab_freeze, "")
-        self.tab_scan = QtWidgets.QWidget()
-        self.tab_scan.setObjectName("tab_scan")
-        self.tabWidget.addTab(self.tab_scan, "")
         self.tab_view = QtWidgets.QWidget()
         self.tab_view.setObjectName("tab_view")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.tab_view)
@@ -670,11 +808,14 @@ class Ui_SetupWindow(object):
         self.comboBox_freezetype.setItemText(2, _translate("SetupWindow", "Angle"))
         self.comboBox_freezetype.setItemText(3, _translate("SetupWindow", "Dihedral"))
         self.button_auto_freeze.setText(_translate("SetupWindow", "Auto-freeze"))
-        self.button_add_from_pymol.setText(_translate("SetupWindow", "Add Pymol selected"))
+        self.button_add_from_pymol.setText(_translate("SetupWindow", "Get Pymol selected"))
         self.label.setText(_translate("SetupWindow", "Atoms in model"))
         self.label_2.setText(_translate("SetupWindow", "Atoms to freeze"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_freeze), _translate("SetupWindow", "Freeze"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_scan), _translate("SetupWindow", "Scan"))
+        self.label_8.setText(_translate("SetupWindow", "Scan (bond)"))
+        self.label_9.setText(_translate("SetupWindow", "R (Å)"))
+        self.label_10.setText(_translate("SetupWindow", "+/-"))
+        self.label_11.setText(_translate("SetupWindow", "Increment"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_freeze), _translate("SetupWindow", "ModRedundant"))
         self.text_preview.setPlainText(_translate("SetupWindow", "< insert preview of gaussian input file here >"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_view), _translate("SetupWindow", "Preview"))
         self.button_cancel.setText(_translate("SetupWindow", "Cancel"))
