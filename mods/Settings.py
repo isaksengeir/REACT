@@ -2,6 +2,8 @@ from PyQt5 import QtWidgets
 from UIs.SettingsWindow import Ui_SettingsWindow
 import os
 import json
+import copy
+import mods.common_functions as cf
 
 
 class Settings():
@@ -21,7 +23,7 @@ class Settings():
         self._basis_diff = None
         self._basis_pol1 = None
         self._basis_pol2 = None
-        self._empiricaldispersion = None
+        self._additional_keys = None
         self._job_mem = None
         self._chk = None
         self._job_options = None
@@ -85,12 +87,16 @@ class Settings():
         return self._chk
 
     @property
-    def empiricaldispersion(self):
-        return self._empiricaldispersion
+    def additional_keys(self):
+        return self._additional_keys
 
     @property
     def job_options(self):
         return self._job_options
+
+    @property
+    def basis_options(self):
+        return self._basis_options
 
     @property
     def link0_options(self):
@@ -145,13 +151,17 @@ class Settings():
     def chk(self, value):
         self._chk = value
 
-    @empiricaldispersion.setter
-    def empiricaldispersion(self, value):
-        self._empiricaldispersion = value
+    @additional_keys.setter
+    def additional_keys(self, value):
+        self._additional_keys = value
 
     @job_options.setter
     def job_options(self, value):
         self._job_options = value
+
+    @basis_options.setter
+    def basis_options(self, value):
+        self._basis_options = value
 
     @link0_options.setter
     def link0_options(self, value):
@@ -170,12 +180,12 @@ class Settings():
         self.basis_diff = None
         self.basis_pol1 = "d"
         self.basis_pol2 = "p"
-        self.empiricaldispersion = "gd3"
+        self.additional_keys = ["empiricaldispersion=gd3"]
         self.job_mem = 6
         self.chk = True
         self.schk = False
         self.oldchk = False
-        self.job_options = {"Opt (minimum)": ["noeigentest", "calcfc"], "Opt (TS)": [], "Freq": [], "IRC": [], "IRCMax": [], "SP": []}
+        self.job_options = {"Opt": ["noeigentest", "calcfc"], "Opt (TS)": ["noeigentest", "calcfc"], "Freq": [], "IRC": [], "IRCMax": [], "Single point": []}
         self.link0_options = []
         self.basis_options = {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
                                                 '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
@@ -196,12 +206,13 @@ class Settings():
     def load_custom_settings(self, settings):
         for key in ['workdir', 'pymolpath', 'REACT_pymol', 'pymol_at_launch',
                     'UI_mode', 'functional', 'basis', 'basis_diff', 'basis_pol1'
-                    'basis_pol2', 'empiricaldispersion', 'job_mem', 'chk', 'job_options',
-                    'link0_options', 'basis_option', 'functional_options']:
+                    'basis_pol2', 'additional_keys', 'job_mem', 'chk', 'job_options',
+                    'link0_options', 'basis_options', 'functional_options']:
 
-            self._load_custom_settings(key)
+            self._load_custom_settings(settings, key)
 
     def _load_custom_settings(self, settings, key):
+
         try:
             item = settings.pop(key)
 
@@ -225,8 +236,8 @@ class Settings():
                 self.basis_pol1 = item
             if key == 'basis_pol2':
                 self.basis_pol2 = item
-            if key == 'empiricaldispersion':
-                self.empiricaldispersion = item
+            if key == 'additional_keys':
+                self.additional_keys = item
             if key == 'job_mem':
                 self.job_mem = item
             if key == 'chk':
@@ -235,8 +246,8 @@ class Settings():
                 self.job_options = item
             if key == 'link0_options':
                 self.link0_options = item
-            if key == 'basis_options':
-                self.basis_options = item
+            #if key == 'basis_options':
+            #    self.basis_options = item
             if key == 'functional_options':
                 self.functional_options = item
         except:
@@ -255,15 +266,15 @@ class Settings():
         settings['basis_diff'] = self.basis_diff
         settings['basis_pol1'] = self.basis_pol1
         settings['basis_pol2'] = self.basis_pol2
-        settings['empiricaldispersion'] = self.empiricaldispersion
+        settings['additional_keys'] = self.additional_keys
         settings['job_mem'] = self.job_mem
         settings['chk'] = self.chk
         settings['job_options'] = self.job_options
         settings['link0_options'] = self.link0_options
-        settings['basis_option'] = self.basis_options
+        settings['basis_options'] = self.basis_options
         settings['functional_options'] = self.functional_options
         
-        with open(self.workdir + '.custom_settings.json', 'w+') as f:
+        with open(self.workdir + '/.custom_settings.json', 'w+') as f:
             json.dump(settings, f)
 
 
@@ -278,62 +289,15 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.settings = parent.settings
         self.ui = Ui_SettingsWindow()
         self.ui.setupUi(self)
-        
-    #    self.DFT_options = {'functional': ['B3LYP', 'rB3LYP', 'M062X'],
-    #                        'basis': {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
-    #                                      '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
-    #                                      '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
-    #                                      '6-31G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-    #                                                'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-    #                                                'diff': ['', '+', '++']},
-    #                                      '6-311G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-    #                                                 'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-    #                                                 'diff': ['', '+', '++']},
-    #                                      'D95': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
-    #                                              'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
-    #                                              'diff': ['', '+', '++']}
-    #                                       }
-    #                        }
-#
-        # Copy current setings from REACT. This variable will be modified
-        # when the user makes changes to settings. On save, this variable
-        # will replace the original settings variable beloning to REACT.
-        # Some of the values in this variable may be None or False, else, 
-        # It should look like this:
-        #
-        # self.settings = {"workdir": os.getcwd(),
-        #                  "DFT": {"functional": "B3LYP",
-        #                  "basis": ("6-31G", {"pol1": "d", "pol2": 'p', "diff": None}),
-        #                  "additional keys": ["empiricaldispersion=gd3"],
-        #                  "link 0"        : [],
-        #                  "job keys"      : {"Opt (minimum)": ["noeigentest", "calcfc"], "Opt (TS)": [], "Freq": [], "IRC": [], "IRCMax": [], "SP": []},
-        #                  "user"    : {"functional": [], "basis": {}}}, 
-        #                  "pymolpath": None,
-        #                  "REACT pymol" : True,
-        #                  "pymol at launch": True,
-        #                  "Ui": 1
-        #                  }
-        #self.settings = copy.deepcopy(parent.settings)
 
         # fill functional and basis set comboboxes
-        self.ui.comboBox_funct.addItems(self.settings.functional_options)
-        self.ui.basis1_comboBox_3.addItems([x for x in self.settings.basis_options])
-        self.ui.job_type_comboBox.addItems(["Opt (minimum)", "Opt (TS)", "Freq", "IRC", "IRCMax", "SP"])
+        try:
+            self.add_items_to_window()
+        except:
+            self.settings.set_default_settings()
+            self.add_items_to_window()
 
-        # Read current settings, set window accordingly
-
-        self.ui.comboBox_funct.setCurrentText(self.settings.functional)
-        self.ui.basis1_comboBox_3.setCurrentText(self.settings.basis)
-        # update polarization and diffuse boxes, based on current basis
-        self.update_basis_options(self.settings.basis)
-        #set current pol and diff functions
-        self.ui.basis2_comboBox_4.setCurrentText(self.settings.basis_diff)
-        self.ui.basis3_comboBox_6.setCurrentText(self.settings.basis_pol1)
-        self.ui.basis4_comboBox_5.setCurrentText(self.settings.basis_pol2)
-        # Add all additional keys to appropriate QlistWidget
-        #self.ui.add_DFT_list_1.addItems(self.settings["DFT"]["additional keys"])
-        #self.ui.add_DFT_list_2.addItems(self.settings["DFT"]["link 0"])
-        #self.ui.add_DFT_list_3.addItems(self.settings["DFT"]["job keys"]["Opt (minimum)"])
+        self.job_options = copy.deepcopy(self.settings.job_options)
 
         self.ui.cwd_lineEdit.setText(self.settings.workdir)
 
@@ -342,6 +306,9 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
 
         if self.settings.pymol_at_launch:
             self.ui.open_pymol_checkBox.setChecked(True)
+
+        if self.settings.REACT_pymol:
+            self.ui.checkBox.setChecked(True)
 
         if self.settings.UI_mode == 1:
             self.ui.dark_button.setChecked(True)
@@ -368,8 +335,25 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.job_type_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.job_type_comboBox, "job type"))
         self.ui.change_cwd_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.cwd_lineEdit, "Select working directory"))
         self.ui.change_pymol_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.pymol_lineEdit_2,"select PyMOL path"))
-        #self.ui.checkBox.stateChanged.connect(lambda: self.check_box_update(self.ui.checkBox, "REACT pymol"))
-        #self.ui.open_pymol_checkBox.stateChanged.connect(lambda: self.check_box_update(self.ui.open_pymol_checkBox, "pymol at launch"))
+
+    def add_items_to_window(self):
+
+        self.ui.comboBox_funct.addItems(self.settings.functional_options)
+        self.ui.basis1_comboBox_3.addItems([x for x in self.settings.basis_options])
+        self.ui.job_type_comboBox.addItems(["Opt", "Opt (TS)", "Freq", "IRC", "IRCMax", "Single point"])
+
+        self.ui.comboBox_funct.setCurrentText(self.settings.functional)
+        self.ui.basis1_comboBox_3.setCurrentText(self.settings.basis)
+
+        self.update_basis_options(self.settings.basis)
+
+        self.ui.basis2_comboBox_4.setCurrentText(self.settings.basis_diff)
+        self.ui.basis3_comboBox_6.setCurrentText(self.settings.basis_pol1)
+        self.ui.basis4_comboBox_5.setCurrentText(self.settings.basis_pol2)
+
+        self.ui.add_DFT_list_1.addItems(self.settings.additional_keys)
+        self.ui.add_DFT_list_2.addItems(self.settings.link0_options)
+        self.ui.add_DFT_list_3.addItems(self.settings.job_options[self.ui.job_type_comboBox.currentText()])
 
     def new_path_from_dialog(self, textwidget, title_):
         """
@@ -378,10 +362,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         """
 
         new_dir = QtWidgets.QFileDialog.getExistingDirectory(self, title_, self.settings.workdir, options=QtWidgets.QFileDialog.DontUseNativeDialog)
-        
-        # use this instead for native QfileDialog
-        # files_, files_type = QtWidgets.QFileDialog.getOpenFileName(self, title_, self.settings["workdir"], "PyMOL app (*.app)",options=QtWidgets.QFileDialog.DontUseNativeDialog)
-                                                                
+                                               
         if new_dir:
             textwidget.setText(new_dir)
 
@@ -403,7 +384,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
 
         if key == "job type":
             self.ui.add_DFT_list_3.clear()
-            self.ui.add_DFT_list_3.addItems(self.settings.job_options[text])
+            self.ui.add_DFT_list_3.addItems(self.job_options[text])
     
         if key == "functional":
             if text not in self.settings.functional_options:
@@ -436,17 +417,19 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         """
 
         user_input = Qtextinput.text()
-        Qlist.addItem(user_input)
 
-        #if Qlist == self.ui.add_DFT_list_3:
-        #    job_type = self.ui.job_type_comboBox.currentText()
-        #    item_list = self.settings["DFT"]["job keys"][job_type]
-        #else:
-        #    item_list = self.settings["DFT"][DFT_key]
+        all_values_in_list = []
 
-        #if user_input and user_input not in item_list:
-        #    item_list.append(user_input)
-        #    Qlist.addItem(user_input)
+        for i in range(Qlist.count()):
+            item = Qlist.item(i).text()
+            all_values_in_list.append(item)
+       
+        if user_input not in all_values_in_list: 
+            Qlist.addItem(user_input)
+
+        if DFT_key == "job keys":
+            job_type = self.ui.job_type_comboBox.currentText()
+            self.job_options[job_type].append(user_input)
 
     def del_item_from_list(self, Qlist, DFT_key):
         """
@@ -454,18 +437,18 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         :param DFT_key: str: key to access correct variable in self.settings
         Removes item in QlistWdiget and updates self.settings accordingly.
         """
-        item_text = Qlist.currentItem().text()
+
+        item = Qlist.currentItem().text()
         Qlist.takeItem(Qlist.currentRow())
+        
+        if DFT_key == "job keys":
+            job_type = self.ui.job_type_comboBox.currentText()
+            try:
+                self.job_options[job_type].remove(item)
+            except ValueError:
+                pass
 
-        #if Qlist == self.ui.add_DFT_list_3:
-        #    job_type = self.ui.job_type_comboBox.currentText()
-        #    item_list = self.settings["DFT"]["job keys"][job_type]
-        #else:
-        #    item_list = self.settings["DFT"][DFT_key]  
 
-        #if item_text in item_list:
-        #    item_list.remove(item_text)
-        #Qlist.takeItem(Qlist.currentRow())
 
 
     def update_basis_options(self, basis):
@@ -474,7 +457,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         Updates polarization and diffuse functions avail for basis set
         """
 
-        #self.block_all_combo_signals(True)
+        self.block_all_combo_signals(True)
 
         self.ui.basis2_comboBox_4.clear()
         self.ui.basis3_comboBox_6.clear()
@@ -484,42 +467,8 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.basis3_comboBox_6.addItems(self.settings.basis_options[basis]['pol1'])
         self.ui.basis4_comboBox_5.addItems(self.settings.basis_options[basis]['pol2'])
 
-        #self.block_all_combo_signals(False)
+        self.block_all_combo_signals(False)
 
-        #if basis in self.settings["DFT"]["user"]["basis"] and\
-        #   basis in self.DFT_options["basis"]:
-        #    # in case basis is in both, merge diff and pol options
-        #    basis_options = {"diff": [], "pol1": [], "pol2": []}
-#
-        #    for key in ["diff", "pol1", "pol2"]:
-#
-        #        temp = self.DFT_options['basis'][basis][key]
-        #        basis_options[key].extend(temp)
-#
-        #        temp = self.settings["DFT"]["user"]["basis"][basis][key]
-        #        basis_options[key].extend(temp)
-#
-        #        # removes any duplicates in list
-        #        basis_options[key] = list(set(basis_options[key]))
-#
-        #elif basis in self.DFT_options['basis']:
-        #    basis_options = self.DFT_options['basis'][basis]
-        #elif basis in self.settings["DFT"]["user"]["basis"]:
-        #    basis_options = self.settings["DFT"]["user"]["basis"][basis]
-        #else:
-        #    self.react.append_text('Basis set is unknown to REACT. Add polarization and diffuse functions as needed.')
-        #    return
-#
-        #for item in basis_options.items():
-        #    if item[0] == "diff":
-        #        if item[1]:
-        #            self.ui.basis2_comboBox_4.addItems(item[1])
-        #    if item[0] == "pol1":
-        #        if item[1]:
-        #            self.ui.basis3_comboBox_6.addItems(item[1])
-        #    if item[0] == "pol2":
-        #        if item[1]:
-        #            self.ui.basis4_comboBox_5.addItems(item[1])
 
 
 
@@ -532,13 +481,43 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.basis4_comboBox_5.blockSignals(bool_) 
 
     def save_settings(self):
-        #self.settings["workdir"] = self.ui.cwd_lineEdit.text()
-        #self.settings["pymolpath"] = self.ui.pymol_lineEdit_2.text()
         
+        self.settings.functional = self.ui.comboBox_funct.currentText()
+        self.settings.basis = self.ui.basis1_comboBox_3.currentText()
+        self.settings.basis_diff = self.ui.basis2_comboBox_4.currentText()
+        self.settings.basis_pol1 = self.ui.basis3_comboBox_6.currentText()
+        self.settings.basis_pol2 = self.ui.basis4_comboBox_5.currentText()
+        self.settings.additional_keys = [self.ui.add_DFT_list_1.item(x).text() for x in range(self.ui.add_DFT_list_1.count())]
+        self.settings.job_options = copy.deepcopy(self.job_options)
+        self.settings.link0_options = [self.ui.add_DFT_list_2.item(x).text() for x in range(self.ui.add_DFT_list_2.count())]
+
+        if os.path.exists(self.ui.cwd_lineEdit.text()):
+            self.settings.workdir = self.ui.cwd_lineEdit.text()
+        else:
+            #TODO promt errormessage on screen
+            pass
+
+        if os.path.exists(self.ui.pymol_lineEdit_2.text()):
+            self.settings.pymolpath = self.ui.pymol_lineEdit_2.text()
+        else:
+            pass
+            #TODO promt errormessage on screen
+
+        if self.ui.checkBox.isChecked():
+            self.settings.REACT_pymol = True
+        else:
+            self.settings.REACT_pymol = False
+        
+        if self.ui.open_pymol_checkBox.isChecked():
+            self.settings.pymol_at_launch = True
+        else:
+            self.settings.pymol_at_launch = False
+
+        self.settings.save_custom_settings()
 
         self.close()
 
-    
+ 
     def switch_Ui_colormode(self, color):
         """
         Switch Ui colormode. Darkmode: color = 1, lightmode: color = 0 
