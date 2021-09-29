@@ -57,6 +57,9 @@ border: None;
 QLineEdit::hover {
 border: 1px solid rgb(143,23,119);
 }
+QLineEdit::!enabled {
+background-color: rgb(40,40,40);
+}
 
 QRadioButton{
 color: rgb(98, 114, 164);
@@ -182,7 +185,10 @@ QPushButton:pressed
 	color: rgb(143, 23, 119);
 	background-color: rgb(20, 20, 20);
 }
-
+QPushButton:!enabled
+{
+	color: rgb(20, 20, 20);
+}
 QTableWidget QFrame{
 border: None;
 }

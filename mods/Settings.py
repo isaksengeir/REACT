@@ -312,6 +312,9 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         
         if self.settings.REACT_pymol:
             self.ui.checkBox.setChecked(True)
+            self.ui.pymol_lineEdit_2.setDisabled(True)
+            self.ui.change_pymol_button.setDisabled(True)
+
 
         if self.settings.UI_mode == 1:
             self.ui.dark_button.setChecked(True)
@@ -338,6 +341,14 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.job_type_comboBox.textActivated.connect(lambda: self.combobox_update(self.ui.job_type_comboBox, "job type"))
         self.ui.change_cwd_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.cwd_lineEdit, "Select working directory"))
         self.ui.change_pymol_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.pymol_lineEdit_2,"select PyMOL path"))
+        self.ui.checkBox.clicked.connect(self.on_pymolpath_checkbox_change)
+
+    def on_pymolpath_checkbox_change(self):
+
+        state = self.ui.checkBox.isChecked()
+
+        self.ui.pymol_lineEdit_2.setDisabled(state)
+        self.ui.change_pymol_button.setDisabled(state)
 
     def add_items_to_window(self):
 
@@ -500,16 +511,15 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
             #TODO promt errormessage on screen
             pass
 
-        if os.path.exists(self.ui.pymol_lineEdit_2.text()):
-            self.settings.pymolpath = self.ui.pymol_lineEdit_2.text()
-        else:
-            pass
-            #TODO promt errormessage on screen
-
         if self.ui.checkBox.isChecked():
             self.settings.REACT_pymol = True
         else:
             self.settings.REACT_pymol = False
+            if os.path.exists(self.ui.pymol_lineEdit_2.text()):
+                self.settings.pymolpath = self.ui.pymol_lineEdit_2.text()
+            else:
+                pass
+                #TODO promt errormessage on screen: pymol path not found. Sure you dont want to use integrated pymol?
         
         if self.ui.open_pymol_checkBox.isChecked():
             self.settings.pymol_at_launch = True
