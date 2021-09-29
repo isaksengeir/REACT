@@ -603,7 +603,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.label_projectname.setText(self.proj_name.replace('.rxt', ''))
 
         with open(proj_path, 'r') as proj_file:
-            proj = json.load(proj_file, object_hook=cf.json_hook_int_please)
+            proj = json.load(proj_file, object_hook=cf.json_hook_int_bool_converter)
 
         for key in ['states', 'included files', 'workdir', 'log']:
             self._import_project_pop_and_assign(proj, key)

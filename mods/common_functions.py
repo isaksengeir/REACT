@@ -56,28 +56,44 @@ def is_number(s):
         return False
 
 
-def json_hook_int_please(obj):
+def json_hook_int_bool_converter(obj):
     """
     Used as object hook when calling json.load()
     Will convert a key-object of type str into type int, if possible
     """
     new_dict = {}
     for k, v in obj.items():
-        if isinstance(v,dict):
+        if isinstance(v, dict):
             new_dict_sub = {}
             for k_sub, v_sub in v.items():
-                try: 
-                    new_k_sub = int(k_sub)
-                    new_dict_sub[new_k_sub] = v[k_sub]
-                except ValueError:
-                    new_dict_sub[k] = v[k_sub]
-        try: 
-            new_k = int(k)
-            new_dict[new_k] = obj[k]
-        except ValueError:
-            new_dict[k] = obj[k]
+            
+                if v_sub == 'false':
+                    new_dict_sub[k_sub] = False
+                elif v_sub == 'true':
+                    new_dict_sub[k_sub] = True
+
+                else: 
+                    try: 
+                        new_k_sub = int(k_sub)
+                        new_dict_sub[new_k_sub] = v[k_sub]
+                    except ValueError:
+                        new_dict_sub[k] = v[k_sub]
+
+            new_dict[k] = new_dict_sub
+
+        if v == 'false':
+            new_dict[k] = False
+        elif v == 'true':
+            new_dict[k] = True
+        else:
+            try:
+                new_k = int(k)
+                new_dict[new_k] = obj[k]
+            except ValueError:
+                new_dict[k] = obj[k]
         
     return new_dict
+
 
 
 def load_json(json_path, json_hook=False):

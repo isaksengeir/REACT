@@ -33,7 +33,7 @@ class Settings():
 
         try:
             with open('.custom_settings.json', 'r') as f:
-                custom_data = json.load(f, object_hook=cf.json_hook_int_please)
+                custom_data = json.load(f, object_hook=cf.json_hook_int_bool_converter)
                 self.load_custom_settings(custom_data)
         except:
             self.set_default_settings()
@@ -205,11 +205,13 @@ class Settings():
 
     def load_custom_settings(self, settings):
         for key in ['workdir', 'pymolpath', 'REACT_pymol', 'pymol_at_launch',
-                    'UI_mode', 'functional', 'basis', 'basis_diff', 'basis_pol1'
+                    'UI_mode', 'functional', 'basis', 'basis_diff', 'basis_pol1',
                     'basis_pol2', 'additional_keys', 'job_mem', 'chk', 'job_options',
                     'link0_options', 'basis_options', 'functional_options']:
 
             self._load_custom_settings(settings, key)
+
+
 
     def _load_custom_settings(self, settings, key):
 
@@ -246,8 +248,8 @@ class Settings():
                 self.job_options = item
             if key == 'link0_options':
                 self.link0_options = item
-            #if key == 'basis_options':
-            #    self.basis_options = item
+            if key == 'basis_options':
+                self.basis_options = item
             if key == 'functional_options':
                 self.functional_options = item
         except:
@@ -291,6 +293,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         # fill functional and basis set comboboxes
+
         try:
             self.add_items_to_window()
         except:
@@ -306,7 +309,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
 
         if self.settings.pymol_at_launch:
             self.ui.open_pymol_checkBox.setChecked(True)
-
+        
         if self.settings.REACT_pymol:
             self.ui.checkBox.setChecked(True)
 
