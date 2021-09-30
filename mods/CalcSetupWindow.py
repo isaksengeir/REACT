@@ -40,10 +40,16 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_add_freeze.clicked.connect(self.add_freeze_atoms)
         self.ui.button_delete_freeze.clicked.connect(self.remove_freeze_atoms)
         self.ui.button_auto_freeze.clicked.connect(self.auto_freeze_atoms)
+        self.ui.button_add_scan.clicked.connect(self.add_scan_atoms)
+        self.ui.button_delete_scan.clicked.connect(self.remove_scan_atoms)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
+
+        self.ui.list_freeze_atoms.itemSelectionChanged.connect(self.freeze_list_clicked)
+
         self.atoms_to_select = 1
+        self.enable_scan(enable=False)
         self.ui.comboBox_freezetype.currentTextChanged.connect(self.change_selection_mode)
 
         # Keep track of atoms selected (for multiple selection options)
@@ -57,6 +63,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         select = {"Atom": 1, "Bond": 2, "Angle": 3, "Dihedral": 4}
         self.atoms_to_select = select[self.ui.comboBox_freezetype.currentText()]
+
+    def enable_scan(self, enable=True):
+        self.ui.button_add_scan.setEnabled(enable)
+        #self.ui.button_delete_scan.setEnabled(enable)
+        self.ui.spinbox_radius.setEnabled(enable)
+        self.ui.spinbox_scan_pm.setEnabled(enable)
+        self.ui.spinbox_scan_increment.setEnabled(enable)
 
     def model_atom_clicked(self):
         """
@@ -75,15 +88,38 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.selected_indexes = sele
 
         atoms = list()
+        coordinates = list()
         for i in self.selected_indexes:
-            if ".pdb" in self.filename:
-                #atoms.append(i.text().split()[1])
-                atoms.append(self.ui.list_model.item(i.row()).text().split()[1])
-            else:
-                atoms.append(str(i.row()+1))
+            atoms.append(self.mol_obj.molecule[i.row() + 1].get_atom_index)
+            coordinates.append(self.mol_obj.molecule[i.row() + 1].get_coordinate)
+
+        if self.ui.comboBox_freezetype.currentText() == "Bond" and len(atoms) == 2:
+            self.enable_scan(enable=True)
+            r = atom_distance(coordinates[0], coordinates[1])
+            self.ui.spinbox_radius.setValue(r)
+        else:
+            self.enable_scan(enable=False)
 
         if self.pymol:
             self.update_pymol_selection(atoms=atoms)
+
+    def freeze_list_clicked(self):
+        """
+        When entry in "Atoms to freeze" is cliced, update to selected in "Atoms in model" list and pymol
+        """
+
+
+        indexes = [int(x) - 1 for x in self.ui.list_freeze_atoms.currentItem().text().split()[1:-1]]
+
+        freeze_type = {1: "Atom", 2: "Bond", 3: "Angle", 4: "Dihedral"}
+        self.ui.comboBox_freezetype.setCurrentText(freeze_type[len(indexes)])
+
+        self.selected_indexes = indexes
+        self.ui.list_model.clearSelection()
+
+        for index in indexes:
+            self.ui.list_model.item(index).setSelected(True)
+        #self.model_atom_clicked()
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
@@ -97,17 +133,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         g_cmd = {"Atom": "X", "Bond": "B", "Angle": "A", "Dihedral": "D"}
         atoms = ""
         for i in self.selected_indexes:
-            atom_index = i.row() + 1
-
-            if ".pdb" in self.filename:
-                atomnr = self.ui.list_model.item(i.row()).text().split()[1]
-            else:
-                atomnr = atom_index
+            atomnr = self.mol_obj.molecule[i.row() + 1].get_atom_index
             if self.pymol:
                 self.pymol_spheres(atomnr)
-
-            # Indepennt of pdb or not, input for gaussian will be xyz, and we must use the relative index:
-            atoms += f"{atom_index } "
+            atoms += f"{atomnr } "
 
         self.ui.list_freeze_atoms.insertItem(0, f"{g_cmd[self.ui.comboBox_freezetype.currentText()]} {atoms} {type}")
 
@@ -120,6 +149,24 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         for row in to_del:
             self.ui.list_freeze_atoms.takeItem(row)
 
+    def add_scan_atoms(self):
+        """
+        Atom pair for BSB scan atom algorithm
+        """
+        freeze = "B "
+        for i in self.selected_indexes:
+            freeze += f"{self.mol_obj.molecule[i.row() + 1].get_atom_index} "
+
+        freeze += f"{self.ui.spinbox_radius.value()} {self.ui.spinbox_scan_pm.value()} " \
+                  f"{self.ui.spinbox_scan_increment.value()}"
+        self.ui.list_freeze_atoms_2.insertItem(0, freeze)
+
+    def remove_scan_atoms(self):
+        try:
+            self.ui.list_freeze_atoms_2.takeItem(self.ui.list_freeze_atoms_2.currentRow())
+        except:
+            pass
+        
     def pymol_spheres(self, atom_nr):
         """
         Indicate withe spheres atoms to be frozen / modredundant
@@ -281,4 +328,5 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def closeEvent(self, event):
         if self.pymol:
             self.pymol.pymol_cmd("set mouse_selection_mode, 1")
+            self.pymol.pymol_cmd("hide spheres,")
 

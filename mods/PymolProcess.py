@@ -171,7 +171,7 @@ class PymolSession(QObject):
         """
         self.pymol_cmd("delete %s" % sele_name)
         sel_str = "id "
-        sel_str += " or id ".join(atoms)
+        sel_str += " or id ".join([str(x) for x in atoms])
         self.pymol_cmd("select %s, %s and %s and (%s)" % (sele_name, group, object_name, sel_str))
         self.pymol_cmd("group %s, %s" % (group, sele_name))
 
@@ -374,7 +374,6 @@ class PymolSession(QObject):
         :return:
         """
         try:
-
             self.pymol_cmd("quit")
             self.session.kill()
             self.disconnect_pymol()

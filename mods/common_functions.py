@@ -95,7 +95,6 @@ def json_hook_int_bool_converter(obj):
     return new_dict
 
 
-
 def load_json(json_path, json_hook=False):
     with open(json_path, 'r') as json_file:
         obj = json.load(json_file, object_hook=json_hook)

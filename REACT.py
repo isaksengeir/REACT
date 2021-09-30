@@ -840,6 +840,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.power:
             self.button_power_off.setIcon(QtGui.QIcon('resources/icons/power_off.png'))
             self.append_text("Powering down...", date_time=True)
+            if self.pymol:
+                self.pymol.close()
             self.power = False
             self.timer2 = QTimer()
             self.timer2.timeout.connect(lambda: self.update_progressbar(reverse=True))
@@ -849,6 +851,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.button_power_off.setIcon(QtGui.QIcon('resources/icons/power_on.png'))
             self.append_text("Powering down cancelled.")
             self.power = True
+
             self.timer2.stop()
             self.timer.start(5)
 

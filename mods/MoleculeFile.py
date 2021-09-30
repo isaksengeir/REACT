@@ -1,4 +1,3 @@
-#from mods.GaussianFile import GaussianFile
 from mods.Atoms import XYZAtom, GaussianAtom, PDBAtom
 
 
