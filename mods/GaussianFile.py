@@ -10,20 +10,14 @@ class GaussianFile(Geometries):
     # TODO rename this class ??
 
     def __init__(self, parent, filepath, molecules=None):
-
+        self._filepath = filepath
         # GaussianMolecule class controls multiple geometries
-        super().__init__(molecules=molecules, filepath=self.filepath)
+        super().__init__(molecules=molecules, filepath=filepath)
 
         self.parent = parent
         self._filename = None
-        self._filepath = filepath
+
         self._fileextension = None
-
-        #Structure
-        self._coordinates = None # TODO Molecule class
-        self._charge = None # TODO molecule object?
-        self._multiplicity = None # TODO molecule object?
-
 
         #DFT
         self._job_type = None
@@ -112,21 +106,6 @@ class GaussianFile(Geometries):
     def link0_options(self):
         return self._link0_options
 
-    @property
-    # TODO molecule object?
-    def charge(self):
-        return self._charge
-
-    @property
-    # TODO molecule object?
-    def multiplicity(self):
-        return self._multiplicity
-
-    @charge.setter
-    # TODO molecule object?
-    def charge(self, value):
-        self._charge = value
-
     @old_path.setter
     def old_path(self, value):
         self._old_path = value
@@ -134,11 +113,6 @@ class GaussianFile(Geometries):
     @fileextension.setter
     def fileextension(self, value):
         self._file_extension = value
-
-    @multiplicity.setter
-    # TODO molecule object?
-    def multiplicity(self, value):
-        self._multiplicity = value
 
     @filename.setter
     def filename(self, value):
@@ -277,10 +251,12 @@ class GaussianFile(Geometries):
 class InputFile(GaussianFile):
     def __init__(self, parent, filepath):
         molecules = self.get_coordinates()
+        self._old_path = filepath
+        # TODO overskriver ikke dette self._filepath til foreldreklassen?
+        self._filepath = None
         super().__init__(parent, filepath, molecules=molecules)
 
-        self._old_path = filepath
-        self._filepath = None
+
 
         # Initialize dictionaries TODO:
         # Job Types: Energy, Optimization, Frequency, Opt+Freq, IRC, Scan
@@ -390,7 +366,9 @@ class InputFile(GaussianFile):
 
 class OutputFile(GaussianFile):
     def __init__(self, parent, filepath):
+        self._filepath = filepath
         molecules = self.get_coordinates()
+
         super().__init__(parent, filepath, molecules=molecules)
 
         # Where to get gaussian output value from line.split(int)
@@ -436,10 +414,9 @@ class OutputFile(GaussianFile):
         self.read_gaussianfile()
         self._coordinates = self.get_coordinates()
         self._converged = self.is_converged()
-        self._final_molecule = self.get_final_molecule()
+
         self._solvent = self.has_solvent()
         self._frequencies = self.has_frequencies()
-        self._formatted_xyz = self.get_formatted_xyz()
         self._energy = self.get_energy()
 
     @property
@@ -455,20 +432,12 @@ class OutputFile(GaussianFile):
         return self.get_scf_convergence()
 
     @property
-    def final_molecule(self):
-        return self._final_molecule
-
-    @property
     def solvent(self):
         return self._solvent
 
     @property
     def frequencies(self):
         return self._frequencies
-
-    @property
-    def formatted_xyz(self):
-        return self._formatted_xyz
 
     @energy.setter
     def energy(self, value):
@@ -478,10 +447,6 @@ class OutputFile(GaussianFile):
     def converged(self, value):
         self._converged = value
 
-    @final_molecule.setter
-    def final_molecule(self, value):
-        self._final_molecule = value
-
     @solvent.setter
     def solvent(self, value):
         self._solvent = value
@@ -490,17 +455,14 @@ class OutputFile(GaussianFile):
     def frequencies(self, value):
         self._frequencies = value
 
-    @formatted_xyz.setter
-    def formatted_xyz(self, value):
-        self._formatted_xyz = value
 
     def read_gaussianfile(self):
         """
         Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
         """
-        DFT_out = self.filepath
+        DFT_out = self._filepath
 
-        print(f'in read_gaussian, this is path={self.filepath}')
+        print(f'in read_gaussian, this is path={self._filepath}')
 
         # found_all_jobdetails = False 
 

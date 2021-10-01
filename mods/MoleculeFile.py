@@ -10,15 +10,39 @@ class Molecule:
         self._molecule = dict()
         if atoms:
             if isinstance(atoms, dict):
-                self._molecule = self.atoms
-                self.atoms = self.atoms.values()
+                self._molecule = atoms
+                self._atoms = self.atoms.values()
             else:
-                self.atoms = atoms
+                self._atoms = atoms
                 self.make_molecule()
+
+        # Properties
+        self._charge = None
+        self._multiplicity = None
 
     def make_molecule(self):
         for i in range(len(self.atoms)):
             self._molecule[i+1] = self.atoms[i]
+
+    @property
+    def charge(self):
+        return self._charge
+
+    @charge.setter
+    def charge(self, value):
+        self._charge = value
+
+    @property
+    def multiplicity(self):
+        return self._multiplicity
+
+    @multiplicity.setter
+    def multiplicity(self, value):
+        self._multiplicity = value
+
+    @property
+    def atoms(self):
+        return self._atoms
 
     @property
     def molecule(self):
@@ -54,13 +78,13 @@ class XYZFile(Molecule):
         # Atoms = list(Atom)
         if atoms:
             # List of Atom objects
-            self.atoms = atoms
+            self._atoms = atoms
 
-        if filepath:
+        if not atoms and filepath:
             self._filepath = filepath
-            self.atoms = self.read_xyz()
+            self._atoms = self.read_xyz()
 
-        super(XYZFile, self).__init__(atoms=self.atoms)
+        super(XYZFile, self).__init__(atoms=self._atoms)
 
     def read_xyz(self):
         """

@@ -19,7 +19,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.setupUi(self)
         # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
-        self.job = InputFile(parent, filepath)
+        #self.job = InputFile(parent, filepath)
         self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
         self.filename = self.filepath.split("/")[-1]
 
@@ -119,7 +119,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         for index in indexes:
             self.ui.list_model.item(index).setSelected(True)
-        #self.model_atom_clicked()
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
