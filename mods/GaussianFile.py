@@ -695,8 +695,8 @@ class FrequenciesOut(OutputFile):
         :param steps: number of structures to create
         :return: list of gaussian molecules, where the first is the original optimised molecules.
         """
-        molecule = self.final_molecule.get_molecule
-        displacement = self.get_displacement(freq).get_molecule
+        molecule = self.molecule
+        displacement = self.get_displacement(freq).molecule
 
         molecules = list()
         molecules.append(molecule)

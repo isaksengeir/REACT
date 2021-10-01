@@ -65,6 +65,10 @@ class Molecule:
     def molecule(self, value):
         self._molecule = value
 
+    @atoms.setter
+    def atoms(self, value):
+        self._atoms = value
+
     def convert_to_pdb(self):
         """
         Create PDB file from XYZ file
@@ -112,11 +116,11 @@ class XYZFile(Molecule):
 class PDBFile(XYZFile):
     def __init__(self, pdb_atoms=None, filepath=None):
         if filepath:
-            self.atoms = self.read_pdb(filepath)
+            self._atoms = self.read_pdb(filepath)
         elif pdb_atoms:
-            self.atoms = pdb_atoms
+            self._atoms = pdb_atoms
 
-        super().__init__(atoms=self.atoms)
+        super().__init__(atoms=self._atoms)
 
     def read_pdb(self, filepath):
         atoms = list()
@@ -142,14 +146,25 @@ class Geometries(XYZFile):
 
         # [[Atoms], [Atoms],... iterations SCF]
         self._molecules = molecules
+        self._iteration = -1
 
         # Init with final molecule / geometry optimization
-        super().__init__(atoms=self.final_molecule, filepath=filepath)
+        super().__init__(atoms=molecules[-1], filepath=filepath)
 
     @property
     def count_molecules(self):
         return len(self._molecules)
 
     @property
-    def final_molecule(self):
-        return self._molecules[-1]
+    def iteration(self):
+        return self._iteration
+
+    @iteration.setter
+    def iteration(self, value):
+        if abs(value) > self.count_molecules:
+            return
+        self._iteration = value
+
+        self.atoms = self._molecules[value]
+        self.make_molecule()
+
