@@ -507,8 +507,10 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
 
         if os.path.exists(self.ui.cwd_lineEdit.text()):
             self.settings.workdir = self.ui.cwd_lineEdit.text()
+            print("workpath exists")
         else:
             #TODO promt errormessage on screen
+            print("workpath dont exist??")
             pass
 
         if self.ui.checkBox.isChecked():

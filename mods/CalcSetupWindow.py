@@ -19,7 +19,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.setupUi(self)
         # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
-        self.job = InputFile(parent, filepath)
+        self.job = InputFile(parent, filepath, new_file=True)
         self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
         self.filename = self.filepath.split("/")[-1]
 

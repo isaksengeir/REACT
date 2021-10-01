@@ -262,17 +262,25 @@ class GaussianFile:
         #         for job_detail_key in self.job_details.keys():
         #             self._regEx_job_detail_search(line, job_detail_key)
 
-    def get_coordinates(self):
-        pass
-
-
 
 class InputFile(GaussianFile):
-    def __init__(self, parent, filepath):
+    def __init__(self, parent, filepath, new_file=False):
         super().__init__(parent, filepath)
 
-        self._old_path = filepath
-        self._filepath = None
+        self.parent = parent
+
+        #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
+        self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
+
+        if new_file == True:
+            self.old_file_obj = self.parent.states[self.parent.get_current_state-1].gfiles[filepath]
+            self._filepath = None
+            self.coordinates = self.old_file_obj.coordinates
+            self.charge = self.old_file_obj.charge
+            self.multiplicity = self.old_file_obj.multiplicity
+        else:
+            self._filepath = filepath
+            self.assign_coordinates_charge_multiplicity()
 
         # Initialize dictionaries TODO:
         # Job Types: Energy, Optimization, Frequency, Opt+Freq, IRC, Scan
@@ -325,16 +333,13 @@ class InputFile(GaussianFile):
         self.filepath = new_filepath + self.fileextension
         self.filename = new_filepath['/'][-1]
 
-    def get_coordinates(self):
+    def assign_coordinates_charge_multiplicity(self):
         """
         Extract xyz from a gaussian input file and creates GaussianAtom objects
 
         :return: [atoms] = [[GaussianAtom1, ....]]
 
         """
-
-         #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
-        charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
 
         atoms = list()
         index = 1
@@ -348,10 +353,23 @@ class InputFile(GaussianFile):
                         atom_info = line.split()
                         atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3], index))
                         index += 1
-                if charge_multiplicity_regEx.search(line):
-                    get_coordinates = True
-        return [atoms]
 
+                if self.charge_multiplicity_regEx.search(line):
+                    line_dict = line.split(" ")
+                    found_charge = False
+                    for i in line_dict:
+                        if i != '':
+                            if found_charge == False:
+                                self.charge = i
+                                found_charge = True
+                            else:
+                                self.multiplicity = i  
+                    get_coordinates = True
+
+
+        self.coordinates = [atoms]
+
+    
 
     def create_filecontent(self):
         '''
@@ -499,6 +517,12 @@ class OutputFile(GaussianFile):
 
         with open(DFT_out) as f:
             for line in f:
+
+                if self.charge_multiplicity_regEx.search(line):
+                    temp = self.charge_multiplicity_regEx.search(line).group().split()
+                    self.charge = temp[2]
+                    self.multiplicity = temp[5]
+
                 #Check if line contains any self.g_reader keys:
                 if any(g_key in line for g_key in self.g_reader.keys()):
                     g_key = [term for term in self.g_reader.keys() if term in line][0]
