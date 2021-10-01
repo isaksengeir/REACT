@@ -1,11 +1,12 @@
 from mods.GaussianFile import OutputFile, InputFile, FrequenciesOut
-from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
+from mods.MoleculeFile import PDBFile, XYZFile, Geometries
 
 
 class State:
     def __init__(self, parent):
         self.parent = parent
         # File types --> sublass assignment
+        # TODO we need (in time) a better way to figure out what filetype is loaded. "inp" fex could be other than gaussian
         self.file_types = {"com": InputFile,
                            "inp": InputFile,
                            "out": OutputFile,
@@ -39,6 +40,7 @@ class State:
         """
         Add already excisting Gaussian instance to state
         """
+        # TODO BSB this does not seem to do anything ?
         filename = gaussian_instance.filename
         filetype = gaussian_instance.filetype
 
@@ -102,7 +104,7 @@ class State:
         gaussian_atoms = self.gfiles[filepath].coordinates
         molecules = list()
         for iteration in gaussian_atoms:
-            molecule = GaussianMolecule(g_atoms=iteration).get_molecule
+            molecule = XYZFile(atoms=iteration).molecule
             molecules.append(molecule)
 
         return molecules
@@ -112,7 +114,7 @@ class State:
         :param molecule: = {1: {name: C, x:value, y: value, z: value}}
         :return: xyz_formatted (list)
         """
-        return XYZFile(atoms=molecule).get_formatted_xyz
+        return XYZFile(atoms=molecule).formatted_xyz
 
     def get_final_xyz(self, filepath):
         """

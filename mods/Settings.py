@@ -202,7 +202,6 @@ class Settings():
                               }
         self.functional_options = ['B3LYP', 'rB3LYP', 'M062X']
 
-
     def load_custom_settings(self, settings):
         for key in ['workdir', 'pymolpath', 'REACT_pymol', 'pymol_at_launch',
                     'UI_mode', 'functional', 'basis', 'basis_diff', 'basis_pol1',

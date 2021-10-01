@@ -7,11 +7,10 @@ class Molecule:
     molecule[i] = Atom
     """
     def __init__(self, atoms=None):
-        self.molecule = dict()
+        self._molecule = dict()
         if atoms:
-            # TODO temporary fix here... in State.py or GaussianFile.py we pass a dictionary... re-implement to match..
             if isinstance(atoms, dict):
-                self.molecule = self.atoms
+                self._molecule = self.atoms
                 self.atoms = self.atoms.values()
             else:
                 self.atoms = atoms
@@ -19,14 +18,14 @@ class Molecule:
 
     def make_molecule(self):
         for i in range(len(self.atoms)):
-            self.molecule[i+1] = self.atoms[i]
+            self._molecule[i+1] = self.atoms[i]
 
     @property
-    def get_molecule(self):
-        return self.molecule
+    def molecule(self):
+        return self._molecule
 
     @property
-    def get_formatted_xyz(self):
+    def formatted_xyz(self):
         molecule_xyz = list()
 
         for i in sorted(self.molecule.keys()):
@@ -35,19 +34,30 @@ class Molecule:
         return molecule_xyz
 
     @property
-    def get_atom_count(self):
+    def atom_count(self):
         return len(self.atoms)
+
+    @molecule.setter
+    def molecule(self, value):
+        self._molecule = value
+
+    def convert_to_pdb(self):
+        """
+        Create PDB file from XYZ file
+        :return: TODO ?
+        """
+        pass
 
 
 class XYZFile(Molecule):
     def __init__(self, atoms=None, filepath=None):
-        #Atoms = list(Atom)
+        # Atoms = list(Atom)
         if atoms:
             # List of Atom objects
             self.atoms = atoms
 
         if filepath:
-            self.filepath = filepath
+            self._filepath = filepath
             self.atoms = self.read_xyz()
 
         super(XYZFile, self).__init__(atoms=self.atoms)
@@ -66,28 +76,13 @@ class XYZFile(Molecule):
                     atoms.append(XYZAtom(line, index))
         return atoms
 
-    def convert_to_pdb(self):
-        """
-        Create PDB file from XYZ file
-        :return: TODO (maybe this belongs in Molecule parent)
-        """
-        pass
-
     @property
-    def get_filepath(self):
-        return self.filepath
+    def filepath(self):
+        return self._filepath
 
-
-class GaussianMolecule(XYZFile):
-    """
-    Takes a list of GaussianAtom or Atom objects and creates a molecule
-    """
-    def __init__(self, g_atoms):
-        self.g_atoms = g_atoms
-
-        super().__init__(atoms=self.g_atoms)
-
-    # TODO Gaussian molecule probably need some unique properties not present in XYZ file
+    @filepath.setter
+    def filepath(self, value):
+        self._filepath = value
 
 
 class PDBFile(XYZFile):
@@ -115,5 +110,22 @@ class PDBFile(XYZFile):
         return pdb_list
 
 
+class Geometries(XYZFile):
+    """
+    Takes a list of molecules [[Atoms], [Atoms],... iterations SCF] typically from geometry optimisations.
+    """
+    def __init__(self, molecules, filepath=None):
 
+        # [[Atoms], [Atoms],... iterations SCF]
+        self._molecules = molecules
 
+        # Init with final molecule / geometry optimization
+        super().__init__(atoms=self.final_molecule, filepath=filepath)
+
+    @property
+    def count_molecules(self):
+        return len(self._molecules)
+
+    @property
+    def final_molecule(self):
+        return self._molecules[-1]

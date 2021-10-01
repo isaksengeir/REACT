@@ -511,9 +511,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.states = new_pointers
         self.included_files = new_included_files
 
-        # TODO this does not change states with files in pymol !
-        self.pymol.pymol_cmd("delete state_*")
-        QTimer.singleShot(100, self.load_all_states_pymol)
+        if self.pymol:
+            self.pymol.pymol_cmd("delete state_*")
+            QTimer.singleShot(100, self.load_all_states_pymol)
 
     def add_state(self):
         """
