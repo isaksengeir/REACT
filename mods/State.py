@@ -16,7 +16,7 @@ class State:
         # filepath (key) : File object (value)
         self.gfiles = {}
 
-    def add_gfile(self, filepath):
+    def add_gfile(self, filepath, new_file=False):
         """
         Creates GaussianFile instance for each uploaded file-path.
         """
@@ -24,7 +24,10 @@ class State:
         filename = filepath.split("/")[-1]
         filetype = filename.split(".")[-1]
 
-        self.gfiles[filepath] = self.file_types[filetype](self.parent, filepath)
+        if new_file == True:
+            self.gfiles['new unsaved file'] = InputFile(self.parent, filepath, new_file)
+        else:
+            self.gfiles[filepath] = self.file_types[filetype](self.parent, filepath)
 
         print(f'{self.gfiles}')
 

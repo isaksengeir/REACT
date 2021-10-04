@@ -8,6 +8,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def __init__(self, parent, filepath):
         super(CalcSetupWindow, self).__init__(parent)
         self.react = parent
+        self.filepath = filepath
 
         self.pymol = False
         if self.react.pymol:
@@ -19,25 +20,19 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.setupUi(self)
         # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
-        if filepath.split("/")[-1].split(".")[1] == ".com" or filepath.split("/")[-1].split(".")[1] == ".inp":
-            self.job = self.react.states[self.react.get_current_state-1].gfiles[filepath]
+        if self.filepath.split("/")[-1].split(".")[1] == ".com" or self.filepath.split("/")[-1].split(".")[1] == ".inp":
+            self.mol_obj = self.react.states[self.react.get_current_state-1].get_molecule_object(self.filepath)
         else:
-            # TODO for this to work, a new and actual inputfile must be created because...
-            # TODO filepath with this can point to a opt.out or frq.out... and Inputfile self.get_coordinates is set to read
-            # TODO formatted gaussian input file. So when it is served a output file path, it reads it wrong.
-            self.job = InputFile(parent, filepath, new_file=True)
-
-        self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
-
-        self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
+            self.react.states[self.react.get_current_state-1].add_gfile(filepath, new_file=True)
+            self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object('new unsaved file')
 
         self.insert_model_atoms()
         self.fill_main_tab()
 
-        self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.job.job_options))
-        self.ui.Button_del_job.clicked.connect(lambda:  self.del_item_from_list(self.ui.List_add_job, self.job.job_options))
-        self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.job.link0_options))
-        self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.job.link0_options))
+        self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.mol_obj.job_options))
+        self.ui.Button_del_job.clicked.connect(lambda:  self.del_item_from_list(self.ui.List_add_job, self.mol_obj.job_options))
+        self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.mol_obj.link0_options))
+        self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.mol_obj.link0_options))
         self.ui.comboBox_basis1.textActivated.connect(self.update_basis_boxes)
         self.ui.comboBox_job_type.textActivated.connect(self.update_job_checkBoxes)
         self.ui.button_cancel.clicked.connect(self.on_cancel)
@@ -126,7 +121,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
-        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.job.filename.split(".")[0], group=group)
+        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.mol_obj.filename.split(".")[0], group=group)
 
     def add_freeze_atoms(self):
         """
@@ -175,8 +170,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         Indicate withe spheres atoms to be frozen / modredundant
         """
         group = "state_%d" % self.react.get_current_state
-        self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.job.filename.split('.')[0]}")
-        self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.job.filename.split('.')[0]}")
+        self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
+        self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
 
     def update_job_checkBoxes(self):
         """
@@ -184,6 +179,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
+        print('johoo')
         # TODO implement!
         job_type = self.ui.comboBox_job_type.currentText()
         self.ui.checkBox_placeholder1.setText('Tight')
@@ -200,7 +196,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         :return:
         """
 
-        self.ui.lineEdit_filename.setText(self.job.filename)
+        self.ui.lineEdit_filename.setText(self.mol_obj.filename)
         self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
         self.ui.comboBox_funct.addItems(self.react.settings.functional_options)
         self.ui.comboBox_basis1.addItems([x for x in self.react.settings.basis_options])
@@ -212,6 +208,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis1.setCurrentText(self.react.settings.basis)
 
         self.update_basis_boxes()
+        self.update_job_checkBoxes()
 
     def update_basis_boxes(self):
         """
@@ -330,13 +327,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # TODO on_write should probably just write whatever is in the preview window to a file.
         """
 
-        self.job.filename = self.ui.lineEdit_filename.text()
-        self.job.job_type = self.ui.comboBox_job_type.currentText()
-        self.job.basis = self.ui.comboBox_basis1.currentText()
-        self.job.basis_diff = self.ui.comboBox_basis2.currentText()
-        self.job.basis_pol1 = self.ui.comboBox_basis3.currentText()
-        self.job.basis_pol2 = self.ui.comboBox_basis4.currentText()
-        self.react.states[self.react.get_current_state - 1].add_instance(self.job)
+        self.mol_obj.filename = self.ui.lineEdit_filename.text()
+        self.mol_obj.job_type = self.ui.comboBox_job_type.currentText()
+        self.mol_obj.basis = self.ui.comboBox_basis1.currentText()
+        self.mol_obj.basis_diff = self.ui.comboBox_basis2.currentText()
+        self.mol_obj.basis_pol1 = self.ui.comboBox_basis3.currentText()
+        self.mol_obj.basis_pol2 = self.ui.comboBox_basis4.currentText()
+        self.react.states[self.react.get_current_state - 1].add_instance(self.mol_obj)
 
         self.close()
 

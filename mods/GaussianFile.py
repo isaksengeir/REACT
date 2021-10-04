@@ -44,10 +44,6 @@ class GaussianFile(Geometries):
     @property
     def filename(self):
         return self._filename
-    
-    @property
-    def old_path(self):
-        return self._old_path
 
     @property
     def filepath(self):
@@ -100,10 +96,6 @@ class GaussianFile(Geometries):
     @property
     def link0_options(self):
         return self._link0_options
-
-    @old_path.setter
-    def old_path(self, value):
-        self._old_path = value
 
     @fileextension.setter
     def fileextension(self, value):
@@ -190,59 +182,13 @@ class GaussianFile(Geometries):
                 if regEx.search(string) and re.search('^ %', string) == None:
                     self.job_details[job_detail_key] = regEx.search(string).group()
 
-    def read_gaussianfile(self):
-        """
-        Reads through Gaussian, assigns values to class attributes
-        Will be overwridden ny InputFile and OutputFile 
-        Copy/paste from old file!
-        """
-
-        pass
-        # if self.file_path.split(".")[-1] == ".com" or self.file_path.split(".")[-1] == ".inp":
-
-        #     link0_regEx = re.compile("^%")
-        #     route_regEx = re.compile("^#")
-        #     title_regEx = re.compile("^\s*\n.+\n\s*$")
-        #     charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
-
-        #     link0_found = []
-
-        #     with open(self.file_path) as f:
-        #         for line in f:
-        #             if link0_regEx.search(line):
-        #                 link0_found.append(link0_regEx.group())
-
-        #             if charge_multiplicity_regEx.search(line):
-        #                 temp = charge_multiplicity_regEx.search(line).group().split()
-        #                 self.charge, self.multiplicity = temp[0], temp[1]
-        #                 #after charge/multiplicity line, all job details have been read -> break loop
-        #                 break
-
-        #             #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
-        #             for job_detail_key in self.job_details.keys():
-        #                 self._regEx_job_detail_search(line, job_detail_key)
-
-        # DFT_inp = self.file_path
-
-        # with open(DFT_inp) as f:
-        #     for line in f:
-
-        #         if self.charge_multiplicity_regEx.search(line):
-        #             temp = self.charge_multiplicity_regEx.search(line).group().split()
-        #             self.charge_multiplicity = (temp[0], temp[1])
-        #             #after charge/multiplicity line, all job details have been read -> break loop
-        #             break
-
-        #         #for every job detail item, check line to see if any regEx are present. If found, assign it to job_details{}
-        #         for job_detail_key in self.job_details.keys():
-        #             self._regEx_job_detail_search(line, job_detail_key)
-
-
 class InputFile(GaussianFile):
 
     def __init__(self, parent, filepath, new_file=False):
 
         self.parent = parent
+        #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
+        self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
         
         if new_file == True:
             self.old_file_obj = self.parent.states[self.parent.get_current_state-1].gfiles[filepath]
@@ -250,21 +196,14 @@ class InputFile(GaussianFile):
             molecules = self.old_file_obj.molecules
             charge = self.old_file_obj.charge
             multiplicity = self.old_file_obj.multiplicity
-            self.filename = filepath.split(".")[0] + ".com"
         else:
-            #self._filepath = filepath
-            molecules, charge, multiplicity = self.get_molecules_charge_multiplicity()
+            molecules, charge, multiplicity = self.get_molecules_charge_multiplicity(filepath)
 
-        # TODO overskriver ikke dette self._filepath til foreldreklassen?
-        #self._filepath = None
         super().__init__(parent, filepath, molecules=molecules)
         
         self.charge = charge
         self.multiplicity = multiplicity
-        
-
-        #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
-        self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
+        self.filename = filepath.split("/")[-1].split(".")[0] + ".com"
         
 
         # Initialize dictionaries TODO:
@@ -311,31 +250,8 @@ class InputFile(GaussianFile):
         self.filepath = new_filepath + self.fileextension
         self.filename = new_filepath['/'][-1]
 
-    def get_coordinates(self):
-        """
-        Extract xyz from a gaussian input file and creates GaussianAtom objects
-        :return: [atoms] = [[GaussianAtom1, ....]]
-        """
-        # regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace
-        charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
 
-        atoms = list()
-        index = 1
-        with open(self.old_path, 'r') as ginp:
-            get_coordinates = False
-            for line in ginp:
-                if get_coordinates:
-                    if line.isspace():
-                        break
-                    else:
-                        atom_info = line.split()
-                        atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3], index))
-                        index += 1
-                if charge_multiplicity_regEx.search(line):
-                    get_coordinates = True
-        return [atoms]
-
-    def assign_coordinates_charge_multiplicity(self):
+    def get_molecules_charge_multiplicity(self, filepath):
         """
         Extract xyz from a gaussian input file and creates GaussianAtom objects
 
@@ -345,7 +261,9 @@ class InputFile(GaussianFile):
 
         atoms = list()
         index = 1
-        with open(self.old_path, 'r') as ginp:
+        charge = None
+        multiplicity = None
+        with open(filepath, 'r') as ginp:
             get_coordinates = False
             for line in ginp:
                 if get_coordinates:
@@ -362,13 +280,13 @@ class InputFile(GaussianFile):
                     for i in line_dict:
                         if i != '':
                             if found_charge == False:
-                                self.charge = i
+                                charge = i
                                 found_charge = True
                             else:
-                                self.multiplicity = i  
+                                multiplicity = i  
                     get_coordinates = True
 
-        return [atoms]
+        return ([atoms], charge, multiplicity)
 
     def create_filecontent(self):
         '''
