@@ -242,31 +242,30 @@ class InputFile(GaussianFile):
 
     def __init__(self, parent, filepath, new_file=False):
 
-        self._old_path = filepath
-        molecules = self.get_coordinates()
+        self.parent = parent
+        
+        if new_file == True:
+            self.old_file_obj = self.parent.states[self.parent.get_current_state-1].gfiles[filepath]
+            self._filepath = None
+            molecules = self.old_file_obj.molecules
+            charge = self.old_file_obj.charge
+            multiplicity = self.old_file_obj.multiplicity
+            self.filename = filepath.split(".")[0] + ".com"
+        else:
+            #self._filepath = filepath
+            molecules, charge, multiplicity = self.get_molecules_charge_multiplicity()
 
         # TODO overskriver ikke dette self._filepath til foreldreklassen?
-        self._filepath = None
+        #self._filepath = None
         super().__init__(parent, filepath, molecules=molecules)
         
-        self.parent = parent
+        self.charge = charge
+        self.multiplicity = multiplicity
+        
 
         #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
         self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
         
-
-        if new_file == True:
-            self.old_file_obj = self.parent.states[self.parent.get_current_state-1].gfiles[filepath]
-            self._filepath = None
-            self.coordinates = self.old_file_obj.coordinates
-            self.charge = self.old_file_obj.charge
-            self.multiplicity = self.old_file_obj.multiplicity
-            self.filename = self.filename.split(".")[0] + ".com"
-        else:
-            self._filepath = filepath
-            self.assign_coordinates_charge_multiplicity()
-
-
 
         # Initialize dictionaries TODO:
         # Job Types: Energy, Optimization, Frequency, Opt+Freq, IRC, Scan
@@ -369,7 +368,7 @@ class InputFile(GaussianFile):
                                 self.multiplicity = i  
                     get_coordinates = True
 
-        self.coordinates = [atoms]
+        return [atoms]
 
     def create_filecontent(self):
         '''

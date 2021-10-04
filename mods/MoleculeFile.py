@@ -152,12 +152,20 @@ class Geometries(XYZFile):
         super().__init__(atoms=molecules[-1], filepath=filepath)
 
     @property
+    def molecules(self):
+        return self._molecules
+
+    @property
     def count_molecules(self):
         return len(self._molecules)
 
     @property
     def iteration(self):
         return self._iteration
+
+    @molecules.setter
+    def molecules(self, value):
+        self._molecules = value
 
     @iteration.setter
     def iteration(self, value):
