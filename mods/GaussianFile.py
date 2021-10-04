@@ -57,11 +57,6 @@ class GaussianFile(Geometries):
     def fileextension(self):
         return self._file_extension
 
-    #  TODO Molecule class
-    @property
-    def coordinates(self):
-        return self._coordinates
-
     @property
     def job_type(self):
         return self._job_type
@@ -121,11 +116,6 @@ class GaussianFile(Geometries):
     @filepath.setter
     def filepath(self, value):
         self._filepath = value
-
-    @coordinates.setter
-    # TODO molecule object?
-    def coordinates(self, value):
-        self._coordinates = value
 
     @job_type.setter
     def job_type(self, value):
@@ -251,8 +241,10 @@ class GaussianFile(Geometries):
 class InputFile(GaussianFile):
 
     def __init__(self, parent, filepath, new_file=False):
-        molecules = self.get_coordinates()
+
         self._old_path = filepath
+        molecules = self.get_coordinates()
+
         # TODO overskriver ikke dette self._filepath til foreldreklassen?
         self._filepath = None
         super().__init__(parent, filepath, molecules=molecules)
@@ -323,6 +315,30 @@ class InputFile(GaussianFile):
         self.filepath = new_filepath + self.fileextension
         self.filename = new_filepath['/'][-1]
 
+    def get_coordinates(self):
+        """
+        Extract xyz from a gaussian input file and creates GaussianAtom objects
+        :return: [atoms] = [[GaussianAtom1, ....]]
+        """
+        # regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace
+        charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
+
+        atoms = list()
+        index = 1
+        with open(self.old_path, 'r') as ginp:
+            get_coordinates = False
+            for line in ginp:
+                if get_coordinates:
+                    if line.isspace():
+                        break
+                    else:
+                        atom_info = line.split()
+                        atoms.append(Atom(atom_info[0], atom_info[1], atom_info[2], atom_info[3], index))
+                        index += 1
+                if charge_multiplicity_regEx.search(line):
+                    get_coordinates = True
+        return [atoms]
+
     def assign_coordinates_charge_multiplicity(self):
         """
         Extract xyz from a gaussian input file and creates GaussianAtom objects
@@ -357,9 +373,6 @@ class InputFile(GaussianFile):
                     get_coordinates = True
 
         self.coordinates = [atoms]
-
-    
-
 
     def create_filecontent(self):
         '''
@@ -438,7 +451,6 @@ class OutputFile(GaussianFile):
 
         # Read output on init to get key job details
         self.read_gaussianfile()
-        self._coordinates = self.get_coordinates()
         self._converged = self.is_converged()
 
         self._solvent = self.has_solvent()
@@ -480,7 +492,6 @@ class OutputFile(GaussianFile):
     @frequencies.setter
     def frequencies(self, value):
         self._frequencies = value
-
 
     def read_gaussianfile(self):
         """

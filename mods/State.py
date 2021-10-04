@@ -94,20 +94,20 @@ class State:
         """
         self.gfiles[filepath].update_fileobject()
 
-    def get_geometries(self, filepath):
-        """
-        molecules is list of GaussianMolecule objects
-        :param filepath:
-        :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
-        """
-        # Get list of GaussianAtom objects (per iteration):
-        gaussian_atoms = self.gfiles[filepath].coordinates
-        molecules = list()
-        for iteration in gaussian_atoms:
-            molecule = XYZFile(atoms=iteration).molecule
-            molecules.append(molecule)
+    #def get_geometries(self, filepath):
+    #    """
+    #    molecules is list of GaussianMolecule objects
+    #    :param filepath:
+    #    :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
+    #    """
+    #    # Get list of GaussianAtom objects (per iteration):
+    #    gaussian_atoms = self.gfiles[filepath].coordinates
+    #    molecules = list()
+    #    for iteration in gaussian_atoms:
+    #        molecule = XYZFile(atoms=iteration).molecule
+    #        molecules.append(molecule)
 
-        return molecules
+    #    return molecules
 
     def get_xyz_formatted(self, molecule):
         """
@@ -121,14 +121,10 @@ class State:
         :param filepath:
         :return: a list of formated XYZ lines for guassian input files
         """
-        molecule = self.get_geometries(filepath)[-1]
-
-        return self.get_xyz_formatted(molecule)
+        return self.gfiles[filepath].formatted_xyz
 
     def get_all_xyz(self, filepath):
-        molecules = self.get_geometries(filepath)
-
-        return [self.get_xyz_formatted(x) for x in molecules]
+        return self.gfiles[filepath].all_geometries_formatted
 
     def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
         """

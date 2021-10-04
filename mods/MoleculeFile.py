@@ -168,3 +168,11 @@ class Geometries(XYZFile):
         self.atoms = self._molecules[value]
         self.make_molecule()
 
+    @property
+    def all_geometries_formatted(self):
+        geoms = list()
+        for i in range(self.count_molecules):
+            self.iteration = i
+            geoms.append(self.formatted_xyz)
+        return geoms
+
