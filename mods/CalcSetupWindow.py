@@ -22,6 +22,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if filepath.split("/")[-1].split(".")[1] == ".com" or filepath.split("/")[-1].split(".")[1] == ".inp":
             self.job = self.react.states[self.react.get_current_state-1].gfiles[filepath]
         else:
+            # TODO for this to work, a new and actual inputfile must be created because...
+            # TODO filepath with this can point to a opt.out or frq.out... and Inputfile self.get_coordinates is set to read
+            # TODO formatted gaussian input file. So when it is served a output file path, it reads it wrong.
             self.job = InputFile(parent, filepath, new_file=True)
 
         self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
@@ -110,8 +113,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         When entry in "Atoms to freeze" is cliced, update to selected in "Atoms in model" list and pymol
         """
-
-
         indexes = [int(x) - 1 for x in self.ui.list_freeze_atoms.currentItem().text().split()[1:-1]]
 
         freeze_type = {1: "Atom", 2: "Bond", 3: "Angle", 4: "Dihedral"}
