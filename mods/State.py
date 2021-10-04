@@ -1,11 +1,12 @@
 from mods.GaussianFile import OutputFile, InputFile, FrequenciesOut
-from mods.MoleculeFile import PDBFile, XYZFile, GaussianMolecule
+from mods.MoleculeFile import PDBFile, XYZFile, Geometries
 
 
 class State:
     def __init__(self, parent):
         self.parent = parent
         # File types --> sublass assignment
+        # TODO we need (in time) a better way to figure out what filetype is loaded. "inp" fex could be other than gaussian
         self.file_types = {"com": InputFile,
                            "inp": InputFile,
                            "out": OutputFile,
@@ -39,6 +40,7 @@ class State:
         """
         Add already excisting Gaussian instance to state
         """
+        # TODO BSB this does not seem to do anything ?
         filename = gaussian_instance.filename
         filetype = gaussian_instance.filetype
 
@@ -92,41 +94,37 @@ class State:
         """
         self.gfiles[filepath].update_fileobject()
 
-    def get_geometries(self, filepath):
-        """
-        molecules is list of GaussianMolecule objects
-        :param filepath:
-        :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
-        """
-        # Get list of GaussianAtom objects (per iteration):
-        gaussian_atoms = self.gfiles[filepath].coordinates
-        molecules = list()
-        for iteration in gaussian_atoms:
-            molecule = GaussianMolecule(g_atoms=iteration).get_molecule
-            molecules.append(molecule)
+    #def get_geometries(self, filepath):
+    #    """
+    #    molecules is list of GaussianMolecule objects
+    #    :param filepath:
+    #    :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
+    #    """
+    #    # Get list of GaussianAtom objects (per iteration):
+    #    gaussian_atoms = self.gfiles[filepath].coordinates
+    #    molecules = list()
+    #    for iteration in gaussian_atoms:
+    #        molecule = XYZFile(atoms=iteration).molecule
+    #        molecules.append(molecule)
 
-        return molecules
+    #    return molecules
 
     def get_xyz_formatted(self, molecule):
         """
         :param molecule: = {1: {name: C, x:value, y: value, z: value}}
         :return: xyz_formatted (list)
         """
-        return XYZFile(atoms=molecule).get_formatted_xyz
+        return XYZFile(atoms=molecule).formatted_xyz
 
     def get_final_xyz(self, filepath):
         """
         :param filepath:
         :return: a list of formated XYZ lines for guassian input files
         """
-        molecule = self.get_geometries(filepath)[-1]
-
-        return self.get_xyz_formatted(molecule)
+        return self.gfiles[filepath].formatted_xyz
 
     def get_all_xyz(self, filepath):
-        molecules = self.get_geometries(filepath)
-
-        return [self.get_xyz_formatted(x) for x in molecules]
+        return self.gfiles[filepath].all_geometries_formatted
 
     def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
         """

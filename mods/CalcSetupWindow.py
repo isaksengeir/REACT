@@ -122,7 +122,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         for index in indexes:
             self.ui.list_model.item(index).setSelected(True)
-        #self.model_atom_clicked()
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
