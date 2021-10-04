@@ -1,24 +1,23 @@
 import distutils.util
 from mods.Atoms import GaussianAtom, Atom
-from mods.MoleculeFile import GaussianMolecule
+from mods.MoleculeFile import Geometries, XYZFile
 import copy
 import re
 import os
 
-class GaussianFile:
 
-    def __init__(self, parent, filepath):
+class GaussianFile(Geometries):
+    # TODO rename this class ??
+
+    def __init__(self, parent, filepath, molecules=None):
+        self._filepath = filepath
+        # GaussianMolecule class controls multiple geometries
+        super().__init__(molecules=molecules, filepath=filepath)
 
         self.parent = parent
         self._filename = None
-        self._filepath = filepath
+
         self._fileextension = None
-
-        #Structure
-        self._coordinates = None
-        self._charge = None
-        self._multiplicity = None
-
 
         #DFT
         self._job_type = None
@@ -58,6 +57,7 @@ class GaussianFile:
     def fileextension(self):
         return self._file_extension
 
+    #  TODO Molecule class
     @property
     def coordinates(self):
         return self._coordinates
@@ -106,18 +106,6 @@ class GaussianFile:
     def link0_options(self):
         return self._link0_options
 
-    @property
-    def charge(self):
-        return self._charge
-
-    @property
-    def multiplicity(self):
-        return self._multiplicity
-
-    @charge.setter
-    def charge(self, value):
-        self._charge = value
-
     @old_path.setter
     def old_path(self, value):
         self._old_path = value
@@ -125,10 +113,6 @@ class GaussianFile:
     @fileextension.setter
     def fileextension(self, value):
         self._file_extension = value
-
-    @multiplicity.setter
-    def multiplicity(self, value):
-        self._multiplicity = value
 
     @filename.setter
     def filename(self, value):
@@ -139,6 +123,7 @@ class GaussianFile:
         self._filepath = value
 
     @coordinates.setter
+    # TODO molecule object?
     def coordinates(self, value):
         self._coordinates = value
 
@@ -184,7 +169,7 @@ class GaussianFile:
         self._job_options = value
 
     @link0_options.setter
-    def link0(self, value):
+    def link0_options(self, value):
         self._link0_options = value
 
     def update_fileobject(self):
@@ -264,9 +249,14 @@ class GaussianFile:
 
 
 class InputFile(GaussianFile):
-    def __init__(self, parent, filepath, new_file=False):
-        super().__init__(parent, filepath)
 
+    def __init__(self, parent, filepath, new_file=False):
+        molecules = self.get_coordinates()
+        self._old_path = filepath
+        # TODO overskriver ikke dette self._filepath til foreldreklassen?
+        self._filepath = None
+        super().__init__(parent, filepath, molecules=molecules)
+        
         self.parent = parent
 
         #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
@@ -366,10 +356,10 @@ class InputFile(GaussianFile):
                                 self.multiplicity = i  
                     get_coordinates = True
 
-
         self.coordinates = [atoms]
 
     
+
 
     def create_filecontent(self):
         '''
@@ -402,7 +392,10 @@ class InputFile(GaussianFile):
 
 class OutputFile(GaussianFile):
     def __init__(self, parent, filepath):
-        super().__init__(parent, filepath)
+        self._filepath = filepath
+        molecules = self.get_coordinates()
+
+        super().__init__(parent, filepath, molecules=molecules)
 
         # Where to get gaussian output value from line.split(int)
         # first key = Line to look for in output file
@@ -447,10 +440,9 @@ class OutputFile(GaussianFile):
         self.read_gaussianfile()
         self._coordinates = self.get_coordinates()
         self._converged = self.is_converged()
-        self._final_molecule = self.get_final_molecule()
+
         self._solvent = self.has_solvent()
         self._frequencies = self.has_frequencies()
-        self._formatted_xyz = self.get_formatted_xyz()
         self._energy = self.get_energy()
 
     @property
@@ -466,20 +458,12 @@ class OutputFile(GaussianFile):
         return self.get_scf_convergence()
 
     @property
-    def final_molecule(self):
-        return self._final_molecule
-
-    @property
     def solvent(self):
         return self._solvent
 
     @property
     def frequencies(self):
         return self._frequencies
-
-    @property
-    def formatted_xyz(self):
-        return self._formatted_xyz
 
     @energy.setter
     def energy(self, value):
@@ -489,10 +473,6 @@ class OutputFile(GaussianFile):
     def converged(self, value):
         self._converged = value
 
-    @final_molecule.setter
-    def final_molecule(self, value):
-        self._final_molecule = value
-
     @solvent.setter
     def solvent(self, value):
         self._solvent = value
@@ -501,17 +481,14 @@ class OutputFile(GaussianFile):
     def frequencies(self, value):
         self._frequencies = value
 
-    @formatted_xyz.setter
-    def formatted_xyz(self, value):
-        self._formatted_xyz = value
 
     def read_gaussianfile(self):
         """
         Reads through Gaussian output file and assigns values to self.g_outdata using self.g_reader, and assigns values to self.job_details
         """
-        DFT_out = self.filepath
+        DFT_out = self._filepath
 
-        print(f'in read_gaussian, this is path={self.filepath}')
+        print(f'in read_gaussian, this is path={self._filepath}')
 
         # found_all_jobdetails = False 
 
@@ -654,14 +631,7 @@ class OutputFile(GaussianFile):
                     atoms = list()
 
         return iter_atoms
-    
-    def get_final_molecule(self):
-        """
-        :return: GaussianMolecule
-        """
-        atoms = self.coordinates[-1]
-        return GaussianMolecule(g_atoms=atoms)
-    
+
     def has_solvent(self):
         """
         :return: solvent = True/False
@@ -677,12 +647,6 @@ class OutputFile(GaussianFile):
             freq = True
         return freq
 
-
-    def get_formatted_xyz(self):
-        atoms = self.coordinates[-1]
-        gmolecule = GaussianMolecule(g_atoms=atoms)
-        return gmolecule.get_formatted_xyz
-    
 
 class FrequenciesOut(OutputFile):
 
@@ -751,7 +715,7 @@ class FrequenciesOut(OutputFile):
                                               " ".join(line.split()[coord_start:coord_end]))
                         g_atoms.append(GaussianAtom(g_line))
                     else:
-                        self.freq_displacement[frequency] = GaussianMolecule(g_atoms=g_atoms)
+                        self.freq_displacement[frequency] = XYZFile(atoms=g_atoms)
                         return self.freq_displacement[frequency]
 
                 if found_frequency and "Atom  AN      X      Y      Z" in line:
@@ -763,8 +727,8 @@ class FrequenciesOut(OutputFile):
         :param steps: number of structures to create
         :return: list of gaussian molecules, where the first is the original optimised molecules.
         """
-        molecule = self.final_molecule.get_molecule
-        displacement = self.get_displacement(freq).get_molecule
+        molecule = self.molecule
+        displacement = self.get_displacement(freq).molecule
 
         molecules = list()
         molecules.append(molecule)
