@@ -19,9 +19,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.setupUi(self)
         # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
-        self.job = InputFile(parent, filepath, new_file=True)
+        if filepath.split("/")[-1].split(".")[1] == ".com" or filepath.split("/")[-1].split(".")[1] == ".inp":
+            self.job = self.react.states[self.react.get_current_state-1].gfiles[filepath]
+        else:
+            self.job = InputFile(parent, filepath, new_file=True)
+
         self.filepath = self.react.tabWidget.currentWidget().currentItem().text()
-        self.filename = self.filepath.split("/")[-1]
 
         self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object(self.filepath)
 
@@ -123,7 +126,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
-        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.filename.split(".")[0], group=group)
+        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.job.filename.split(".")[0], group=group)
 
     def add_freeze_atoms(self):
         """
@@ -172,8 +175,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         Indicate withe spheres atoms to be frozen / modredundant
         """
         group = "state_%d" % self.react.get_current_state
-        self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.filename.split('.')[0]}")
-        self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.filename.split('.')[0]}")
+        self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.job.filename.split('.')[0]}")
+        self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.job.filename.split('.')[0]}")
 
     def update_job_checkBoxes(self):
         """
@@ -182,7 +185,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         :return:
         """
         # TODO implement!
-        pass
+        job_type = self.ui.comboBox_job_type.currentText()
+        self.ui.checkBox_placeholder1.setText('Tight')
+        self.ui.checkBox_placeholder2.setText('NoEigenTest')
+        self.ui.checkBox_placeholder3.setText('calcfc')
+        self.ui.checkBox_placeholder4.setText('Z-Matrix')
+
+
 
     def fill_main_tab(self):
         """
@@ -191,7 +200,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         :return:
         """
 
-        self.ui.lineEdit_filename.setText(self.filename.split(".")[0] + ".com")
+        self.ui.lineEdit_filename.setText(self.job.filename)
         self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
         self.ui.comboBox_funct.addItems(self.react.settings.functional_options)
         self.ui.comboBox_basis1.addItems([x for x in self.react.settings.basis_options])
@@ -219,6 +228,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis2.addItems(self.react.settings.basis_options[basis]['diff'])
         self.ui.comboBox_basis3.addItems(self.react.settings.basis_options[basis]['pol1'])
         self.ui.comboBox_basis4.addItems(self.react.settings.basis_options[basis]['pol2'])
+
+        self.ui.comboBox_basis2.setCurrentText(self.react.settings.basis_diff)
+        self.ui.comboBox_basis3.setCurrentText(self.react.settings.basis_pol1)
+        self.ui.comboBox_basis4.setCurrentText(self.react.settings.basis_pol2)
+
+
 
     def insert_model_atoms(self):
         """

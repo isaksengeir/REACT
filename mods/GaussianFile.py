@@ -10,7 +10,7 @@ class GaussianFile:
     def __init__(self, parent, filepath):
 
         self.parent = parent
-        self._filename = None
+        self._filename = filepath.split("/")[-1]
         self._filepath = filepath
         self._fileextension = None
 
@@ -271,6 +271,7 @@ class InputFile(GaussianFile):
 
         #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
         self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
+        
 
         if new_file == True:
             self.old_file_obj = self.parent.states[self.parent.get_current_state-1].gfiles[filepath]
@@ -278,9 +279,12 @@ class InputFile(GaussianFile):
             self.coordinates = self.old_file_obj.coordinates
             self.charge = self.old_file_obj.charge
             self.multiplicity = self.old_file_obj.multiplicity
+            self.filename = self.filename.split(".")[0] + ".com"
         else:
             self._filepath = filepath
             self.assign_coordinates_charge_multiplicity()
+
+
 
         # Initialize dictionaries TODO:
         # Job Types: Energy, Optimization, Frequency, Opt+Freq, IRC, Scan
@@ -312,16 +316,9 @@ class InputFile(GaussianFile):
         #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
         #self.charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
 
-    @property
-    def old_path(self):
-        return self._old_path
-
-    @old_path.setter
-    def old_path(self, value):
-        self._old_path = value
 
     def set_filepath_and_filename(self):
-        old_filename = self.old_path.split['/'][-1].split('.')[0]
+        old_filename = self.old_file_obj.filepath.split['/'][-1].split('.')[0]
 
         i = 0
         new_filepath = self.parent.settings.workdir + '/' + old_filename
