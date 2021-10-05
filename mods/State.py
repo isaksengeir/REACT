@@ -3,6 +3,9 @@ from mods.MoleculeFile import PDBFile, XYZFile, Geometries
 
 
 class State:
+    """
+    Stores all file objects for every state in REACT.
+    """
     def __init__(self, parent):
         self.parent = parent
         # File types --> sublass assignment
@@ -64,7 +67,6 @@ class State:
         return: list of all gaussian filpaths associated with a given state.
         """
         return [x for x in self.gfiles.keys()]
-        #return [x.get_filepath for x in self.gfiles.values()] because get_filepath is now a property (and not a method)?
 
     def get_molecule_object(self, filepath):
         print(f'this is states: {self.gfiles}')
@@ -96,21 +98,6 @@ class State:
         Updates a GaussianFile object in the event a file has been edited.        
         """
         self.gfiles[filepath].update_fileobject()
-
-    #def get_geometries(self, filepath):
-    #    """
-    #    molecules is list of GaussianMolecule objects
-    #    :param filepath:
-    #    :return: molecules = [{1: {name: C, x:value, y: value, z: value}}, ..., iterations..]
-    #    """
-    #    # Get list of GaussianAtom objects (per iteration):
-    #    gaussian_atoms = self.gfiles[filepath].coordinates
-    #    molecules = list()
-    #    for iteration in gaussian_atoms:
-    #        molecule = XYZFile(atoms=iteration).molecule
-    #        molecules.append(molecule)
-
-    #    return molecules
 
     def get_xyz_formatted(self, molecule):
         """

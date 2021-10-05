@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.SetupWindow import Ui_SetupWindow
 from mods.GaussianFile import InputFile
 from mods.common_functions import atom_distance
@@ -16,10 +17,16 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.pymol.pymol_cmd("set mouse_selection_mode, 0")
             self.pymol.pymol_cmd("hide cartoon")
 
+            # Monitor clicks in pymol stdout_handler
+            self.pymol.monitor_clicks()
+            # Connect signals from pymol:
+            self.pymol.atomsSelectedSignal.connect(self.pymol_atom_clicked)
+
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
         # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
+
         if self.filepath.split("/")[-1].split(".")[1] == ".com" or self.filepath.split("/")[-1].split(".")[1] == ".inp":
             self.mol_obj = self.react.states[self.react.get_current_state-1].get_molecule_object(self.filepath)
         else:
@@ -71,6 +78,19 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.spinbox_radius.setEnabled(enable)
         self.ui.spinbox_scan_pm.setEnabled(enable)
         self.ui.spinbox_scan_increment.setEnabled(enable)
+
+    @pyqtSlot(list)
+    def pymol_atom_clicked(self, ids):
+        """
+        Get atoms selected in pymol
+        """
+        selected_indexes = [x.row() for x in self.selected_indexes]
+
+        ids = [int(x) - 1 for x in ids]
+
+        for id in ids:
+            if id not in selected_indexes:
+                self.ui.list_model.item(id).setSelected(True)
 
     def model_atom_clicked(self):
         """
@@ -341,4 +361,5 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.pymol:
             self.pymol.pymol_cmd("set mouse_selection_mode, 1")
             self.pymol.pymol_cmd("hide spheres,")
+            self.pymol.unmonitor_clicks()
 
