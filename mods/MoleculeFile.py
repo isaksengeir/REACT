@@ -49,6 +49,14 @@ class Molecule:
         return self._molecule
 
     @property
+    def molecules(self):
+        """
+        Duplicate/special property of the molecules class created since this is called in BSB recent code... probably
+        would self.atoms be better...?
+        """
+        return [self.atoms]
+
+    @property
     def formatted_xyz(self):
         molecule_xyz = list()
 
