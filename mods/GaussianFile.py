@@ -191,7 +191,7 @@ class InputFile(GaussianFile):
         self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
         
         if new_file == True:
-            self.old_file_obj = self.parent.states[self.parent.get_current_state-1].gfiles[filepath]
+            self.old_file_obj = self.parent.states[self.parent.state_index].gfiles[filepath]
             self._filepath = None
             molecules = self.old_file_obj.molecules
             charge = self.old_file_obj.charge

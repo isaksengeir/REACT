@@ -21,10 +21,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
         self.setWindowTitle("REACT - Calculation setup")
         if self.filepath.split("/")[-1].split(".")[1] == ".com" or self.filepath.split("/")[-1].split(".")[1] == ".inp":
-            self.mol_obj = self.react.states[self.react.get_current_state-1].get_molecule_object(self.filepath)
+            self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         else:
-            self.react.states[self.react.get_current_state-1].add_gfile(filepath, new_file=True)
-            self.mol_obj = self.react.states[self.react.get_current_state - 1].get_molecule_object('new unsaved file')
+            self.react.states[self.react.state_index].add_gfile(filepath, new_file=True)
+            self.mol_obj = self.react.states[self.react.state_index].get_molecule_object('new unsaved file')
 
         self.insert_model_atoms()
         self.fill_main_tab()
@@ -333,7 +333,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.mol_obj.basis_diff = self.ui.comboBox_basis2.currentText()
         self.mol_obj.basis_pol1 = self.ui.comboBox_basis3.currentText()
         self.mol_obj.basis_pol2 = self.ui.comboBox_basis4.currentText()
-        self.react.states[self.react.get_current_state - 1].add_instance(self.mol_obj)
+        self.react.states[self.react.state_index].add_instance(self.mol_obj)
 
         self.close()
 

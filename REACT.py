@@ -233,7 +233,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filepath = self.get_selected_filepath
 
         delete_after = True
-        xyz_list = self.states[state - 1].get_all_xyz(filepath)
+        xyz_list = self.states[state-1].get_all_xyz(filepath)
         del xyz_list[-1]
         i = 0
         base_path = "%s/%s" % (self.settings.workdir, filepath.split("/")[-1].split(".")[0])
@@ -366,7 +366,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for n in range(len(file_paths)):
             file = file_paths[n]
             print(file)
-            self.states[self.get_current_state - 1].add_gfile(file)
+            self.states[self.state_index].add_gfile(file)
             if n == len(file_paths) - 1:
                 pymol_defaults = True
             progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
@@ -646,8 +646,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
 
-        for state_index in range(len(self.states)):      
-            states[state_index+1] = self.states[state_index].get_all_gpaths
+        for index in range(len(self.states)):      
+            states[index+1] = self.states[index].get_all_gpaths
 
         project["states"] = states
         project["included files"] = self.included_files
@@ -871,6 +871,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return: integer (state)
         """
         return self.tabWidget.currentIndex() + 1
+
+    @property
+    def state_index(self):
+        return self.tabWidget.currentIndex()
+
 
     @property
     def count_states(self):
