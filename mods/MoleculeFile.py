@@ -6,7 +6,7 @@ class Molecule:
     Takes a list of Atom objects at init and creates molecule (dict)
     molecule[i] = Atom
     """
-    def __init__(self, atoms=None):
+    def __init__(self, atoms=None, filepath=None):
         self._molecule = dict()
         if atoms:
             if isinstance(atoms, dict):
@@ -16,6 +16,8 @@ class Molecule:
                 self._atoms = atoms
                 self.make_molecule()
 
+        self._filepath = filepath
+
         # Properties
         self._charge = None
         self._multiplicity = None
@@ -23,6 +25,22 @@ class Molecule:
     def make_molecule(self):
         for i in range(len(self.atoms)):
             self._molecule[i+1] = self.atoms[i]
+
+    @property
+    def filepath(self):
+        return self._filepath
+
+    @filepath.setter
+    def filepath(self, value):
+        self._filepath = value
+
+    @property
+    def filename(self):
+        return self.filepath.split("/")[-1]
+
+    @property
+    def molecule_name(self):
+        return self.filename.split(".")[0]
 
     @property
     def charge(self):
@@ -96,7 +114,7 @@ class XYZFile(Molecule):
             self._filepath = filepath
             self._atoms = self.read_xyz()
 
-        super(XYZFile, self).__init__(atoms=self._atoms)
+        super(XYZFile, self).__init__(atoms=self._atoms, filepath=filepath)
 
     def read_xyz(self):
         """
@@ -105,20 +123,12 @@ class XYZFile(Molecule):
         """
         index = 0
         atoms = list()
-        with open(self.filepath, "r") as xyz:
+        with open(self._filepath, "r") as xyz:
             for line in xyz:
                 if len(line.split()) > 3:
                     index += 1
                     atoms.append(XYZAtom(line, index))
         return atoms
-
-    @property
-    def filepath(self):
-        return self._filepath
-
-    @filepath.setter
-    def filepath(self, value):
-        self._filepath = value
 
 
 class PDBFile(XYZFile):
@@ -128,7 +138,7 @@ class PDBFile(XYZFile):
         elif pdb_atoms:
             self._atoms = pdb_atoms
 
-        super().__init__(atoms=self._atoms)
+        super().__init__(atoms=self._atoms, filepath=filepath)
 
     def read_pdb(self, filepath):
         atoms = list()

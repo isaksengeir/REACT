@@ -31,8 +31,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         else:
             self.react.states[self.react.state_index].add_gfile(filepath, new_file=True)
-            self.mol_obj = self.react.states[self.react.state_index].get_molecule_object('new unsaved file')
-
+            #self.mol_obj = self.react.states[self.react.state_index].get_molecule_object('new unsaved file')
+            self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         self.insert_model_atoms()
         self.fill_main_tab()
 
@@ -63,6 +63,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # Keep track of atoms selected (for multiple selection options)
         self.selected_indexes = list()
 
+        # Pymol returns ordered atom id list, so we need to keep track of click order
+        self.selected_ids = list()
+
     def change_selection_mode(self):
         if self.ui.comboBox_freezetype.currentText() == "Atoms":
             self.ui.list_model.setSelectionMode(1)
@@ -84,13 +87,33 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         Get atoms selected in pymol
         """
-        selected_indexes = [x.row() for x in self.selected_indexes]
+        #selected_indexes = [x.row() for x in self.selected_indexes]
 
         ids = [int(x) - 1 for x in ids]
+        #while len(selected_indexes) >= len(ids):
+        #    selected_indexes.pop(0)
+        print(f"from pymol {len(ids)}")
+        print(f"current list {len(self.selected_ids)}")
+
+        if len(ids) < len(self.selected_ids):
+            for i in range(len(self.selected_ids)):
+                if self.selected_ids[i] not in ids:
+                    self.selected_ids.pop(i)
+                    break
+
+        print(len(self.selected_ids))
+        print(ids)
+        print(self.selected_ids)
 
         for id in ids:
-            if id not in selected_indexes:
-                self.ui.list_model.item(id).setSelected(True)
+            if id not in self.selected_ids:
+                self.selected_ids.append(id)
+
+        while len(self.selected_ids) > self.atoms_to_select:
+            self.selected_ids.pop(0)
+        for id in self.selected_ids:
+            #if id not in selected_indexes:
+            self.ui.list_model.item(id).setSelected(True)
 
     def model_atom_clicked(self):
         """
