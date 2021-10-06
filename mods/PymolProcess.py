@@ -9,6 +9,7 @@ class PymolSession(QObject):
     ntermResidues = pyqtSignal(list)
     ctermResidues = pyqtSignal(list)
     countAtomsSignal = pyqtSignal(dict)
+    #atomClickedSignal = pyqtSignal(list)
 
     def __init__(self, parent=None, home=None, pymol_path=None):
         super(QObject, self).__init__(parent)
@@ -60,6 +61,24 @@ class PymolSession(QObject):
 
         self.start_pymol()
         self.set_pymol_settings()
+
+    def monitor_clicks(self):
+        self.stdout_handler["You clicked "] = {
+            "collect": False,
+            "process": self.iterate_sele,
+            "return": "You clicked ",
+            "signal": None
+        }
+        print("Now monitoring all pymol atom clicks!")
+
+    def iterate_sele(self, stdout):
+        """
+        Iterates over selected atoms and get ID
+        """
+        self.pymol_cmd("iterate sele, ID")
+
+    def unmonitor_clicks(self):
+        del self.stdout_handler["You clicked "]
 
     def load_structure(self, file_=None, delete_after=False):
         """

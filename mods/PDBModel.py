@@ -6,7 +6,6 @@ from mods.common_functions import find_ligands_pdbfile
 import os
 
 
-
 class ModelPDB(QtWidgets.QMainWindow):
     """
     User window to interact with global settings (REACT attributes

@@ -6,6 +6,57 @@ import re
 import os
 
 
+class Properties(Geometries):
+    """
+    General class for REACT to store DFT/QM properties. All classes are meant to read their respective files and init
+    this class.
+    """
+    def __init__(self, parent, filetype=None, filepath=None, molecules=None):
+        self.react = parent
+        self._filepath = filepath
+        super().__init__(molecules=molecules, filepath=filepath)
+
+        # This class should know what filetype it has... Gaussian, PDB, XYZ... and other future softwares like ADF..
+        self._filetype = filetype
+
+        # DFT
+        self._job_type = None
+        self._functional = None
+        self._basis = None
+        self._basis_diff = None
+        self._basis_pol1 = None
+        self._basis_pol2 = None
+        self._empiricaldispersion = None
+        self._job_mem = None
+        self._chk = None
+        self._job_options = []
+        self._link0_options = []
+
+    @property
+    def filepath(self):
+        return self._filepath
+
+    @filepath.setter
+    def filepath(self, value):
+        self._filepath = value
+
+    @property
+    def filename(self):
+        return self.filepath.split("/")[-1]
+
+    @property
+    def moleculename(self):
+        return self.filename.split(".")[0]
+
+    @property
+    def filetype(self):
+        return self._filetype
+
+    @filetype.setter
+    def filetype(self, value):
+        self._filetype = value
+
+
 class GaussianFile(Geometries):
     # TODO rename this class ??
 
