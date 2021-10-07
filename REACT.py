@@ -210,7 +210,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for i in range(len(self.states)):
             state = i + 1
-            for filepath in self.states[i].get_all_gpaths:
+            for filepath in self.states[i].get_all_paths:
                 print(filepath)
                 self.file_to_pymol(filepath, state, set_defaults=False)
             self.pymol.pymol_cmd(f"group state_{state}")
@@ -366,7 +366,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for n in range(len(file_paths)):
             file = file_paths[n]
             print(file)
-            self.states[self.state_index].add_gfile(file)
+            self.states[self.state_index].add_file(file)
             if n == len(file_paths) - 1:
                 pymol_defaults = True
             progress_callback.emit({self.update_progressbar: ((int(n+1) * 100 / len(file_paths)),),
@@ -463,7 +463,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # delete files from state
         tab_index = self.tabWidget.currentIndex()
-        self.states[tab_index].del_gfiles([x.text() for x in list_items])
+        self.states[tab_index].del_files([x.text() for x in list_items])
 
         # delete files from pymol
         if self.pymol:
@@ -647,7 +647,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_text("\nREACT project last saved: %s\n" % (time.asctime(time.localtime(time.time()))))
 
         for index in range(len(self.states)):      
-            states[index+1] = self.states[index].get_all_gpaths
+            states[index+1] = self.states[index].get_all_paths
 
         project["states"] = states
         project["included files"] = self.included_files

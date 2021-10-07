@@ -17,9 +17,9 @@ class State:
                            "xyz": XYZFile}
 
         # filepath (key) : File object (value)
-        self.gfiles = {}
+        self.files = {}
 
-    def add_gfile(self, filepath, new_file=False):
+    def add_file(self, filepath, new_file=False):
         """
         Creates GaussianFile instance for each uploaded file-path.
         """
@@ -28,17 +28,17 @@ class State:
         filetype = filename.split(".")[-1]
 
         if new_file == True:
-            self.gfiles['new unsaved file'] = InputFile(self.parent, filepath, new_file)
+            self.files['new unsaved file'] = InputFile(self.parent, filepath, new_file)
         else:
-            self.gfiles[filepath] = self.file_types[filetype](self.parent, filepath)
+            self.files[filepath] = self.file_types[filetype](self.parent, filepath)
 
-        print(f'{self.gfiles}')
+        print(f'{self.files}')
 
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
-        if isinstance(self.gfiles[filepath], OutputFile):
+        if isinstance(self.files[filepath], OutputFile):
 
-            if self.gfiles[filepath].has_frequencies:
-                self.gfiles[filepath] = FrequenciesOut(self.parent, filepath)
+            if self.files[filepath].has_frequencies:
+                self.files[filepath] = FrequenciesOut(self.parent, filepath)
 
         return None
 
@@ -50,40 +50,40 @@ class State:
         filename = gaussian_instance.filename
         filetype = gaussian_instance.filetype
 
-    def del_gfiles(self, files_to_del):
+    def del_files(self, files_to_del):
         """
         Removes all files in files_to_del list from state.
         """
 
         for f in files_to_del:
             try:
-                self.gfiles.pop(f) 
+                self.files.pop(f) 
             except KeyError:
                 print(f"File \"{f}\" not found. Please check if the file has been moved or deleted.")
 
     @property
-    def get_all_gpaths(self):
+    def get_all_paths(self):
         """
         return: list of all gaussian filpaths associated with a given state.
         """
-        return [x for x in self.gfiles.keys()]
+        return [x for x in self.files.keys()]
 
     def get_molecule_object(self, filepath):
-        print(f'this is states: {self.gfiles}')
-        return self.gfiles[filepath]
+        print(f'this is states: {self.files}')
+        return self.files[filepath]
 
     def get_energy(self, filepath):
         """
         :return: final SCF Done value
         """
-        return self.gfiles[filepath].energy
+        return self.files[filepath].energy
 
     def check_convergence(self, filepath):
         """
         :param filename:
         :return: None (not geometry optimization), False (not converged) or True (converged)
         """
-        return self.gfiles[filepath].converged
+        return self.files[filepath].converged
 
     def get_scf(self, filepath):
         """
@@ -91,13 +91,13 @@ class State:
         :param filename:
         :return:
         """
-        return self.gfiles[filepath].scf_convergence
+        return self.files[filepath].scf_convergence
 
     def update_fileobject(self, filepath):
         """
         Updates a GaussianFile object in the event a file has been edited.        
         """
-        self.gfiles[filepath].update_fileobject()
+        self.files[filepath].update_fileobject()
 
     def get_xyz_formatted(self, molecule):
         """
@@ -111,17 +111,17 @@ class State:
         :param filepath:
         :return: a list of formated XYZ lines for guassian input files
         """
-        return self.gfiles[filepath].formatted_xyz
+        return self.files[filepath].formatted_xyz
 
     def get_all_xyz(self, filepath):
-        return self.gfiles[filepath].all_geometries_formatted
+        return self.files[filepath].all_geometries_formatted
 
     def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
         """
         :param filepath:
         :return: list of formated xyz files
         """
-        g_molecules = self.gfiles[filepath].create_displacement_animation(freq=freq, scale=scale, steps=steps)
+        g_molecules = self.files[filepath].create_displacement_animation(freq=freq, scale=scale, steps=steps)
 
         xyz = list()
         for step in g_molecules:
@@ -134,50 +134,50 @@ class State:
         :param filepath:
         :return: bool
         """
-        return self.gfiles[filepath].solvent
+        return self.files[filepath].solvent
 
     def has_frequencies(self, filepath):
         """
         :param filepath:
         :return: bool
         """
-        return self.gfiles[filepath].frequencies
+        return self.files[filepath].frequencies
 
     def get_thermal_dg(self, filepath):
         """
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].frequencies:
-            return self.gfiles[filepath].get_thermal_dg
+        if self.files[filepath].frequencies:
+            return self.files[filepath].get_thermal_dg
 
     def get_thermal_dh(self, filepath):
         """
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].frequencies:
-            return self.gfiles[filepath].get_thermal_dh
+        if self.files[filepath].frequencies:
+            return self.files[filepath].get_thermal_dh
 
     def get_thermal_de(self, filepath):
         """
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].frequencies:
-            return self.gfiles[filepath].get_thermal_de
+        if self.files[filepath].frequencies:
+            return self.files[filepath].get_thermal_de
 
     def get_zpe(self, filepath):
         """
         :param filepath:
         :return:
         """
-        if self.gfiles[filepath].frequencies:
-            return self.gfiles[filepath].get_thermal_zpe
+        if self.files[filepath].frequencies:
+            return self.files[filepath].get_thermal_zpe
 
     def get_frequencies(self, filepath):
-        if self.gfiles[filepath].frequencies:
-            return self.gfiles[filepath].get_frequencies
+        if self.files[filepath].frequencies:
+            return self.files[filepath].get_frequencies
 
     def create_input_content(self, path):
         """
@@ -191,8 +191,8 @@ class State:
         #content = ""
         #gaussian_filetypes = ["out", "inp", "com"]
         #if path.split(".")[-1] in gaussian_filetypes:
-        #    routecard = self.gfiles[path].get_routecard
-        #    charge_multiplicity = self.gfiles[path].get_charge_multiplicity
+        #    routecard = self.files[path].get_routecard
+        #    charge_multiplicity = self.files[path].get_charge_multiplicity
         #    xyz = self.get_final_xyz(path)
 #
 #
@@ -203,7 +203,7 @@ class State:
         #        content += line + '\n'
 #
         #elif path.split(".")[-1] == "xyz":
-        #    # content = self.gfiles[path].get_formatted_xyz gives error?
+        #    # content = self.files[path].get_formatted_xyz gives error?
         #    #TODO get global settings, get coordinates, make inputfile content
         #    content = "Empty since this hasn't been implemented yet..."
 #

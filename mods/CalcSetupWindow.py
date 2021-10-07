@@ -30,7 +30,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.filepath.split("/")[-1].split(".")[1] == ".com" or self.filepath.split("/")[-1].split(".")[1] == ".inp":
             self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         else:
-            self.react.states[self.react.state_index].add_gfile(filepath, new_file=True)
+            self.react.states[self.react.state_index].add_file(filepath, new_file=True)
             #self.mol_obj = self.react.states[self.react.state_index].get_molecule_object('new unsaved file')
             self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         self.insert_model_atoms()
