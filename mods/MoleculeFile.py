@@ -1,4 +1,4 @@
-from mods.Atoms import XYZAtom, GaussianAtom, PDBAtom
+from mods.Atoms import XYZAtom, PDBAtom
 
 
 class Molecule:
@@ -104,7 +104,7 @@ class Molecule:
 
 
 class XYZFile(Molecule):
-    def __init__(self, atoms=None, filepath=None):
+    def __init__(self, parent=None, atoms=None, filepath=None):
         # Atoms = list(Atom)
         if atoms:
             # List of Atom objects
@@ -132,7 +132,7 @@ class XYZFile(Molecule):
 
 
 class PDBFile(XYZFile):
-    def __init__(self, pdb_atoms=None, filepath=None):
+    def __init__(self, parent=None, pdb_atoms=None, filepath=None):
         if filepath:
             self._atoms = self.read_pdb(filepath)
         elif pdb_atoms:
@@ -160,7 +160,7 @@ class Geometries(XYZFile):
     """
     Takes a list of molecules [[Atoms], [Atoms],... iterations SCF] typically from geometry optimisations.
     """
-    def __init__(self, molecules, filepath=None):
+    def __init__(self, parent=None, molecules=None, filepath=None):
 
         # [[Atoms], [Atoms],... iterations SCF]
         self._molecules = molecules
