@@ -24,7 +24,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
-        # TODO when this window pops up: qt.qpa.window: Window position QRect(2248,-3 624x645) outside any known screen, using primary screen
+
+        # TODO optimize this?:
+        screen_size = QtWidgets.QDesktopWidget().screenGeometry()
+        window_size = self.geometry()
+        self.move(int(((screen_size.width() - window_size.width()) / 2)) - 250, 100)
+
         self.setWindowTitle("REACT - Calculation setup")
 
         if self.filepath.split("/")[-1].split(".")[1] == ".com" or self.filepath.split("/")[-1].split(".")[1] == ".inp":
