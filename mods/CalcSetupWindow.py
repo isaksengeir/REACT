@@ -85,34 +85,22 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     @pyqtSlot(list)
     def pymol_atom_clicked(self, ids):
         """
-        Get atoms selected in pymol
+        Get atoms selected in pymol and select deselect in model atom listwidget
         """
-        #selected_indexes = [x.row() for x in self.selected_indexes]
-
         ids = [int(x) - 1 for x in ids]
-        #while len(selected_indexes) >= len(ids):
-        #    selected_indexes.pop(0)
-        print(f"from pymol {len(ids)}")
-        print(f"current list {len(self.selected_ids)}")
 
-        if len(ids) < len(self.selected_ids):
-            for i in range(len(self.selected_ids)):
-                if self.selected_ids[i] not in ids:
-                    self.selected_ids.pop(i)
-                    break
+        # Effective when len(ids) > len(self.selected_ids)
+        unsele = list(set(self.selected_ids) - set(ids))
+        for id in unsele:
+            self.ui.list_model.item(id).setSelected(False)
+            self.selected_ids.pop(self.selected_ids.index(id))
 
-        print(len(self.selected_ids))
-        print(ids)
-        print(self.selected_ids)
-
-        for id in ids:
-            if id not in self.selected_ids:
-                self.selected_ids.append(id)
-
-        while len(self.selected_ids) > self.atoms_to_select:
-            self.selected_ids.pop(0)
-        for id in self.selected_ids:
-            #if id not in selected_indexes:
+        # Effective when len(ids) < len(self.selected_ids)
+        new_select = list(set(ids) - set(self.selected_ids))
+        for id in new_select:
+            self.selected_ids.append(id)
+            if len(self.selected_ids) > self.atoms_to_select:
+                self.selected_ids.pop(0)
             self.ui.list_model.item(id).setSelected(True)
 
     def model_atom_clicked(self):
@@ -149,7 +137,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def freeze_list_clicked(self):
         """
-        When entry in "Atoms to freeze" is cliced, update to selected in "Atoms in model" list and pymol
+        When entry in "Atoms to freeze" is clicked, update to selected in "Atoms in model" list and pymol
         """
         indexes = [int(x) - 1 for x in self.ui.list_freeze_atoms.currentItem().text().split()[1:-1]]
 
