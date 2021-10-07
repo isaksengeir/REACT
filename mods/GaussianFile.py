@@ -11,8 +11,7 @@ class Properties(Geometries):
     General class for REACT to store DFT/QM properties. All classes are meant to read their respective files and init
     this class.
     """
-    def __init__(self, parent, filetype=None, filepath=None, molecules=None):
-        self.react = parent
+    def __init__(self, filetype=None, filepath=None, molecules=None):
         self._filepath = filepath
         super().__init__(molecules=molecules, filepath=filepath)
 
@@ -60,12 +59,11 @@ class Properties(Geometries):
 class GaussianFile(Geometries):
     # TODO rename this class ??
 
-    def __init__(self, parent, filepath, molecules=None):
+    def __init__(self, filepath, molecules=None):
         self._filepath = filepath
         # GaussianMolecule class controls multiple geometries
         super().__init__(molecules=molecules, filepath=filepath)
 
-        self.parent = parent
         self._filename = filepath.split("/")[-1]
 
         self._fileextension = None
@@ -211,16 +209,16 @@ class GaussianFile(Geometries):
         """
         pass
 
-    def set_default_settings(self):
+    # def set_default_settings(self):
 
-        self.functional = self.parent.settings.functional
-        self.basis = self.parent.settings.basis
-        self.basis_diff = self.parent.settings.basis_diff
-        self.basis_pol1 = self.parent.settings.basis_pol1
-        self.basis_pol2 = self.parent.settings.basis_pol2
-        self.empiricaldispersion = self.parent.settings.empiricaldispersion
-        self.job_mem = self.parent.settings.job_mem
-        self.chk = self.parent.settings.chk
+    #     self.functional = self.parent.settings.functional
+    #     self.basis = self.parent.settings.basis
+    #     self.basis_diff = self.parent.settings.basis_diff
+    #     self.basis_pol1 = self.parent.settings.basis_pol1
+    #     self.basis_pol2 = self.parent.settings.basis_pol2
+    #     self.empiricaldispersion = self.parent.settings.empiricaldispersion
+    #     self.job_mem = self.parent.settings.job_mem
+    #     self.chk = self.parent.settings.chk
    
     def _regEx_job_detail_search(self, string, job_detail_key):
         '''
@@ -235,22 +233,14 @@ class GaussianFile(Geometries):
 
 class InputFile(GaussianFile):
 
-    def __init__(self, parent, filepath, new_file=False):
+    def __init__(self, filepath, new_file=False):
 
-        self.parent = parent
         #regEx pattern to reconize charge-multiplicity line. -?\d+ any digit any length, [13] = digit 1 or 3, \s*$ = any num of trailing whitespace 
         self.charge_multiplicity_regEx = re.compile('^\s*-?\d+\s*[13]\s*$')
         
-        if new_file == True:
-            self.old_file_obj = self.parent.states[self.parent.state_index].files[filepath]
-            self._filepath = None
-            molecules = self.old_file_obj.molecules
-            charge = self.old_file_obj.charge
-            multiplicity = self.old_file_obj.multiplicity
-        else:
-            molecules, charge, multiplicity = self.get_molecules_charge_multiplicity(filepath)
+        molecules, charge, multiplicity = self.get_molecules_charge_multiplicity(filepath)
 
-        super().__init__(parent, filepath, molecules=molecules)
+        super().__init__(filepath, molecules=molecules)
         
         self.charge = charge
         self.multiplicity = multiplicity
@@ -288,18 +278,18 @@ class InputFile(GaussianFile):
         #self.charge_multiplicity_regEx = re.compile('-?\d+ [13]\s*$')
 
 
-    def set_filepath_and_filename(self):
-        old_filename = self.old_file_obj.filepath.split['/'][-1].split('.')[0]
+    # def set_filepath_and_filename(self):
+        # old_filename = self.old_file_obj.filepath.split['/'][-1].split('.')[0]
 
-        i = 0
-        new_filepath = self.parent.settings.workdir + '/' + old_filename
+        # i = 0
+        # new_filepath = self.parent.settings.workdir + '/' + old_filename
 
-        while os.path.isfile(new_filepath + self.fileextension) == True:
-            i += 1
-            new_filepath = new_filepath + f'_{i}'
+        # while os.path.isfile(new_filepath + self.fileextension) == True:
+            # i += 1
+            # new_filepath = new_filepath + f'_{i}'
 
-        self.filepath = new_filepath + self.fileextension
-        self.filename = new_filepath['/'][-1]
+        # self.filepath = new_filepath + self.fileextension
+        # self.filename = new_filepath['/'][-1]
 
 
     def get_molecules_charge_multiplicity(self, filepath):
@@ -369,11 +359,11 @@ class InputFile(GaussianFile):
 
 
 class OutputFile(GaussianFile):
-    def __init__(self, parent, filepath):
+    def __init__(self, filepath):
         self._filepath = filepath
         molecules = self.get_coordinates()
 
-        super().__init__(parent, filepath, molecules=molecules)
+        super().__init__(filepath, molecules=molecules)
 
         # Where to get gaussian output value from line.split(int)
         # first key = Line to look for in output file
@@ -626,8 +616,8 @@ class OutputFile(GaussianFile):
 
 class FrequenciesOut(OutputFile):
 
-    def __init__(self, parent, filepath):
-        super().__init__(parent, filepath)
+    def __init__(self, filepath):
+        super().__init__(filepath)
 
         self.filepath = filepath
 

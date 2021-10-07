@@ -27,18 +27,15 @@ class State:
         filename = filepath.split("/")[-1]
         filetype = filename.split(".")[-1]
 
-        if new_file == True:
-            self.files['new unsaved file'] = InputFile(self.parent, filepath, new_file)
-        else:
-            self.files[filepath] = self.file_types[filetype](self.parent, filepath)
+        self.files[filepath] = self.file_types[filetype](filepath=filepath)
 
         print(f'{self.files}')
 
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
         if isinstance(self.files[filepath], OutputFile):
 
-            if self.files[filepath].has_frequencies:
-                self.files[filepath] = FrequenciesOut(self.parent, filepath)
+            if self.files[filepath].frequencies:
+                self.files[filepath] = FrequenciesOut(filepath)
 
         return None
 

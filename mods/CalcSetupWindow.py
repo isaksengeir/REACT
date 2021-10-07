@@ -215,7 +215,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
-        print('johoo')
         # TODO implement!
         job_type = self.ui.comboBox_job_type.currentText()
         self.ui.checkBox_placeholder1.setText('Tight')
