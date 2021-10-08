@@ -280,7 +280,7 @@ class Settings():
         settings['basis_options'] = self.basis_options
         settings['functional_options'] = self.functional_options
         
-        with open(self.workdir + '/.custom_settings.json', 'w+') as f:
+        with open(self.settingspath, 'w+') as f:
             json.dump(settings, f)
 
 
