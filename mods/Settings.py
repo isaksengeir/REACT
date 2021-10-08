@@ -7,9 +7,14 @@ import mods.common_functions as cf
 
 
 class Settings():
-    def __init__(self, parent):
+    def __init__(self, parent=None, settingspath=None):
 
         self.react = parent
+
+        if not settingspath:
+            self.settingspath = '.custom_settings.json'
+        else:
+            self.settingspath = settingspath
 
         self._workdir = None
         self._pymolpath = None
@@ -32,7 +37,7 @@ class Settings():
         self._functional_options = None
 
         try:
-            with open('.custom_settings.json', 'r') as f:
+            with open(self.settingspath, 'r') as f:
                 custom_data = json.load(f, object_hook=cf.json_hook_int_bool_converter)
                 self.load_custom_settings(custom_data)
         except:

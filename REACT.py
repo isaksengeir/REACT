@@ -34,8 +34,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("REACT - Main")
 
         self.react_path = os.getcwd()
-        self.settings = Settings(self)
-
+        self.settings = Settings(parent=self, settingspath=f"{self.react_path}/.custom_settings.json")
         self.states = []
         self.proj_name = 'new_project'
 
