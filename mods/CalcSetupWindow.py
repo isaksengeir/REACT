@@ -38,6 +38,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.react.states[self.react.state_index].add_file(filepath, new_file=True)
             #self.mol_obj = self.react.states[self.react.state_index].get_molecule_object('new unsaved file')
             self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
+        print("mol_obj")
+        print(self.mol_obj)
+
         self.insert_model_atoms()
         self.fill_main_tab()
 
@@ -92,6 +95,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         Get atoms selected in pymol and select deselect in model atom listwidget
         """
+        if not ids or None in ids:
+            return
+
         ids = [int(x) - 1 for x in ids]
 
         # Effective when len(ids) > len(self.selected_ids)

@@ -401,8 +401,9 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.pymol_cmd("save %s, model_final" % pdb_path)
 
         if self.ui.copy_to_project.isChecked():
+            self.react.add_files([pdb_path])
             # We need to wait for file to be written:
-            QTimer.singleShot(100, lambda: self.react.add_files([pdb_path]))
+            #QTimer.singleShot(100, lambda: self.react.add_files([pdb_path]))
 
     def closeEvent(self, event):
         self.react.cluster_window = None

@@ -231,6 +231,7 @@ class GaussianFile(Geometries):
                 if regEx.search(string) and re.search('^ %', string) == None:
                     self.job_details[job_detail_key] = regEx.search(string).group()
 
+
 class InputFile(GaussianFile):
 
     def __init__(self, filepath, new_file=False):
@@ -654,7 +655,7 @@ class FrequenciesOut(OutputFile):
         """
         Make GaussianMolecule with displacements for X,Y,Z for all atoms as "coordinates"
         :param frequency: selected frequency to extract displacements from
-        :return: TODO
+        :return: self.freq_displacement[frequency9
         """
         # Skip reading of output file if already read and stored:
         if frequency in self.freq_displacement.keys():
