@@ -79,9 +79,16 @@ class Molecule:
         molecule_xyz = list()
 
         for i in sorted(self.molecule.keys()):
-            molecule_xyz.append(self.molecule[i].formatted_xyz)
+            molecule_xyz.append(self.molecule[i].formatted_xyz_line)
 
         return molecule_xyz
+
+    @property
+    def formatted_pdb(self):
+        pdb_list = list()
+        for i in sorted(self.molecule.keys()):
+            pdb_list.append(self.molecule[i].formatted_pdb_line)
+        return pdb_list
 
     @property
     def atom_count(self):
@@ -95,68 +102,8 @@ class Molecule:
     def atoms(self, value):
         self._atoms = value
 
-    def convert_to_pdb(self):
-        """
-        Create PDB file from XYZ file
-        :return: TODO ?
-        """
-        pass
 
-
-class XYZFile(Molecule):
-    def __init__(self, atoms=None, filepath=None):
-        # Atoms = list(Atom)
-        if atoms:
-            # List of Atom objects
-            self._atoms = atoms
-
-        if not atoms and filepath:
-            self._filepath = filepath
-            self._atoms = self.read_xyz()
-
-        super(XYZFile, self).__init__(atoms=self._atoms, filepath=filepath)
-
-    def read_xyz(self):
-        """
-        :param filepath: path to xyz file
-        :return: dict with atoms - {atom_index: {name: C, x:value, y: value, z: value}}
-        """
-        index = 0
-        atoms = list()
-        with open(self._filepath, "r") as xyz:
-            for line in xyz:
-                if len(line.split()) > 3:
-                    index += 1
-                    atoms.append(XYZAtom(line, index))
-        return atoms
-
-
-class PDBFile(XYZFile):
-    def __init__(self, pdb_atoms=None, filepath=None):
-        if filepath:
-            self._atoms = self.read_pdb(filepath)
-        elif pdb_atoms:
-            self._atoms = pdb_atoms
-
-        super().__init__(atoms=self._atoms, filepath=filepath)
-
-    def read_pdb(self, filepath):
-        atoms = list()
-        with open(filepath, "r") as pdb:
-            for line in pdb:
-                if line.startswith("ATOM") or line.startswith("HETATM"):
-                    atoms.append(PDBAtom(line))
-        return atoms
-
-    @property
-    def formatted_pdb(self):
-        pdb_list = list()
-        for i in sorted(self.molecule.keys()):
-            pdb_list.append(self.molecule[i].get_pdb_line)
-        return pdb_list
-
-
-class Geometries(XYZFile):
+class Geometries(Molecule):
     """
     Takes a list of molecules [[Atoms], [Atoms],... iterations SCF] typically from geometry optimisations.
     """
@@ -173,6 +120,11 @@ class Geometries(XYZFile):
     def molecules(self):
         return self._molecules
 
+    @molecules.setter
+    def molecules(self, value):
+        self._molecules = value
+
+
     @property
     def count_molecules(self):
         return len(self._molecules)
@@ -180,10 +132,6 @@ class Geometries(XYZFile):
     @property
     def iteration(self):
         return self._iteration
-
-    @molecules.setter
-    def molecules(self, value):
-        self._molecules = value
 
     @iteration.setter
     def iteration(self, value):
@@ -201,4 +149,55 @@ class Geometries(XYZFile):
             self.iteration = i
             geoms.append(self.formatted_xyz)
         return geoms
+
+
+class XYZFile(Geometries):
+    def __init__(self, atoms=None, filepath=None):
+        # Atoms = list(Atom)
+        if atoms:
+            # List of Atom objects
+            self._atoms = atoms
+
+        if not atoms and filepath:
+            self._filepath = filepath
+            self._atoms = self.read_xyz()
+
+        super(XYZFile, self).__init__(molecules=[self._atoms], filepath=filepath)
+
+    def read_xyz(self):
+        """
+        :param filepath: path to xyz file
+        :return: dict with atoms - {atom_index: {name: C, x:value, y: value, z: value}}
+        """
+        index = 0
+        atoms = list()
+        with open(self._filepath, "r") as xyz:
+            for line in xyz:
+                if len(line.split()) > 3:
+                    index += 1
+                    atoms.append(XYZAtom(line, index))
+        return atoms
+
+
+class PDBFile(Geometries):
+    def __init__(self, pdb_atoms=None, filepath=None):
+        if filepath:
+            self._atoms = self.read_pdb(filepath)
+        elif pdb_atoms:
+            self._atoms = pdb_atoms
+
+        super().__init__(molecules=[self._atoms], filepath=filepath)
+
+    def read_pdb(self, filepath):
+        atoms = list()
+        with open(filepath, "r") as pdb:
+            for line in pdb:
+                if line.startswith("ATOM") or line.startswith("HETATM"):
+                    atoms.append(PDBAtom(line))
+        return atoms
+
+
+
+
+
 

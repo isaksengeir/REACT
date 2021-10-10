@@ -13,59 +13,121 @@ class Atom:
         # Atom name to atom number dictionary
         self.atom_atomnr = {atom: atomnr for atomnr, atom in self.atomnr_atom.items()}
 
-        # TODO make a dictionary for atom mass as well
-
         #atom can be passed to Atom class either as atomic number or atomic name:
         if atom.isdigit():
-            self.atomnr = int(atom)
-            self.atomname = self.atomnr_atom[self.atomnr]
+            self._atom_nr = int(atom)
+            self._atom_name = self.atomnr_atom[self.atom_nr]
         else:
             try:
-                self.atomnr = self.atom_atomnr[atom]
+                self._atom_nr = self.atom_atomnr[atom]
             except KeyError:
-                self.atomnr = None
+                self._atom_nr = None
 
-            self.atomname = atom
+            self._atom_name = atom
 
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
+        self._x = float(x)
+        self._y = float(y)
+        self._z = float(z)
 
+        self._pdb_atom_nr = None
         if index:
             self.center_number = index
+            self._pdb_atom_nr = index
+
+        self._pdb_atom_name = self.atom_name
+        self._residue_name = "UNK"
+        self._residue_nr = 1
+        self._formatted_pdb_line = self.make_pdb_line()
 
     @property
-    def get_x(self):
-        return self.x
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
 
     @property
-    def get_y(self):
-        return self.y
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        self._y = value
 
     @property
-    def get_z(self):
-        return self.z
+    def z(self):
+        return self._z
+
+    @z.setter
+    def z(self, value):
+        self._z = value
 
     @property
-    def get_coordinate(self):
-        coordinates = (self.x, self.y, self.z)
-        return coordinates
+    def coordinate(self):
+        return self.x, self.y, self.z
 
     @property
-    def formatted_xyz(self):
-        return " %15s%14.8f%14.8f%14.8f" % (self.atomname.ljust(15), self.x, self.y, self.z)
+    def formatted_xyz_line(self):
+        return " %15s%14.8f%14.8f%14.8f" % (self.atom_name.ljust(15), self.x, self.y, self.z)
 
     @property
-    def get_atom_name(self):
-        return self.atomname
+    def formatted_pdb_line(self):
+        return self._formatted_pdb_line
+
+    @formatted_pdb_line.setter
+    def formatted_pdb_line(self, value):
+        self._formatted_pdb_line = value
 
     @property
-    def get_atom_nr(self):
-        return self.atomnr
+    def atom_name(self):
+        return self._atom_name
 
     @property
-    def get_atom_index(self):
+    def atom_nr(self):
+        return self._atom_nr
+
+    @property
+    def atom_index(self):
         return int(self.center_number)
+
+    @property
+    def pdb_atom_nr(self):
+        return self._pdb_atom_nr
+
+    @pdb_atom_nr.setter
+    def pdb_atom_nr(self, value):
+        self._pdb_atom_nr = value
+
+    @property
+    def pdb_atom_name(self):
+        return self._pdb_atom_name
+
+    @pdb_atom_name.setter
+    def pdb_atom_name(self, value):
+        self._pdb_atom_name = value
+
+    @property
+    def residue_name(self):
+        return self._residue_name
+
+    @residue_name.setter
+    def residue_name(self, value):
+        self._residue_name = value
+
+    @property
+    def residue_nr(self):
+        return self._residue_nr
+
+    @residue_nr.setter
+    def residue_nr(self, value):
+        self._residue_nr = value
+
+    def make_pdb_line(self):
+        occupancy_etc = " 0.00  0.00           "
+        pdb_line = f"ATOM {self.pdb_atom_nr:6d}  {self.pdb_atom_name:3s} {self.residue_name:4s}{self.residue_nr:5d}    " \
+                   f"{self.x:8.3f}{self.y:8.3f}{self.z:8.3f} {occupancy_etc}{self.atom_name}"
+        return pdb_line
 
 
 class XYZAtom(Atom):
@@ -92,15 +154,16 @@ class GaussianAtom(Atom):
     def __init__(self, atom_line=None):
         if atom_line:
             # Gaussian atom attributes:
-            self.center_number = int(atom_line.split()[0])
-            self.atomic_type = int(atom_line.split()[2])
+            center_number = int(atom_line.split()[0])
+
+            _atomic_type = int(atom_line.split()[2])
 
             # Atom class attributes:
             atom = atom_line.split()[1]
             x_coordinate = float(atom_line.split()[3])
             y_coordinate = float(atom_line.split()[4])
             z_coordinate = float(atom_line.split()[5])
-            super(GaussianAtom, self).__init__(atom, x_coordinate, y_coordinate, z_coordinate, self.center_number)
+            super(GaussianAtom, self).__init__(atom, x_coordinate, y_coordinate, z_coordinate, center_number)
 
         # atom = {index: int, name: C:str, X:float, Y:float, Z:float}
 
@@ -112,37 +175,17 @@ class PDBAtom(Atom):
     """
     def __init__(self, atom_line=None):
         if atom_line:
-            self.pdb_atom_nr = int(atom_line[6:11])
+            atom_index = int(atom_line[6:11])
             atom = atom_line[76:79].strip()
             atom = "".join([i for i in atom if not i.isdigit()])
             x_coordinate = float(atom_line[26:].split()[0])
             y_coordinate = float(atom_line[26:].split()[1])
             z_coordinate = float(atom_line[26:].split()[2])
-            super(PDBAtom, self).__init__(atom, x_coordinate, y_coordinate, z_coordinate, self.pdb_atom_nr)
+            super(PDBAtom, self).__init__(atom, x_coordinate, y_coordinate, z_coordinate, atom_index)
 
+            # setters pdb info:
+            self.pdb_atom_nr = int(atom_line[6:11])
             self.pdb_atom_name = atom_line[12:17].strip()
             self.res_name = atom_line[16:21]
             self.res_nr = int("".join(i for i in atom_line[21:26] if i.isdigit()))
-            self.formated_pdb_line = atom_line.strip("\n")
-        else:
-            pass
-
-    @property
-    def get_pdb_atomnr(self):
-        return self.pdb_atom_nr
-
-    @property
-    def get_pdb_atom_name(self):
-        return self.pdb_atom_name
-
-    @property
-    def get_residue_name(self):
-        return self.res_name
-
-    @property
-    def get_residue_nr(self):
-        return self.res_nr
-
-    @property
-    def get_pdb_line(self):
-        return self.formated_pdb_line
+            self.pdb_line = atom_line.strip("\n")

@@ -133,8 +133,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         atoms = list()
         coordinates = list()
         for i in self.selected_indexes:
-            atoms.append(self.mol_obj.molecule[i.row() + 1].get_atom_index)
-            coordinates.append(self.mol_obj.molecule[i.row() + 1].get_coordinate)
+            atoms.append(self.mol_obj.molecule[i.row() + 1].atom_index)
+            coordinates.append(self.mol_obj.molecule[i.row() + 1].coordinate)
 
         if self.ui.comboBox_freezetype.currentText() == "Bond" and len(atoms) == 2:
             self.enable_scan(enable=True)
@@ -150,8 +150,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         When entry in "Atoms to freeze" is clicked, update to selected in "Atoms in model" list and pymol
         """
-        indexes = [int(x) - 1 for x in self.ui.list_freeze_atoms.currentItem().text().split()[1:-1]]
-
+        try:
+            indexes = [int(x) - 1 for x in self.ui.list_freeze_atoms.currentItem().text().split()[1:-1]]
+        except AttributeError:
+            return
         freeze_type = {1: "Atom", 2: "Bond", 3: "Angle", 4: "Dihedral"}
         self.ui.comboBox_freezetype.setCurrentText(freeze_type[len(indexes)])
 
@@ -163,7 +165,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
-        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.mol_obj.filename.split(".")[0], group=group)
+        self.pymol.set_selection(atoms=atoms, sele_name="sele", object_name=self.mol_obj.molecule_name, group=group)
 
     def add_freeze_atoms(self):
         """
@@ -173,7 +175,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         g_cmd = {"Atom": "X", "Bond": "B", "Angle": "A", "Dihedral": "D"}
         atoms = ""
         for i in self.selected_indexes:
-            atomnr = self.mol_obj.molecule[i.row() + 1].get_atom_index
+            atomnr = self.mol_obj.molecule[i.row() + 1].atom_index
             if self.pymol:
                 self.pymol_spheres(atomnr)
             atoms += f"{atomnr } "
@@ -195,7 +197,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         freeze = "B "
         for i in self.selected_indexes:
-            freeze += f"{self.mol_obj.molecule[i.row() + 1].get_atom_index} "
+            freeze += f"{self.mol_obj.molecule[i.row() + 1].atom_index} "
 
         freeze += f"{self.ui.spinbox_radius.value()} {self.ui.spinbox_scan_pm.value()} " \
                   f"{self.ui.spinbox_scan_increment.value()}"
@@ -228,15 +230,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.checkBox_placeholder3.setText('calcfc')
         self.ui.checkBox_placeholder4.setText('Z-Matrix')
 
-
-
     def fill_main_tab(self):
         """
         Add all options to all comboBoxes + set current default settings
 
         :return:
         """
-
         self.ui.lineEdit_filename.setText(self.mol_obj.filename)
         self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
         self.ui.comboBox_funct.addItems(self.react.settings.functional_options)

@@ -4,7 +4,7 @@ from mods.MoleculeFile import PDBFile, XYZFile, Geometries
 
 class State:
     """
-    Stores all file objects for every state in REACT.
+    Stores all file objects for one state in REACT.
     """
     def __init__(self, parent):
         self.parent = parent
@@ -110,8 +110,8 @@ class State:
         """
         return self.files[filepath].formatted_xyz
 
-    def get_all_xyz(self, filepath):
-        return self.files[filepath].all_geometries_formatted
+    #def get_all_xyz(self, filepath):
+    #    return self.files[filepath].all_geometries_formatted
 
     def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
         """

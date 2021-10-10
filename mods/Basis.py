@@ -1,6 +1,3 @@
-
-
-
 class Basis:
 
     def __init__(self):
