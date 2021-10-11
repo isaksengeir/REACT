@@ -113,18 +113,18 @@ class State:
     #def get_all_xyz(self, filepath):
     #    return self.files[filepath].all_geometries_formatted
 
-    def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
-        """
-        :param filepath:
-        :return: list of formated xyz files
-        """
-        g_molecules = self.files[filepath].create_displacement_animation(freq=freq, scale=scale, steps=steps)
+    #def get_displacement_xyz(self, filepath, freq, scale=1, steps=10):
+    #    """
+    #    :param filepath:
+    #    :return: list of formated xyz files
+    #    """
+    #    g_molecules = self.files[filepath].create_displacement_animation(freq=freq, scale=scale, steps=steps)
 
-        xyz = list()
-        for step in g_molecules:
-            xyz.append(self.get_xyz_formatted(step))
+    #    xyz = list()
+    #    for step in g_molecules:
+    #        xyz.append(self.get_xyz_formatted(step))
 
-        return xyz
+    #   return xyz
 
     def has_solvent(self, filepath):
         """

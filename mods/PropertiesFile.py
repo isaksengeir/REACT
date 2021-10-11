@@ -1,4 +1,4 @@
-from mods.MoleculeFile import Geometries
+from mods.MoleculeFile import Geometries, Molecule
 import copy
 
 
@@ -260,8 +260,9 @@ class Properties(Geometries):
     def link0_options(self, value):
         self._link0_options = value
 
-    def create_displacement_animation(self, freq, scale=1, steps=10):
+    def displacement_animation(self, freq, scale=1, steps=10):
         """
+        Creates a list of Molecule objects with coordinates corresponding to displacement caused by frequency.
         :param scale: scale displacment
         :param steps: number of structures to create
         :return: list of gaussian molecules, where the first is the original optimised molecules.
@@ -270,7 +271,7 @@ class Properties(Geometries):
         displacement = self.get_displacement(freq).molecule
 
         molecules = list()
-        molecules.append(molecule)
+        molecules.append(Molecule(atoms=molecule))
 
         # Forward direction (N steps)
         for i in range(steps):
@@ -280,7 +281,7 @@ class Properties(Geometries):
                 mol_disp[atom].y += float(displacement[atom].y) * scale * (i / steps)
                 mol_disp[atom].z += float(displacement[atom].z) * scale * (i / steps)
 
-            molecules.append(mol_disp)
+            molecules.append(Molecule(atoms=mol_disp))
         # Reversed direction
         for i in range(len(molecules) - 1, 0, -1):
             molecules.append(molecules[i])
@@ -297,4 +298,5 @@ class Properties(Geometries):
         if frequency in self.freq_displacement.keys():
             return self.freq_displacement[frequency]
 
-        # else --> read from Software output file. [put this function in software child class]
+        # else --> read from Software output file.
+        # [put this function in software child class]

@@ -106,22 +106,22 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
 
         # path to gaussian output file with frequencies:
         g_file = self.get_freq_file
-
         # Current state:
         state = self.react.get_current_state
+        mol_obj = self.react.states[state - 1].get_molecule_object(filepath=g_file)
 
         # Get vibration scaling:
         scale = self.ui.lcdNumber_scale.value() / 100.
 
-        # Get list of xyz coordinates for vibrational displacement:
-        xyz_vib = self.react.states[state-1].get_displacement_xyz(filepath=g_file, freq=frq, steps=10, scale=scale)
+        # Get list with Molecule objects for vibrational displacement:
+        mol_vibs = mol_obj.displacement_animation(freq=frq, steps=10, scale=scale)
 
         # Load files to pymol, and/or write xyz files.
         i = 0
         base_name = "%s/%s" % ( self.react.settings.workdir, g_file.split("/")[-1].split(".")[0])
-        for vib in xyz_vib:
+        for mol in mol_vibs:
             xyz_path = "%s_tmp%03d.xyz" % (base_name, i)
-            cf.write_file(vib, xyz_path)
+            cf.write_file(mol.formatted_xyz, xyz_path)
             i += 1
             if view_pymol:
                 self.pymol.load_structure(xyz_path, delete_after=delete_files)

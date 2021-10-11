@@ -11,7 +11,7 @@ class Molecule:
         if atoms:
             if isinstance(atoms, dict):
                 self._molecule = atoms
-                self._atoms = self.atoms.values()
+                self._atoms = atoms.values()
             else:
                 self._atoms = atoms
                 self.make_molecule()
