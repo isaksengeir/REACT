@@ -39,6 +39,10 @@ class Molecule:
         return self.filepath.split("/")[-1]
 
     @property
+    def file_extension(self):
+        return self.filename.split(".")[-1]
+
+    @property
     def molecule_name(self):
         return self.filename.split(".")[0]
 
