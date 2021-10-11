@@ -43,7 +43,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         # TODO - get pymol_path from global settings
         self.pymol = self.react.pymol
 
-        state = self.react.tabWidget.currentIndex() + 1
+        state = self.react.get_current_state
         if not self.react.included_files or sum(len(x) for x in self.react.included_files[state].values()) < 4:
             self.init_included_files()
         self.update_state_included_files()
@@ -223,17 +223,19 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
                 # Check if state term has file (file length for now)
                 if len(self.react.included_files[state][term]) > 2:
                     filepath = self.react.included_files[state][term]
-                    state_object = self.react.states[state - 1]
-
+                    #state_object = self.react.states[state - 1]
+                    mol_obj = self.react.states[state - 1].get_molecule_object(filepath)
                     # Include 3 corrections from frequency calculation
                     if term == 1:
                         self.energies[state][term] = dict()
-                        self.energies[state][term]["dG"] = state_object.get_thermal_dg(filepath)
-                        self.energies[state][term]["dH"] = state_object.get_thermal_dh(filepath)
-                        self.energies[state][term]["dE"] = state_object.get_thermal_de(filepath)
+
+                        self.energies[state][term]["dG"] = mol_obj.thermal_dg
+                        self.energies[state][term]["dH"] = mol_obj.thermal_dh
+                        self.energies[state][term]["dE"] = mol_obj.thermal_de
 
                     else:
-                        self.energies[state][term] = state_object.get_energy(filepath)
+                        #self.energies[state][term] = state_object.get_energy(filepath)
+                        self.energies[state][term] = mol_obj.energy
                 else:
                     self.energies[state][term] = None
 
