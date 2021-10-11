@@ -216,6 +216,7 @@ class AnalyseCalc(QtWidgets.QMainWindow, Ui_AnalyseWindow):
         """
         self.energies = dict()
         for state in self.react.included_files.keys():
+            state = int(state)
             if state not in self.energies.keys():
                 self.energies[state] = {0: None, 1: None, 2: None, 3: None}
 
