@@ -229,13 +229,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return:
         """
         state = self.get_current_state
-        filepath = self.get_selected_filepath
+        #filepath = self.get_selected_filepath
+
+        mol_obj = self.states[self.state_index].get_molecule_object(self.get_selected_filepath)
 
         delete_after = True
-        xyz_list = self.states[state-1].get_all_xyz(filepath)
+        xyz_list = mol_obj.all_geometries_formatted
+
         del xyz_list[-1]
         i = 0
-        base_path = "%s/%s" % (self.settings.workdir, filepath.split("/")[-1].split(".")[0])
+        base_path = "%s/%s" % (self.settings.workdir, mol_obj.molecule_name)
 
         for xyz in xyz_list:
             xyz_path = "%s_scf%03d.xyz" % (base_path, i)
@@ -421,21 +424,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #    self.file_to_pymol(filepath=file, state=self.get_current_state, set_defaults=True)
 
     def check_convergence(self, file_path, item_index, tab_index=None):
-        filename = file_path.split('/')[-1]
         if tab_index is None:
             tab_index = self.tabWidget.currentIndex()
             tab_widget = self.tabWidget.currentWidget()
         else:
             tab_widget = self.tabWidget.widget(tab_index)
 
-        if filename.split(".")[-1] not in ["out", "log"]:
+        mol_obj = self.states[tab_index].get_molecule_object(filepath=file_path)
+
+        if mol_obj.file_extension not in ["out", "log"]:
             tab_widget.item(item_index).setForeground(QtGui.QColor(98, 114, 164))
         else:
-            converged = self.states[tab_index].check_convergence(file_path)
+            converged = mol_obj.converged
 
             if isinstance(converged, bool) and not converged:
                 tab_widget.item(item_index).setForeground(QtGui.QColor(195, 82, 52))
-                self.append_text("\nWarning: %s seems to have not converged!" % filename)
+                self.append_text("\nWarning: %s seems to have not converged!" % mol_obj.filename)
             elif isinstance(converged, bool) and converged:
                 tab_widget.item(item_index).setForeground(QtGui.QColor(117, 129, 104))
             elif not isinstance(converged, bool):
