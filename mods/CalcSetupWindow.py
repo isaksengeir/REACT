@@ -32,12 +32,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.setWindowTitle("REACT - Calculation setup")
 
-        if self.filepath.split("/")[-1].split(".")[1] == ".com" or self.filepath.split("/")[-1].split(".")[1] == ".inp":
-            self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
-        else:
-            self.react.states[self.react.state_index].add_file(filepath, new_file=True)
-            #self.mol_obj = self.react.states[self.react.state_index].get_molecule_object('new unsaved file')
-            self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
+
+        self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         print("mol_obj")
         print(self.mol_obj)
 
@@ -49,10 +45,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.mol_obj.link0_options))
         self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.mol_obj.link0_options))
         self.ui.comboBox_basis1.textActivated.connect(self.update_basis_boxes)
-        self.ui.comboBox_job_type.textActivated.connect(self.update_job_checkBoxes)
+        self.ui.comboBox_job_type.textActivated.connect(self.update_job_details)
         self.ui.button_cancel.clicked.connect(self.on_cancel)
         self.ui.button_write.clicked.connect(self.on_write)
-
+        self.ui.checkBox_mem.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_mem, self.ui.lineEdit_mem))
+        self.ui.checkBox_chk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_chk, self.ui.lineEdit_chk))
+        self.ui.checkBox_schk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_schk, self.ui.lineEdit_schk))
+        self.ui.checkBox_oldchk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_oldchk, self.ui.lineEdit_oldchk))
+        self.ui.checkBox_rwf.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_rwf, self.ui.lineEdit_rwf))
         self.ui.button_add_freeze.clicked.connect(self.add_freeze_atoms)
         self.ui.button_delete_freeze.clicked.connect(self.remove_freeze_atoms)
         self.ui.button_auto_freeze.clicked.connect(self.auto_freeze_atoms)
@@ -217,18 +217,47 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
         self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
 
-    def update_job_checkBoxes(self):
+    def update_job_details(self):
         """
-        Update placeholder checkBoxes according to selected job type
+        Update placeholder checkBoxes and additional-options-list according to selected job type
 
         :return:
         """
-        # TODO implement!
         job_type = self.ui.comboBox_job_type.currentText()
-        self.ui.checkBox_placeholder1.setText('Tight')
-        self.ui.checkBox_placeholder2.setText('NoEigenTest')
-        self.ui.checkBox_placeholder3.setText('calcfc')
-        self.ui.checkBox_placeholder4.setText('Z-Matrix')
+        self.add_details = []
+        self.ui.checkBox_placeholder1.setChecked(False)
+        self.ui.checkBox_placeholder2.setChecked(False)
+        self.ui.checkBox_placeholder3.setChecked(False)
+        self.ui.checkBox_placeholder4.setChecked(False)
+
+        labels = {'Opt': ['tight', 'noeigentest', 'calcfc', 'Z-matrix'],
+                          'Opt (TS)': ['temp1', 'temp2', 'temp3', 'temp4'], 
+                          'Freq': ['noraman', 'temp2', 'temp3', 'temp4'], 
+                          'IRC': ['temp1', 'temp2', 'temp3', 'temp4'],
+                          'IRCMax': ['temp1', 'temp2', 'temp3', 'temp4'],
+                          'Single point': ['temp1', 'temp2', 'temp3', 'temp4']} 
+            
+        self.ui.checkBox_placeholder1.setText(labels[job_type][0])
+        self.ui.checkBox_placeholder2.setText(labels[job_type][1])
+        self.ui.checkBox_placeholder3.setText(labels[job_type][2])
+        self.ui.checkBox_placeholder4.setText(labels[job_type][3])
+
+        for i in self.react.settings.job_options[job_type]:
+            i = i.lower()
+
+            if i == labels[job_type][0].lower():
+                self.ui.checkBox_placeholder1.setChecked(True)
+            elif i == labels[job_type][1].lower():
+                self.ui.checkBox_placeholder2.setChecked(True)
+            elif i == labels[job_type][2].lower():
+                self.ui.checkBox_placeholder3.setChecked(True)
+            elif i == labels[job_type][3].lower():
+                self.ui.checkBox_placeholder4.setChecked(True)
+            else:
+                self.add_details.append(i)
+
+        self.ui.List_add_job.clear()
+        self.ui.List_add_job.addItems(self.add_details)
 
     def fill_main_tab(self):
         """
@@ -236,20 +265,28 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
-        self.ui.lineEdit_filename.setText(self.mol_obj.filename)
+        self.ui.lineEdit_filename.setText(self.mol_obj.filename.split(".")[0] + '.com')
         self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
         self.ui.comboBox_funct.addItems(self.react.settings.functional_options)
         self.ui.comboBox_basis1.addItems([x for x in self.react.settings.basis_options])
-        #self.ui.List_add_job.addItems(self.)
         self.ui.list_link0.addItems(self.react.settings.link0_options)
 
         #self.ui.comboBox_job_type.setCurrentText()
         self.ui.comboBox_funct.setCurrentText(self.react.settings.functional)
         self.ui.comboBox_basis1.setCurrentText(self.react.settings.basis)
 
-        self.update_basis_boxes()
-        self.update_job_checkBoxes()
+        #for i in self.settings.link0_options:
+        #    if 
 
+
+
+
+    def route_checkboxes_update(self, checkbox, lineEdit):
+        if checkbox.isChecked():
+            lineEdit.setEnabled(True)
+        else:
+            lineEdit.setEnabled(False)
+        
     def update_basis_boxes(self):
         """
         Update basis functions comboBoxes according to current basis
