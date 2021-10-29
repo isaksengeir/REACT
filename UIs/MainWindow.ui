@@ -59,7 +59,9 @@ border: 1px solid rgb(143,23,119);
 }
 QLineEdit::!enabled {
 background-color: rgb(40,40,40);
+color:rgb(100,100,100);
 }
+
 
 QRadioButton{
 color: rgb(98, 114, 164);

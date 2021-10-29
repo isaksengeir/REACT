@@ -191,7 +191,7 @@ class Settings():
         self.schk = False
         self.oldchk = False
         self.job_options = {"Opt": ["noeigentest", "calcfc"], "Opt (TS)": ["noeigentest", "calcfc"], "Freq": [], "IRC": [], "IRCMax": [], "Single point": []}
-        self.link0_options = []
+        self.link0_options = ["chk", "mem=6GB"]
         self.basis_options = {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': [' ', '+']},
                                                 '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
                                                 '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},

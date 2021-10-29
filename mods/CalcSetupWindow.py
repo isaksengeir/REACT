@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.SetupWindow import Ui_SetupWindow
 from mods.GaussianFile import InputFile
-from mods.common_functions import atom_distance
+from mods.common_functions import atom_distance, random_color
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
@@ -24,6 +24,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
+        self.settings = self.react.settings
 
         # TODO optimize this?:
         screen_size = QtWidgets.QDesktopWidget().screenGeometry()
@@ -32,10 +33,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.setWindowTitle("REACT - Calculation setup")
 
-
         self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
-        print("mol_obj")
-        print(self.mol_obj)
+
+        self.filename = self.mol_obj.filename.split(".")[0] 
+
 
         self.insert_model_atoms()
         self.fill_main_tab()
@@ -58,6 +59,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_auto_freeze.clicked.connect(self.auto_freeze_atoms)
         self.ui.button_add_scan.clicked.connect(self.add_scan_atoms)
         self.ui.button_delete_scan.clicked.connect(self.remove_scan_atoms)
+        self.ui.lineEdit_filename.textChanged.connect(self.filename_update)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -265,23 +267,73 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
-        self.ui.lineEdit_filename.setText(self.mol_obj.filename.split(".")[0] + '.com')
+        self.ui.lineEdit_filename.setText(self.filename + '.com')
         self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
         self.ui.comboBox_funct.addItems(self.react.settings.functional_options)
         self.ui.comboBox_basis1.addItems([x for x in self.react.settings.basis_options])
-        self.ui.list_link0.addItems(self.react.settings.link0_options)
 
         #self.ui.comboBox_job_type.setCurrentText()
         self.ui.comboBox_funct.setCurrentText(self.react.settings.functional)
         self.ui.comboBox_basis1.setCurrentText(self.react.settings.basis)
 
-        #for i in self.settings.link0_options:
-        #    if 
+        self.update_job_details()
+        
+        checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
+                      self.ui.checkBox_mem: self.ui.lineEdit_mem,
+                      self.ui.checkBox_schk: self.ui.lineEdit_schk,
+                      self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk,
+                      self.ui.checkBox_rwf: self.ui.lineEdit_rwf,
+                      self.ui.checkBox_save: None,
+                      self.ui.checkBox_errorsave: None}
 
+        link0_to_add_to_list = [x for x in self.settings.link0_options]
 
+        print(link0_to_add_to_list)
 
+        for checkbox, lineEdit in checkboxes.items():
+
+            checkbox.setChecked(False)
+            if lineEdit:
+                lineEdit.setEnabled(False)
+
+            found_keyword = False
+
+            for keyword_0 in link0_to_add_to_list:
+
+                keyword = keyword_0.lower()
+                if "=" in keyword:
+                    temp = keyword.split("=")
+                    keyword = temp[0]
+                    value = temp[1]
+                else:
+                    value = None
+
+                if keyword == "mem" and checkbox.text() == "Memory":
+                    found_keyword = True
+                    value = value.upper()
+
+                elif keyword == checkbox.text().lower():
+                    found_keyword = True
+                    if keyword == "chk" and not value:
+                        value = self.filename + ".chk"
+                    elif keyword == "schk" and not value:
+                        value = self.filename + "_copy.chk"
+                    elif keyword == "oldchk" and not value:
+                        value = self.filename + "_old.chk"
+
+                if found_keyword:
+                    checkbox.setChecked(True)
+                    link0_to_add_to_list.remove(keyword_0)
+                    if value and lineEdit:
+                        lineEdit.setEnabled(True)
+                        lineEdit.setText(value)
+                    
+                    found_keyword = False
+
+        self.ui.list_link0.addItems(link0_to_add_to_list)
 
     def route_checkboxes_update(self, checkbox, lineEdit):
+
         if checkbox.isChecked():
             lineEdit.setEnabled(True)
         else:
@@ -307,6 +359,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis3.setCurrentText(self.react.settings.basis_pol1)
         self.ui.comboBox_basis4.setCurrentText(self.react.settings.basis_pol2)
 
+    def filename_update(self):
+        
+        self.filename = self.ui.lineEdit_filename.text()
+
+        self.ui.lineEdit_chk.setText(self.filename + ".chk")
+        self.ui.lineEdit_schk.setText(self.filename + "_copy.chk")
+        self.ui.lineEdit_oldchk.setText(self.filename + "_old.chk")
 
 
     def insert_model_atoms(self):
