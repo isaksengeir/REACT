@@ -1,8 +1,10 @@
+from os import link
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.SetupWindow import Ui_SetupWindow
 from mods.GaussianFile import InputFile
 from mods.common_functions import atom_distance, random_color
+import re
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
@@ -37,6 +39,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.filename = self.mol_obj.filename.split(".")[0] 
 
+        self.link0_checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
+                      self.ui.checkBox_mem: self.ui.lineEdit_mem,
+                      self.ui.checkBox_schk: self.ui.lineEdit_schk,
+                      self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk,
+                      self.ui.checkBox_rwf: self.ui.lineEdit_rwf,
+                      self.ui.checkBox_save: None,
+                      self.ui.checkBox_errorsave: None}
 
         self.insert_model_atoms()
         self.fill_main_tab()
@@ -60,6 +69,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_add_scan.clicked.connect(self.add_scan_atoms)
         self.ui.button_delete_scan.clicked.connect(self.remove_scan_atoms)
         self.ui.lineEdit_filename.textChanged.connect(self.filename_update)
+        self.ui.tabWidget.currentChanged.connect(self.update_preview)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -226,40 +236,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         :return:
         """
         job_type = self.ui.comboBox_job_type.currentText()
-        self.add_details = []
-        self.ui.checkBox_placeholder1.setChecked(False)
-        self.ui.checkBox_placeholder2.setChecked(False)
-        self.ui.checkBox_placeholder3.setChecked(False)
-        self.ui.checkBox_placeholder4.setChecked(False)
-
-        labels = {'Opt': ['tight', 'noeigentest', 'calcfc', 'Z-matrix'],
-                          'Opt (TS)': ['temp1', 'temp2', 'temp3', 'temp4'], 
-                          'Freq': ['noraman', 'temp2', 'temp3', 'temp4'], 
-                          'IRC': ['temp1', 'temp2', 'temp3', 'temp4'],
-                          'IRCMax': ['temp1', 'temp2', 'temp3', 'temp4'],
-                          'Single point': ['temp1', 'temp2', 'temp3', 'temp4']} 
-            
-        self.ui.checkBox_placeholder1.setText(labels[job_type][0])
-        self.ui.checkBox_placeholder2.setText(labels[job_type][1])
-        self.ui.checkBox_placeholder3.setText(labels[job_type][2])
-        self.ui.checkBox_placeholder4.setText(labels[job_type][3])
-
-        for i in self.react.settings.job_options[job_type]:
-            i = i.lower()
-
-            if i == labels[job_type][0].lower():
-                self.ui.checkBox_placeholder1.setChecked(True)
-            elif i == labels[job_type][1].lower():
-                self.ui.checkBox_placeholder2.setChecked(True)
-            elif i == labels[job_type][2].lower():
-                self.ui.checkBox_placeholder3.setChecked(True)
-            elif i == labels[job_type][3].lower():
-                self.ui.checkBox_placeholder4.setChecked(True)
-            else:
-                self.add_details.append(i)
 
         self.ui.List_add_job.clear()
-        self.ui.List_add_job.addItems(self.add_details)
+        self.ui.List_add_job.addItems(self.settings.job_options[job_type])
 
     def fill_main_tab(self):
         """
@@ -277,20 +256,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis1.setCurrentText(self.react.settings.basis)
 
         self.update_job_details()
-        
-        checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
-                      self.ui.checkBox_mem: self.ui.lineEdit_mem,
-                      self.ui.checkBox_schk: self.ui.lineEdit_schk,
-                      self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk,
-                      self.ui.checkBox_rwf: self.ui.lineEdit_rwf,
-                      self.ui.checkBox_save: None,
-                      self.ui.checkBox_errorsave: None}
-
+    
         link0_to_add_to_list = [x for x in self.settings.link0_options]
 
-        print(link0_to_add_to_list)
-
-        for checkbox, lineEdit in checkboxes.items():
+        for checkbox, lineEdit in self.link0_checkboxes.items():
 
             checkbox.setChecked(False)
             if lineEdit:
@@ -331,6 +300,95 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     found_keyword = False
 
         self.ui.list_link0.addItems(link0_to_add_to_list)
+
+
+    def update_preview(self):
+
+        # check if preview tab is selected. if not, return
+        if not self.ui.tabWidget.currentIndex() == 2:
+            return
+
+        file_content = self.make_input_content()
+
+    def make_input_content(self):
+        """
+        Make content (not file) to be later used in Gaussian input, which is shown in preview window
+        :return: string
+        """
+        link0 = []
+        route = []
+
+        value = None
+
+        # Collect all link0 keyword in a list
+        for checkbox, LineEdit in self.link0_checkboxes.items():
+
+            print(checkbox.text())
+
+            if checkbox.isChecked():
+
+                if LineEdit:
+                    value = LineEdit.text()
+
+                    if not value or value.isspace():
+                        print(f'{value} is empty...')
+                        return  # TODO some error window to indicate that LineEdit is empty
+
+                    value = LineEdit.text()
+
+                    if "=" in value:
+                        value = value.split("=")[1]
+                        value.replace(" ", "")
+
+                if checkbox.text() == "Memory":
+
+                    if value.isnumeric():
+                        value = value + "GB"
+
+                    link0.append("%mem=" + value)
+
+                elif checkbox.text().lower() == "chk":
+                    link0.append("%chk=" + value)
+
+                elif checkbox.text().lower() == "schk":
+                    link0.append("%schk=" + value)
+                
+                elif checkbox.text().lower() == "oldchk":
+                    link0.append("%oldchk=" + value)
+
+                elif checkbox.text().lower() == "rwf":
+                    link0.append("%rwf=" + value)
+
+                elif checkbox.text().lower() == "save":
+                    link0.append("%save")
+
+                elif checkbox.text().lower() == "errorsave":
+                    link0.append("%errorsave")
+
+        for item in [self.ui.list_link0.item(x).text() for x in range(self.ui.list_link0.count())]:
+            item.replace(" ", "")
+            if not item[0] == '%':
+                item = '%' + item
+            link0.append(item)
+
+        link0.append("\n")
+            
+        # content_string = "\n".join(link0)
+
+        job_type = self.ui.comboBox_job_type.currentText()
+
+        
+
+
+
+
+
+        
+
+    def create_InputFile(self):
+        
+        if os.path.isfile(self.settings.workdir + "/" + self.filename) == True:
+            pass #TODO some error window need to pop up to warn that is will be overwridden!
 
     def route_checkboxes_update(self, checkbox, lineEdit):
 
