@@ -66,7 +66,7 @@ border : 2px solid rgb(143, 23, 119);
                </font>
               </property>
               <property name="text">
-               <string>filename:</string>
+               <string>Filename:</string>
               </property>
              </widget>
             </item>
@@ -371,23 +371,30 @@ border : 2px solid rgb(143, 23, 119);
              </spacer>
             </item>
             <item>
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Output print level:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QRadioButton" name="radioButton">
               <property name="text">
-               <string>RadioButton</string>
+               <string>Low</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QRadioButton" name="radioButton_2">
               <property name="text">
-               <string>RadioButton</string>
+               <string>Normal</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QRadioButton" name="radioButton_3">
               <property name="text">
-               <string>RadioButton</string>
+               <string>High</string>
               </property>
              </widget>
             </item>
@@ -653,7 +660,7 @@ QPushButton:pressed
             <item>
              <widget class="QCheckBox" name="checkBox">
               <property name="text">
-               <string>CheckBox</string>
+               <string>Freq</string>
               </property>
              </widget>
             </item>
