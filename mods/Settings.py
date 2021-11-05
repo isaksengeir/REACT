@@ -35,6 +35,7 @@ class Settings():
         self._link0_options = None
         self._basis_options = None
         self._functional_options = None
+        self.output_print = None
 
 
         try:

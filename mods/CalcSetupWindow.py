@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.SetupWindow import Ui_SetupWindow
 from mods.GaussianFile import InputFile
 from mods.common_functions import atom_distance, random_color
-import re
+import copy
 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
@@ -12,6 +12,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         super(CalcSetupWindow, self).__init__(parent)
         self.react = parent
         self.filepath = filepath
+        self.settings = self.react.settings
 
         self.pymol = False
         if self.react.pymol:
@@ -26,7 +27,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
-        self.settings = self.react.settings
+
 
         # TODO optimize this?:
         screen_size = QtWidgets.QDesktopWidget().screenGeometry()
@@ -39,6 +40,27 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.filename = self.mol_obj.filename.split(".")[0] 
 
+        # we need to make a local copy of all info in the maintab,
+        # so that changes are remembered when the user changes tabs.
+        self.functional = copy.deepcopy(self.settings.functional)
+        self.basis = copy.deepcopy(self.settings.basis)
+        self.basis_diff = copy.deepcopy(self.settings.basis_diff)
+        self.basis_pol1 = copy.deepcopy(self.settings.basis_pol1)
+        self.basis_pol2 = copy.deepcopy(self.settings.basis_pol2)
+
+        # -2 = low (#t), -3 = normal (# or #n), -4 = high (#p) 
+        self.output_print = "#n" # TODO add this to settings class?
+        self.additional_keys = copy.deepcopy(self.settings.additional_keys)
+        self.job_type = "Opt"
+        self.opt_freq_combi = False
+        self.job_options = copy.deepcopy(self.settings.job_options)
+        self.link0_options = copy.deepcopy(self.settings.link0_options)
+
+        self.Qbutton_group = QtWidgets.QButtonGroup(self)
+        self.Qbutton_group.addButton(self.ui.radioButton)
+        self.Qbutton_group.addButton(self.ui.radioButton_2)
+        self.Qbutton_group.addButton(self.ui.radioButton_3)
+
         self.link0_checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
                       self.ui.checkBox_mem: self.ui.lineEdit_mem,
                       self.ui.checkBox_schk: self.ui.lineEdit_schk,
@@ -47,14 +69,22 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                       self.ui.checkBox_save: None,
                       self.ui.checkBox_errorsave: None}
 
+        
+
         self.insert_model_atoms()
         self.fill_main_tab()
 
-        self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.mol_obj.job_options))
-        self.ui.Button_del_job.clicked.connect(lambda:  self.del_item_from_list(self.ui.List_add_job, self.mol_obj.job_options))
-        self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.mol_obj.link0_options))
-        self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.mol_obj.link0_options))
-        self.ui.comboBox_basis1.textActivated.connect(self.update_basis_boxes)
+        self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.job_options[self.job_type]))
+        self.ui.Button_del_job.clicked.connect(lambda:  self.del_item_from_list(self.ui.List_add_job, self.job_options[self.job_type]))
+        self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.link0_options))
+        self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.link0_options))
+        self.ui.Button_add_job_2.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job_2, self.ui.List_add_job_2, self.additional_keys))
+        self.ui.Button_del_job_2.clicked.connect(lambda: self.del_item_from_list(self.ui.List_add_job_2, self.additional_keys))
+        self.ui.comboBox_basis1.currentIndexChanged.connect(self.update_basis1)
+        self.ui.comboBox_basis2.currentIndexChanged.connect(self.update_basis2)
+        self.ui.comboBox_basis3.currentIndexChanged.connect(self.update_basis3)
+        self.ui.comboBox_basis4.currentIndexChanged.connect(self.update_basis4)
+        self.ui.comboBox_funct.currentTextChanged.connect(self.update_functional)
         self.ui.comboBox_job_type.textActivated.connect(self.update_job_details)
         self.ui.button_cancel.clicked.connect(self.on_cancel)
         self.ui.button_write.clicked.connect(self.on_write)
@@ -70,6 +100,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_delete_scan.clicked.connect(self.remove_scan_atoms)
         self.ui.lineEdit_filename.textChanged.connect(self.filename_update)
         self.ui.tabWidget.currentChanged.connect(self.update_preview)
+        self.Qbutton_group.buttonClicked.connect(self.update_print_button)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -231,33 +262,51 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def update_job_details(self):
         """
-        Update placeholder checkBoxes and additional-options-list according to selected job type
+        Update additional-options-list according to selected job type.
 
         :return:
         """
-        job_type = self.ui.comboBox_job_type.currentText()
+        self.job_type = self.ui.comboBox_job_type.currentText()
 
         self.ui.List_add_job.clear()
-        self.ui.List_add_job.addItems(self.settings.job_options[job_type])
+
+        self.ui.List_add_job.addItems(self.job_options[self.job_type])
+
+    def update_functional(self):
+        self.functional = self.ui.comboBox_funct.currentText()
 
     def fill_main_tab(self):
         """
-        Add all options to all comboBoxes + set current default settings
+        Fill all widgets with info from self.settings. (job info is an exception, 
+        local attribute job_details is used instead.)
+
+        Every link0 checkboxes is crossed-checked with entries in settings.link0_options.
+        If any entry i settings.link0_options has a dedicated checkbox, set the checkbox to True,
+        and omit this entry from the additional link 0 QlistWidget. 
+
+        A copy of items in the QlistWidget for job details is needed to save the info in the list
+        since this QlistWidget is overwritten everytime the user interacts the the job type combobox.
 
         :return:
         """
         self.ui.lineEdit_filename.setText(self.filename + '.com')
-        self.ui.comboBox_job_type.addItems(self.react.settings.job_options)
-        self.ui.comboBox_funct.addItems(self.react.settings.functional_options)
-        self.ui.comboBox_basis1.addItems([x for x in self.react.settings.basis_options])
+        self.ui.comboBox_funct.addItems(self.settings.functional_options)
+        self.ui.comboBox_basis1.addItems(self.settings.basis_options)
+        self.ui.comboBox_basis2.addItems(self.settings.basis_options[self.basis]["diff"])
+        self.ui.comboBox_basis3.addItems(self.settings.basis_options[self.basis]["pol1"])
+        self.ui.comboBox_basis4.addItems(self.settings.basis_options[self.basis]["pol2"])
+        self.ui.List_add_job_2.addItems(self.additional_keys)
+        self.ui.comboBox_job_type.addItems(self.job_options)
+        self.ui.List_add_job.addItems(self.job_options[self.ui.comboBox_job_type.currentText()])
 
-        #self.ui.comboBox_job_type.setCurrentText()
-        self.ui.comboBox_funct.setCurrentText(self.react.settings.functional)
-        self.ui.comboBox_basis1.setCurrentText(self.react.settings.basis)
-
-        self.update_job_details()
+        self.ui.comboBox_funct.setCurrentText(self.functional)
+        self.ui.comboBox_basis1.setCurrentText(self.basis)
+        self.ui.comboBox_basis1.setCurrentText(self.basis_diff)
+        self.ui.comboBox_basis1.setCurrentText(self.basis_pol1)
+        self.ui.comboBox_basis1.setCurrentText(self.basis_pol2)
+        self.ui.radioButton_2.setChecked(True)
     
-        link0_to_add_to_list = [x for x in self.settings.link0_options]
+        link0_to_add_to_list = [x for x in self.link0_options]
 
         for checkbox, lineEdit in self.link0_checkboxes.items():
 
@@ -301,6 +350,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.ui.list_link0.addItems(link0_to_add_to_list)
 
+    def update_print_button(self):
+
+        key = self.Qbutton_group.checkedId()
+        print_button_dict = {-2: "#t", -3: "#n", -4: "#p" }
+
+        self.output_print = print_button_dict[key]
+
 
     def update_preview(self):
 
@@ -310,6 +366,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         file_content = self.make_input_content()
 
+        self.ui.text_preview.setPlainText(file_content)
+
     def make_input_content(self):
         """
         Make content (not file) to be later used in Gaussian input, which is shown in preview window
@@ -318,9 +376,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         link0 = []
         route = []
 
+        content_str = ""
+
         value = None
 
-        # Collect all link0 keyword in a list
+        # This part creates prepares all link0 keyword by adding them to the list 'link0'
         for checkbox, LineEdit in self.link0_checkboxes.items():
 
             print(checkbox.text())
@@ -349,19 +409,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
                 elif checkbox.text().lower() == "chk":
                     link0.append("%chk=" + value)
-
                 elif checkbox.text().lower() == "schk":
                     link0.append("%schk=" + value)
-                
                 elif checkbox.text().lower() == "oldchk":
                     link0.append("%oldchk=" + value)
-
                 elif checkbox.text().lower() == "rwf":
                     link0.append("%rwf=" + value)
-
                 elif checkbox.text().lower() == "save":
                     link0.append("%save")
-
                 elif checkbox.text().lower() == "errorsave":
                     link0.append("%errorsave")
 
@@ -372,15 +427,33 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             link0.append(item)
 
         link0.append("\n")
-            
-        # content_string = "\n".join(link0)
 
-        job_type = self.ui.comboBox_job_type.currentText()
+        content_str = "\n".join(link0)
 
         
 
+        # This part prepares all part of the route comment, by adding them to the list 'route'
+        route.append(self.output_print + " ")
+
+        job = self.job_type
+        job_list = []
+
+        
+
+        if self.job_type == "Opt (TS)":
+            job_list.append("Opt=(")
+
+        for i in self.job_options:
+            job_list.append(i + ", ")
+
+        job_list.append(")")
+
+        tmp_str = "".join(job_list)
+
+        print(tmp_str)
 
 
+        return content_str
 
 
         
@@ -397,9 +470,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         else:
             lineEdit.setEnabled(False)
         
-    def update_basis_boxes(self):
+    def update_basis1(self):
         """
-        Update basis functions comboBoxes according to current basis
+        Updates self.basis1 according to basis selected by user
+        On update of main basis comboBox, update all other basis comboBoxes
 
         :return:
         """
@@ -409,13 +483,32 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis3.clear()
         self.ui.comboBox_basis4.clear()
 
-        self.ui.comboBox_basis2.addItems(self.react.settings.basis_options[basis]['diff'])
-        self.ui.comboBox_basis3.addItems(self.react.settings.basis_options[basis]['pol1'])
-        self.ui.comboBox_basis4.addItems(self.react.settings.basis_options[basis]['pol2'])
+        self.ui.comboBox_basis2.addItems(self.settings.basis_options[basis]['diff'])
+        self.ui.comboBox_basis3.addItems(self.settings.basis_options[basis]['pol1'])
+        self.ui.comboBox_basis4.addItems(self.settings.basis_options[basis]['pol2'])
 
-        self.ui.comboBox_basis2.setCurrentText(self.react.settings.basis_diff)
-        self.ui.comboBox_basis3.setCurrentText(self.react.settings.basis_pol1)
-        self.ui.comboBox_basis4.setCurrentText(self.react.settings.basis_pol2)
+        self.ui.comboBox_basis2.setCurrentText(self.settings.basis_diff)
+        self.ui.comboBox_basis3.setCurrentText(self.settings.basis_pol1)
+        self.ui.comboBox_basis4.setCurrentText(self.settings.basis_pol2)
+
+    def update_basis2(self):
+        """
+        Update basis attribute self.basis_diff
+        """
+        self.basis_diff = self.ui.comboBox_basis2.currentText()
+
+    def update_basis3(self):
+        """
+        Update basis attribute self.basis_pol1
+        """
+        self.basis_pol1 = self.ui.comboBox_basis3.currentText()
+
+    def update_basis4(self):
+        """
+        Update basis attribute self.basis_pol2
+        """
+        self.basis_pol2 = self.ui.comboBox_basis4.currentText()
+
 
     def filename_update(self):
         
@@ -460,31 +553,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                             if self.pymol:
                                 self.pymol_spheres(atom_nr)
 
-    def update_basis_options(self, basis):
-        """
-        # TODO delete, after moved/copied to Settings.
-        """
-        self.ui.basis2_comboBox.blockSignals(True)
-        self.ui.basis3_comboBox.blockSignals(True)
-        self.ui.basis4_comboBox.blockSignals(True)
-
-        self.ui.basis2_comboBox.clear()
-        self.ui.basis3_comboBox.clear()
-        self.ui.basis4_comboBox.clear()
-
-        basis = self.ui.comboBox_basis1.currentText()
-
-        self.ui.basis2_comboBox.addItems(self.settings.basis_options[basis]['diff'])
-        self.ui.basis3_comboBox.addItems(self.settings.basis_options[basis]['pol1'])
-        self.ui.basis4_comboBox.addItems(self.settings.basis_options[basis]['pol2'])
-
-
-        self.ui.basis2_comboBox.blockSignals(False)
-        self.ui.basis3_comboBox.blockSignals(False)
-        self.ui.basis4_comboBox.blockSignals(False)
-
-        #self.curr_choices["diff"] = self.ui.basis2_comboBox.currentText()
-        #self.curr_choices["diff"] = self.ui.basis2_comboBox.currentText()
 
     def add_item_to_list(self, Qtextinput, Qlist, job_list):
         """
