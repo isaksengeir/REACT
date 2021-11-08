@@ -63,11 +63,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.link0_checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
                       self.ui.checkBox_mem: self.ui.lineEdit_mem,
-                      self.ui.checkBox_schk: self.ui.lineEdit_schk,
-                      self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk,
-                      self.ui.checkBox_rwf: self.ui.lineEdit_rwf,
-                      self.ui.checkBox_save: None,
-                      self.ui.checkBox_errorsave: None}
+                      self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk}
 
         
 
@@ -90,9 +86,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_write.clicked.connect(self.on_write)
         self.ui.checkBox_mem.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_mem, self.ui.lineEdit_mem))
         self.ui.checkBox_chk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_chk, self.ui.lineEdit_chk))
-        self.ui.checkBox_schk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_schk, self.ui.lineEdit_schk))
         self.ui.checkBox_oldchk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_oldchk, self.ui.lineEdit_oldchk))
-        self.ui.checkBox_rwf.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_rwf, self.ui.lineEdit_rwf))
         self.ui.button_add_freeze.clicked.connect(self.add_freeze_atoms)
         self.ui.button_delete_freeze.clicked.connect(self.remove_freeze_atoms)
         self.ui.button_auto_freeze.clicked.connect(self.auto_freeze_atoms)
@@ -334,8 +328,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     found_keyword = True
                     if keyword == "chk" and not value:
                         value = self.filename + ".chk"
-                    elif keyword == "schk" and not value:
-                        value = self.filename + "_copy.chk"
                     elif keyword == "oldchk" and not value:
                         value = self.filename + "_old.chk"
 
@@ -353,7 +345,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def update_print_button(self):
 
         key = self.Qbutton_group.checkedId()
-        print_button_dict = {-2: "#t", -3: "#n", -4: "#p" }
+        print_button_dict = {-2: "#t", -3: "#", -4: "#p"}
 
         self.output_print = print_button_dict[key]
 
@@ -373,17 +365,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         Make content (not file) to be later used in Gaussian input, which is shown in preview window
         :return: string
         """
-        link0 = []
-        route = []
-
+        link0_list = []
+        route_list = []
         content_str = ""
-
         value = None
 
-        # This part creates prepares all link0 keyword by adding them to the list 'link0'
+        ### This part creates prepares all link0 keyword by adding them to the list 'link0' ###
         for checkbox, LineEdit in self.link0_checkboxes.items():
-
-            print(checkbox.text())
 
             if checkbox.isChecked():
 
@@ -404,51 +392,46 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
                     if value.isnumeric():
                         value = value + "GB"
-
-                    link0.append("%mem=" + value)
+                    link0_list.append("%mem=" + value)
 
                 elif checkbox.text().lower() == "chk":
-                    link0.append("%chk=" + value)
-                elif checkbox.text().lower() == "schk":
-                    link0.append("%schk=" + value)
+                    link0_list.append("%chk=" + value)
                 elif checkbox.text().lower() == "oldchk":
-                    link0.append("%oldchk=" + value)
+                    link0_list.append("%oldchk=" + value)
                 elif checkbox.text().lower() == "rwf":
-                    link0.append("%rwf=" + value)
-                elif checkbox.text().lower() == "save":
-                    link0.append("%save")
-                elif checkbox.text().lower() == "errorsave":
-                    link0.append("%errorsave")
+                    link0_list.append("%rwf=" + value)
 
         for item in [self.ui.list_link0.item(x).text() for x in range(self.ui.list_link0.count())]:
             item.replace(" ", "")
             if not item[0] == '%':
                 item = '%' + item
-            link0.append(item)
+            link0_list.append(item)
 
-        link0.append("\n")
+        link0_list.append("\n")
+        content_str = "\n".join(link0_list)
 
-        content_str = "\n".join(link0)
 
-        
+        ### This part prepares all part of the route comment, by first adding them to route_list ###
+        ### Then, all itemsn in route_list are joined into one str.                              ###
 
-        # This part prepares all part of the route comment, by adding them to the list 'route'
-        route.append(self.output_print + " ")
-
-        job = self.job_type
-        job_list = []
-
-        
+        route_list.append(self.output_print + " ")
 
         if self.job_type == "Opt (TS)":
-            job_list.append("Opt=(")
+            route_list.append("Opt=(TS")
+        elif self.job_type == "Opt + Freq":
+            pass
+        elif self.job_type in ["IRC", "IRCMax"]:
+            pass
+        else:
+            route_list.append(self.job_type + "=(")
+        
+        route_list.append(",".join(self.job_options[self.job_type]))
 
-        for i in self.job_options:
-            job_list.append(i + ", ")
+        route_list.append(") ")
 
-        job_list.append(")")
+        f"{self.output_print} {job_type}=({job_details}){Freq} {functional}/{basis}"
 
-        tmp_str = "".join(job_list)
+        tmp_str = "".join(route_list)
 
         print(tmp_str)
 
@@ -515,7 +498,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.filename = self.ui.lineEdit_filename.text()
 
         self.ui.lineEdit_chk.setText(self.filename + ".chk")
-        self.ui.lineEdit_schk.setText(self.filename + "_copy.chk")
         self.ui.lineEdit_oldchk.setText(self.filename + "_old.chk")
 
 
