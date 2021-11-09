@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>692</width>
-    <height>497</height>
+    <width>665</width>
+    <height>491</height>
    </rect>
   </property>
   <property name="font">
@@ -61,8 +61,8 @@ background-color: rgb(20,20,20);
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-313</y>
-             <width>605</width>
+             <y>0</y>
+             <width>578</width>
              <height>663</height>
             </rect>
            </property>
@@ -961,6 +961,12 @@ QPushButton:pressed
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
                    <widget class="QCheckBox" name="checkBox_mem">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>Memory</string>
                     </property>
@@ -975,6 +981,12 @@ QPushButton:pressed
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                    <widget class="QCheckBox" name="checkBox_chk">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>Chk</string>
                     </property>
@@ -989,6 +1001,12 @@ QPushButton:pressed
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <item>
                    <widget class="QCheckBox" name="checkBox_oldchk">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>OldChk</string>
                     </property>
