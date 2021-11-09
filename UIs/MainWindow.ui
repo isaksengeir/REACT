@@ -26,6 +26,7 @@ color: rgb(98, 114, 164);
 }
 
 
+
 QScrollBar{
 /*background-color:rgb(56,58,89);*/
 background-color:rgb(30,30,30);
@@ -528,6 +529,23 @@ top: 1px;
 right: 2px;
 }
 
+QScrollArea QWidget 
+{
+background-color: transparent;
+}
+
+QScrollArea {
+        border: none;
+    }
+
+QAbstractScrollArea
+{
+background-color: transparent;
+}
+
+QWidget#scrollAreaWidgetContents{
+background-color: transparent; 
+}
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
