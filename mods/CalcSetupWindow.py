@@ -1,9 +1,9 @@
-from os import link
+from os import link, tcsetpgrp, path
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.SetupWindow import Ui_SetupWindow
 from mods.GaussianFile import InputFile
-from mods.common_functions import atom_distance, random_color
+from mods.common_functions import atom_distance, random_color, write_file
 import copy
 
 
@@ -28,7 +28,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui = Ui_SetupWindow()
         self.ui.setupUi(self)
 
-
         # TODO optimize this?:
         screen_size = QtWidgets.QDesktopWidget().screenGeometry()
         window_size = self.geometry()
@@ -37,19 +36,19 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.setWindowTitle("REACT - Calculation setup")
 
         self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
-
+        self.charge = self.mol_obj.charge
+        self.multiplicity = self.mol_obj.multiplicity
         self.filename = self.mol_obj.filename.split(".")[0] 
 
-        # we need to make a local copy of all info in the maintab,
-        # so that changes are remembered when the user changes tabs.
+        # we need to make a local copy of all info job-related stuff,
+        # So that we dont change the attributes in Settings object
         self.functional = copy.deepcopy(self.settings.functional)
         self.basis = copy.deepcopy(self.settings.basis)
         self.basis_diff = copy.deepcopy(self.settings.basis_diff)
         self.basis_pol1 = copy.deepcopy(self.settings.basis_pol1)
         self.basis_pol2 = copy.deepcopy(self.settings.basis_pol2)
-
         # -2 = low (#t), -3 = normal (# or #n), -4 = high (#p) 
-        self.output_print = "#n" # TODO add this to settings class?
+        self.output_print = "#" # TODO add this to settings class?
         self.additional_keys = copy.deepcopy(self.settings.additional_keys)
         self.job_type = "Opt"
         self.opt_freq_combi = False
@@ -62,18 +61,20 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.Qbutton_group.addButton(self.ui.radioButton_3)
 
         self.link0_checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
-                      self.ui.checkBox_mem: self.ui.lineEdit_mem,
+                      self.ui.checkBox_mem_2: self.ui.lineEdit_mem_2,
                       self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk}
 
-        
+        self.opt_freq_details = {"checked": False, "keywords": []}
+        self.num_files = 1
+        self.multiple_files = {}
 
         self.insert_model_atoms()
         self.fill_main_tab()
 
         self.ui.Button_add_job.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job, self.ui.List_add_job, self.job_options[self.job_type]))
         self.ui.Button_del_job.clicked.connect(lambda:  self.del_item_from_list(self.ui.List_add_job, self.job_options[self.job_type]))
-        self.ui.button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.lineEdit_link0, self.ui.list_link0, self.link0_options))
-        self.ui.button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.link0_options))
+        self.ui.Button_add_link0.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_link0, self.ui.list_link0, self.link0_options))
+        self.ui.Button_del_link0.clicked.connect(lambda: self.del_item_from_list(self.ui.list_link0, self.link0_options))
         self.ui.Button_add_job_2.clicked.connect(lambda: self.add_item_to_list(self.ui.LineEdit_add_job_2, self.ui.List_add_job_2, self.additional_keys))
         self.ui.Button_del_job_2.clicked.connect(lambda: self.del_item_from_list(self.ui.List_add_job_2, self.additional_keys))
         self.ui.comboBox_basis1.currentIndexChanged.connect(self.update_basis1)
@@ -81,10 +82,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.comboBox_basis3.currentIndexChanged.connect(self.update_basis3)
         self.ui.comboBox_basis4.currentIndexChanged.connect(self.update_basis4)
         self.ui.comboBox_funct.currentTextChanged.connect(self.update_functional)
-        self.ui.comboBox_job_type.textActivated.connect(self.update_job_details)
-        self.ui.button_cancel.clicked.connect(self.on_cancel)
+        self.ui.comboBox_job_type.currentTextChanged.connect(self.update_job_details)
+        self.ui.ComboBox_files.currentTextChanged.connect(self.update_preview_combobox)
+        self.ui.button_close.clicked.connect(self.on_close)
         self.ui.button_write.clicked.connect(self.on_write)
-        self.ui.checkBox_mem.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_mem, self.ui.lineEdit_mem))
+        self.ui.checkBox_mem_2.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_mem_2, self.ui.lineEdit_mem_2))
         self.ui.checkBox_chk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_chk, self.ui.lineEdit_chk))
         self.ui.checkBox_oldchk.clicked.connect(lambda: self.route_checkboxes_update(self.ui.checkBox_oldchk, self.ui.lineEdit_oldchk))
         self.ui.button_add_freeze.clicked.connect(self.add_freeze_atoms)
@@ -93,6 +95,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_add_scan.clicked.connect(self.add_scan_atoms)
         self.ui.button_delete_scan.clicked.connect(self.remove_scan_atoms)
         self.ui.lineEdit_filename.textChanged.connect(self.filename_update)
+        self.ui.lineEdit_charge.textChanged.connect(self.update_charge)
+        self.ui.lineEdit_multiplicity.textChanged.connect(self.update_multiplicity)
         self.ui.tabWidget.currentChanged.connect(self.update_preview)
         self.Qbutton_group.buttonClicked.connect(self.update_print_button)
 
@@ -256,14 +260,31 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def update_job_details(self):
         """
-        Update additional-options-list according to selected job type.
-
+        Activated when job option combobox is updated. Will fill Qlist,
+        Enable multiple files in case IRC is chosen, and hide Opt+freq 
+        buttons whenever job != opt. 
         :return:
         """
+        self.multiple_files.clear()
+        self.ui.ComboBox_files.blockSignals(True)
+        self.ui.ComboBox_files.clear()
+        self.ui.ComboBox_files.blockSignals(False)
+
         self.job_type = self.ui.comboBox_job_type.currentText()
 
-        self.ui.List_add_job.clear()
+        if self.job_type == "IRC":
+            self.multiple_files[self.filename + "_frwd"] = ["forward"] 
+            self.multiple_files[self.filename + "_rev"] = ["reverse"] 
+        if self.job_type in ["Opt", "Opt (TS)"]:
+            self.ui.checkbox_freq.setHidden(False)
+            self.ui.Button_freq.setHidden(False)
+            self.ui.checkbox_freq.setEnabled(True)
+            self.ui.Button_freq.setEnabled(True)
+        else:
+            self.ui.checkbox_freq.setHidden(True)
+            self.ui.Button_freq.setHidden(True)
 
+        self.ui.List_add_job.clear()
         self.ui.List_add_job.addItems(self.job_options[self.job_type])
 
     def update_functional(self):
@@ -271,19 +292,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def fill_main_tab(self):
         """
-        Fill all widgets with info from self.settings. (job info is an exception, 
-        local attribute job_details is used instead.)
-
-        Every link0 checkboxes is crossed-checked with entries in settings.link0_options.
-        If any entry i settings.link0_options has a dedicated checkbox, set the checkbox to True,
+        Fill all widgets in main tab.
+        Every link0 checkboxes is crossed-checked with entries in self.link0_options.
+        If any entry in link0_options has a dedicated checkbox, set the checkbox to True,
         and omit this entry from the additional link 0 QlistWidget. 
-
-        A copy of items in the QlistWidget for job details is needed to save the info in the list
-        since this QlistWidget is overwritten everytime the user interacts the the job type combobox.
-
         :return:
         """
-        self.ui.lineEdit_filename.setText(self.filename + '.com')
+        self.ui.lineEdit_filename.setText(self.filename)
         self.ui.comboBox_funct.addItems(self.settings.functional_options)
         self.ui.comboBox_basis1.addItems(self.settings.basis_options)
         self.ui.comboBox_basis2.addItems(self.settings.basis_options[self.basis]["diff"])
@@ -292,13 +307,16 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.List_add_job_2.addItems(self.additional_keys)
         self.ui.comboBox_job_type.addItems(self.job_options)
         self.ui.List_add_job.addItems(self.job_options[self.ui.comboBox_job_type.currentText()])
+        self.ui.ComboBox_files.addItem(self.filename)
 
         self.ui.comboBox_funct.setCurrentText(self.functional)
         self.ui.comboBox_basis1.setCurrentText(self.basis)
-        self.ui.comboBox_basis1.setCurrentText(self.basis_diff)
-        self.ui.comboBox_basis1.setCurrentText(self.basis_pol1)
-        self.ui.comboBox_basis1.setCurrentText(self.basis_pol2)
+        self.ui.comboBox_basis2.setCurrentText(self.basis_diff)
+        self.ui.comboBox_basis3.setCurrentText(self.basis_pol1)
+        self.ui.comboBox_basis4.setCurrentText(self.basis_pol2)
         self.ui.radioButton_2.setChecked(True)
+        self.ui.lineEdit_charge.setText(self.charge)
+        self.ui.lineEdit_multiplicity.setText(self.multiplicity)
     
         link0_to_add_to_list = [x for x in self.link0_options]
 
@@ -349,28 +367,104 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.output_print = print_button_dict[key]
 
-
     def update_preview(self):
+        """
+        Update preview tab. Combobox is cleared and loaded again everytime. 
+        In case of multiple files, add correct num of items to combobox,
+        but make only file content for the last file in combobox, and load
+        this to text preview box.
+        """
 
         # check if preview tab is selected. if not, return
         if not self.ui.tabWidget.currentIndex() == 2:
             return
 
-        file_content = self.make_input_content()
+        self.ui.ComboBox_files.blockSignals(True)
+        self.ui.ComboBox_files.clear()
+        self.ui.ComboBox_files.blockSignals(False)
+
+        if self.multiple_files:
+            for filename, keywords in self.multiple_files.items():
+                self.ui.ComboBox_files.addItem(filename)
+
+            self.ui.ComboBox_files.setCurrentText(filename)
+            file_content = self.make_input_content(keywords)
+        else:
+            file_content = self.make_input_content()
+            self.ui.ComboBox_files.addItem(self.filename)
 
         self.ui.text_preview.setPlainText(file_content)
 
-    def make_input_content(self):
+    def update_preview_combobox(self):
         """
-        Make content (not file) to be later used in Gaussian input, which is shown in preview window
-        :return: string
+        This function is called everytime any change to combobox is made.
+        Program crashes if runs with only one file in comobox, thus the 
+        if statement is neccesarry!
         """
+        if self.ui.ComboBox_files.count() > 1:
+            filename = self.ui.ComboBox_files.currentText()
+            file_content = self.make_input_content(self.multiple_files[filename])
+            self.ui.text_preview.setPlainText(file_content)
+
+    def update_charge(self):
+        self.charge = self.ui.lineEdit_charge.text()
+
+    def update_multiplicity(self):
+        self.multiplicity = self.ui.lineEdit_multiplicity.text()
+
+    def make_files(self):
+        """
+        Writes on or multiple inputfiles (found in self.multiplefiles)
+        New files are loaded into react again using the exsisting add_files()
+        function in REACT.py
+        TODO make some shortcut function so that we avoid loading files again?
+        """
+        files = []
+        if self.multiple_files:
+            for filename, keywords in self.multiple_files.items():
+                content = self.make_input_content(keywords)
+                filepath = self._make_file(filename , content)
+                files.append(filepath)
+        else:
+            content = self.make_input_content()
+            filepath = self._make_file(self.filename, content)
+            files.append(filepath)
+
+        self.react.add_files(files)
+
+
+    def _make_file(self, filename, file_content):
+        """
+        Private function. Makes sure that no files are overwritten, and 
+        makes an unique filepath by adding _1, _2, _3 etc until an unique
+        filepath is found.
+        """
+        i = 0
+        new_filepath = self.react.settings.workdir + '/' + filename
+
+        while path.isfile(new_filepath + ".com") == True:
+            i += 1
+            new_filepath = new_filepath + f'_{i}'
+
+        with open(new_filepath + ".com", "w+") as f:
+            f.write(file_content)
+            f.write("\n")
+        
+        return new_filepath + ".com"
+
+
+    def make_input_content(self, extra_job_keywords=False):
+        """
+        Make content (not file) for one Gaussian inputfile.
+        :return: str()
+        TODO BSB will make better function description explaning the
+        code!!
+        """
+
+        ### This part creates prepares all link0 keyword by adding them to the 'link0_list' ###
         link0_list = []
-        route_list = []
-        content_str = ""
         value = None
 
-        ### This part creates prepares all link0 keyword by adding them to the list 'link0' ###
         for checkbox, LineEdit in self.link0_checkboxes.items():
 
             if checkbox.isChecked():
@@ -379,7 +473,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     value = LineEdit.text()
 
                     if not value or value.isspace():
-                        print(f'{value} is empty...')
                         return  # TODO some error window to indicate that LineEdit is empty
 
                     value = LineEdit.text()
@@ -407,43 +500,87 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                 item = '%' + item
             link0_list.append(item)
 
-        link0_list.append("\n")
-        content_str = "\n".join(link0_list)
+        link0_str = "\n".join(link0_list)
 
 
         ### This part prepares all part of the route comment, by first adding them to route_list ###
         ### Then, all itemsn in route_list are joined into one str.                              ###
 
-        route_list.append(self.output_print + " ")
+        job_str = ""
+        job_keywords = []
+        job_type = self.job_type
+
+        if extra_job_keywords:
+            job_keywords.extend(extra_job_keywords)
 
         if self.job_type == "Opt (TS)":
-            route_list.append("Opt=(TS")
-        elif self.job_type == "Opt + Freq":
-            pass
-        elif self.job_type in ["IRC", "IRCMax"]:
-            pass
-        else:
-            route_list.append(self.job_type + "=(")
+            job_keywords.append("TS")
+            job_type = "Opt"
         
-        route_list.append(",".join(self.job_options[self.job_type]))
+        for i in self.job_options[job_type]:
+            job_keywords.append(i)
 
-        route_list.append(") ")
+        freq = False
+        if self.opt_freq_details["checked"]:
+            if self.opt_freq_details["keywords"]:
+                freq = "Freq=(" + ", ".join(self.opt_freq_details["keywords"] + ")")
+            else:
+                freq = "Freq"
+                
 
-        f"{self.output_print} {job_type}=({job_details}){Freq} {functional}/{basis}"
+        if job_keywords:
+            keywords = ", ".join(job_keywords)
+            if freq:
+                job_str = f"Opt=({keywords}) {freq}"
+            else:
+                job_str = f"{job_type}=({keywords})"
 
-        tmp_str = "".join(route_list)
+        else:
+            if freq:
+                job_str = f"Opt {freq}"
+            else:
+                job_str = f"{job_type}" 
 
-        print(tmp_str)
+
+        if self.basis_diff and not self.basis_diff.isspace():
+            tmp = list(self.basis)
+            if tmp[-1] == 'G':
+                tmp[-1] = self.basis_diff
+                tmp.append('G')
+            else:
+                tmp.append(self.basis_diff)
+            basis = "".join(tmp)
+        else:
+            basis = self.basis
+
+        if self.basis_pol1 and not self.basis_pol1.isspace() and self.basis_pol2\
+           and not self.basis_pol2.isspace():
+            basis_pol = f"({self.basis_pol1},{self.basis_pol2})"
+        elif self.basis_pol1 and not self.basis_pol1.isspace():
+            basis_pol = f"({self.basis_pol1})"
+        elif self.basis_pol2 and not self.basis_pol2.isspace():
+            basis_pol = f"({self.basis_pol2})"
+        else:
+            basis_pol = False
+
+        if basis_pol:
+            basis_str = f"{basis}{basis_pol}"
+        else:
+            basis_str = f"{basis}"
+
+        add_keyword_str = " ".join(self.additional_keys)
 
 
-        return content_str
+        return f"{link0_str}\n{self.output_print} {job_str} {self.functional}/{basis_str} "\
+               f"{add_keyword_str}\n\n{self.charge} {self.multiplicity}\n"\
+               + "\n".join(self.mol_obj.formatted_xyz) + "\n"
 
 
         
 
     def create_InputFile(self):
         
-        if os.path.isfile(self.settings.workdir + "/" + self.filename) == True:
+        if path.isfile(self.settings.workdir + "/" + self.filename) == True:
             pass #TODO some error window need to pop up to warn that is will be overwridden!
 
     def route_checkboxes_update(self, checkbox, lineEdit):
@@ -460,19 +597,19 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         :return:
         """
-        basis = self.ui.comboBox_basis1.currentText()
+        self.basis = self.ui.comboBox_basis1.currentText()
 
         self.ui.comboBox_basis2.clear()
         self.ui.comboBox_basis3.clear()
         self.ui.comboBox_basis4.clear()
 
-        self.ui.comboBox_basis2.addItems(self.settings.basis_options[basis]['diff'])
-        self.ui.comboBox_basis3.addItems(self.settings.basis_options[basis]['pol1'])
-        self.ui.comboBox_basis4.addItems(self.settings.basis_options[basis]['pol2'])
+        self.ui.comboBox_basis2.addItems(self.settings.basis_options[self.basis]['diff'])
+        self.ui.comboBox_basis3.addItems(self.settings.basis_options[self.basis]['pol1'])
+        self.ui.comboBox_basis4.addItems(self.settings.basis_options[self.basis]['pol2'])
 
-        self.ui.comboBox_basis2.setCurrentText(self.settings.basis_diff)
-        self.ui.comboBox_basis3.setCurrentText(self.settings.basis_pol1)
-        self.ui.comboBox_basis4.setCurrentText(self.settings.basis_pol2)
+        #self.ui.comboBox_basis2.setCurrentText(self.basis_diff)
+        #self.ui.comboBox_basis3.setCurrentText(self.basis_pol1)
+        #self.ui.comboBox_basis4.setCurrentText(self.basis_pol2)
 
     def update_basis2(self):
         """
@@ -560,7 +697,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             job_list.remove(item_text)
         Qlist.takeItem(Qlist.currentRow())
 
-    def on_cancel(self):
+    def on_close(self):
         self.close()
 
     def on_write(self):
@@ -570,16 +707,17 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # TODO reply --> just open the .com file in the current state (tab) of REACT after write?
         # TODO on_write should probably just write whatever is in the preview window to a file.
         """
+        #self.mol_obj.filename = self.ui.lineEdit_filename.text()
+        #self.mol_obj.job_type = self.ui.comboBox_job_type.currentText()
+        #self.mol_obj.basis = self.ui.comboBox_basis1.currentText()
+        #self.mol_obj.basis_diff = self.ui.comboBox_basis2.currentText()
+        #self.mol_obj.basis_pol1 = self.ui.comboBox_basis3.currentText()
+        #self.mol_obj.basis_pol2 = self.ui.comboBox_basis4.currentText()
+        #self.react.states[self.react.state_index].add_instance(self.mol_obj)
 
-        self.mol_obj.filename = self.ui.lineEdit_filename.text()
-        self.mol_obj.job_type = self.ui.comboBox_job_type.currentText()
-        self.mol_obj.basis = self.ui.comboBox_basis1.currentText()
-        self.mol_obj.basis_diff = self.ui.comboBox_basis2.currentText()
-        self.mol_obj.basis_pol1 = self.ui.comboBox_basis3.currentText()
-        self.mol_obj.basis_pol2 = self.ui.comboBox_basis4.currentText()
-        self.react.states[self.react.state_index].add_instance(self.mol_obj)
+        self.make_files()
 
-        self.close()
+        #self.close()
 
     def closeEvent(self, event):
         if self.pymol:
