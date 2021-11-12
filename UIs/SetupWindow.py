@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SetupWindow(object):
     def setupUi(self, SetupWindow):
         SetupWindow.setObjectName("SetupWindow")
-        SetupWindow.resize(665, 806)
+        SetupWindow.resize(665, 496)
         font = QtGui.QFont()
         font.setPointSize(13)
         SetupWindow.setFont(font)
@@ -904,6 +904,9 @@ class Ui_SetupWindow(object):
         self.horizontalLayout_12.addWidget(self.ComboBox_files)
         self.verticalLayout_2.addLayout(self.horizontalLayout_12)
         self.text_preview = QtWidgets.QPlainTextEdit(self.tab_view)
+        font = QtGui.QFont()
+        font.setFamily("PT Mono")
+        self.text_preview.setFont(font)
         self.text_preview.setObjectName("text_preview")
         self.verticalLayout_2.addWidget(self.text_preview)
         self.gridLayout_13.addLayout(self.verticalLayout_2, 0, 0, 1, 1)
