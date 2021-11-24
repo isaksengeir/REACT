@@ -28,6 +28,7 @@ class Settings():
         self._basis_diff = None
         self._basis_pol1 = None
         self._basis_pol2 = None
+        self._job_type = None
         self._additional_keys = None
         self._job_mem = None
         self._chk = None
@@ -87,6 +88,10 @@ class Settings():
         return self._functional
 
     @property
+    def job_type(self):
+        return self._job_type
+
+    @property
     def job_mem(self):
         return self._job_mem
 
@@ -134,6 +139,10 @@ class Settings():
     def functional(self, value):
         self._functional = value
 
+    @job_type.setter
+    def job_type(self, value):
+        self._job_type = value
+
     @basis.setter
     def basis(self, value):
         self._basis = value
@@ -176,6 +185,7 @@ class Settings():
         self._link0_options = value
     
     def set_default_settings(self):
+        print("setting default settings")
         self.workdir = os.getcwd()
         self.pymolpath = None
         self.REACT_pymol = True
@@ -188,6 +198,7 @@ class Settings():
         self.basis_diff = None
         self.basis_pol1 = "d"
         self.basis_pol2 = "p"
+        self.job_type = "Opt"
         self.additional_keys = ["empiricaldispersion=gd3"]
         self.job_mem = 6
         self.chk = True
@@ -214,7 +225,7 @@ class Settings():
         for key in ['workdir', 'pymolpath', 'REACT_pymol', 'pymol_at_launch',
                     'UI_mode', 'functional', 'basis', 'basis_diff', 'basis_pol1',
                     'basis_pol2', 'additional_keys', 'job_mem', 'chk', 'job_options',
-                    'link0_options', 'basis_options', 'functional_options']:
+                    'link0_options', 'basis_options', 'functional_options', 'job_type']:
 
             self._load_custom_settings(settings, key)
 
@@ -234,9 +245,9 @@ class Settings():
             if key == 'pymol_at_launch':
                 self.pymol_at_launch = item
             if key == 'UI_mode':
-                self.UI_mode = item    
+                self.UI_mode = item
             if key == 'functional':
-                self.functional = item    
+                self.functional = item
             if key == 'basis':
                 self.basis = item
             if key == 'basis_diff':
@@ -259,6 +270,8 @@ class Settings():
                 self.basis_options = item
             if key == 'functional_options':
                 self.functional_options = item
+            if key == 'job_type':
+                self.job_type = item
         except:
             self.react.append_text(f'Failed to load "{key}" from custom settings')
 
@@ -282,6 +295,7 @@ class Settings():
         settings['link0_options'] = self.link0_options
         settings['basis_options'] = self.basis_options
         settings['functional_options'] = self.functional_options
+        settings['job_type'] = self.job_type
         
         with open(self.settingspath, 'w+') as f:
             json.dump(settings, f)
@@ -362,6 +376,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.comboBox_funct.addItems(self.settings.functional_options)
         self.ui.basis1_comboBox_3.addItems([x for x in self.settings.basis_options])
         self.ui.job_type_comboBox.addItems(["Opt", "Opt (TS)", "Freq", "IRC", "IRCMax", "Single point"])
+        self.ui.job_type_comboBox.setCurrentText(self.settings.job_type)
 
         self.ui.comboBox_funct.setCurrentText(self.settings.functional)
         self.ui.basis1_comboBox_3.setCurrentText(self.settings.basis)
@@ -404,6 +419,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         text = widget.currentText()
 
         if key == "job type":
+            self.settings.job_type = text
             self.ui.add_DFT_list_3.clear()
             self.ui.add_DFT_list_3.addItems(self.job_options[text])
     
@@ -508,6 +524,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.settings.basis_diff = self.ui.basis2_comboBox_4.currentText()
         self.settings.basis_pol1 = self.ui.basis3_comboBox_6.currentText()
         self.settings.basis_pol2 = self.ui.basis4_comboBox_5.currentText()
+        self.settings.job_type = self.ui.job_type_comboBox.currentText()
         self.settings.additional_keys = [self.ui.add_DFT_list_1.item(x).text() for x in range(self.ui.add_DFT_list_1.count())]
         self.settings.job_options = copy.deepcopy(self.job_options)
         self.settings.link0_options = [self.ui.add_DFT_list_2.item(x).text() for x in range(self.ui.add_DFT_list_2.count())]

@@ -309,6 +309,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.List_add_job.addItems(self.job_options[self.ui.comboBox_job_type.currentText()])
         self.ui.ComboBox_files.addItem(self.filename)
 
+        self.ui.comboBox_job_type.setCurrentText(self.settings.job_type)
         self.ui.comboBox_funct.setCurrentText(self.functional)
         self.ui.comboBox_basis1.setCurrentText(self.basis)
         self.ui.comboBox_basis2.setCurrentText(self.basis_diff)
