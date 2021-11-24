@@ -457,19 +457,26 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def make_input_content(self, extra_job_keywords=False):
         """
         Make content (not file) for one Gaussian inputfile.
-        :return: str()
-        TODO BSB will make better function description explaning the
-        code!!
+        :return: str
+        The code is divided into the following parts: link0, route, molecule and restraint.
+        Each part prepares it's respective part as a string. named for ex. link0_str. 
+        Finally, all sub-strings are jointed into one string, containing the whole file content
         """
 
-        ### This part creates prepares all link0 keyword by adding them to the 'link0_list' ###
+        # sub-strings that will be edited by their respective part
+        link0_str = ""
+        route_str = ""
+        molecule_str = ""
+        restraints_str = ""
+
+
+        ### This part creates prepares all link0 keyword by adding them first to the 'link0_list' ###
+        ### It also adds "%" to the keyword if its missing                                        ###
         link0_list = []
         value = None
 
         for checkbox, LineEdit in self.link0_checkboxes.items():
-
             if checkbox.isChecked():
-
                 if LineEdit:
                     value = LineEdit.text()
 
@@ -505,7 +512,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
 
         ### This part prepares all part of the route comment, by first adding them to route_list ###
-        ### Then, all itemsn in route_list are joined into one str.                              ###
+        ### Then, all items  in route_list are joined into one str.                              ###
 
         job_str = ""
         job_keywords = []
@@ -513,6 +520,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         if extra_job_keywords:
             job_keywords.extend(extra_job_keywords)
+
+        if self.ui.list_freeze_atoms.count() > 0:
+            job_keywords.append("modredundant")
 
         if self.job_type == "Opt (TS)":
             job_keywords.append("TS")
@@ -569,14 +579,24 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         else:
             basis_str = f"{basis}"
 
-        add_keyword_str = " ".join(self.additional_keys)
+        route_str = f"{self.output_print} {job_str} {self.functional}/{basis_str} "\
+                    + " ".join(self.additional_keys)
 
 
-        return f"{link0_str}\n{self.output_print} {job_str} {self.functional}/{basis_str} "\
-               f"{add_keyword_str}\n\n{self.charge} {self.multiplicity}\n"\
-               + "\n".join(self.mol_obj.formatted_xyz) + "\n"
+        ### This part prepares the molecule ###
+        molecule_str = f"{self.charge} {self.multiplicity}\n" + "\n".join(self.mol_obj.formatted_xyz)
+
+        ### This part prepares the restraints, if there are any ###
+        restraints_list = []
+        
+        for item in [self.ui.list_freeze_atoms.item(x).text() for x in range(self.ui.list_freeze_atoms.count())]:
+            restraints_list.append(item)
+
+        restraints_str = "\n".join(restraints_list)
 
 
+        return f"{link0_str}\n{route_str}\n\n{molecule_str}\n\n{restraints_str}\n\n"
+    
         
 
     def create_InputFile(self):

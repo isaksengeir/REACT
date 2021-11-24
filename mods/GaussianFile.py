@@ -130,7 +130,6 @@ class OutputFile(Properties):
                               "RMS Displacement Converged?": (4, bool)}
                         }
 
-        self.charge_multiplicity_regEx = re.compile('Charge = -?\d+ Multiplicity = [13]')
         #This will store data from output file given by self.g_reader
         self.g_outdata = dict()
 
@@ -158,10 +157,10 @@ class OutputFile(Properties):
         with open(DFT_out) as f:
             for line in f:
 
-                if self.charge_multiplicity_regEx.search(line):
-                    temp = self.charge_multiplicity_regEx.search(line).group().split()
-                    self.charge = temp[2]
-                    self.multiplicity = temp[5]
+                if "Multiplicity" in line:
+                    tmp = line.split()
+                    self.charge = tmp[2]
+                    self._multiplicity = tmp[5]
 
                 #Check if line contains any self.g_reader keys:
                 if any(g_key in line for g_key in self.g_reader.keys()):
