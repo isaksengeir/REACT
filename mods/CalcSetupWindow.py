@@ -415,23 +415,24 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def make_files(self):
         """
-        Writes on or multiple inputfiles (found in self.multiplefiles)
+        Writes one or multiple inputfiles (found in self.multiplefiles)
         New files are loaded into react again using the exsisting add_files()
         function in REACT.py
-        TODO make some shortcut function so that we avoid loading files again?
         """
         files = []
         if self.multiple_files:
             for filename, keywords in self.multiple_files.items():
                 content = self.make_input_content(keywords)
-                filepath = self._make_file(filename , content)
+                filepath = self._make_file(filename, content)
                 files.append(filepath)
         else:
             content = self.make_input_content()
             filepath = self._make_file(self.filename, content)
             files.append(filepath)
 
-        self.react.add_files(files)
+        # Add files separate to avoid issues relating to multithreading prosess in REACT.py 
+        for filepath in files:
+            self.react.add_file(filepath)
 
 
     def _make_file(self, filename, file_content):
@@ -597,12 +598,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         return f"{link0_str}\n{route_str}\n\n{molecule_str}\n\n{restraints_str}\n\n"
     
-        
-
-    def create_InputFile(self):
-        
-        if path.isfile(self.settings.workdir + "/" + self.filename) == True:
-            pass #TODO some error window need to pop up to warn that is will be overwridden!
 
     def route_checkboxes_update(self, checkbox, lineEdit):
 

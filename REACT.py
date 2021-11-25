@@ -303,6 +303,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if converged is False:
                 self.append_text("%s has not converged successfully." % filename)
 
+    def add_file(self, filepath):
+        """
+        Adds only one file.
+        """
+        self.states[self.state_index].add_file(filepath)
+
+        items_insert_index = self.tabWidget.currentWidget().count()
+        self.tabWidget.currentWidget().insertItem(items_insert_index, filepath)
+   
     def add_files(self, paths=False):
         """
         Adds filenames via self.import_files (QFileDialog) to current QtabWidget tab QListWidget and selected state.
@@ -874,6 +883,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :return: integer (state)
         """
         return self.tabWidget.currentIndex() + 1
+
+    @property
+    def curr_state(self):
+        return self.states[self.state_index]
 
     @property
     def state_index(self):

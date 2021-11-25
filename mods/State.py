@@ -19,7 +19,7 @@ class State:
         # filepath (key) : File object (value)
         self.files = {}
 
-    def add_file(self, filepath, new_file=False):
+    def add_file(self, filepath):
         """
         Creates GaussianFile instance for each uploaded file-path.
         """
@@ -29,8 +29,6 @@ class State:
 
         self.files[filepath] = self.file_types[filetype](filepath=filepath)
 
-        print(f'{self.files}')
-
         # Check if OutFile has frequencies, and make it a FrequenciesOut object instead:
         if isinstance(self.files[filepath], OutputFile):
 
@@ -38,14 +36,6 @@ class State:
                 self.files[filepath] = FrequenciesOut(filepath)
 
         return None
-
-    def add_instance(self, gaussian_instance):
-        """
-        Add already excisting Gaussian instance to state
-        """
-        # TODO BSB this does not seem to do anything ?
-        filename = gaussian_instance.filename
-        filetype = gaussian_instance.filetype
 
     def del_files(self, files_to_del):
         """
