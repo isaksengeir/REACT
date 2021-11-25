@@ -59,7 +59,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.Qbutton_group.addButton(self.ui.radioButton)
         self.Qbutton_group.addButton(self.ui.radioButton_2)
         self.Qbutton_group.addButton(self.ui.radioButton_3)
-
         self.link0_checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
                       self.ui.checkBox_mem_2: self.ui.lineEdit_mem_2,
                       self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk}
@@ -433,7 +432,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # Add files separate to avoid issues relating to multithreading prosess in REACT.py 
         for filepath in files:
             self.react.add_file(filepath)
-
 
     def _make_file(self, filename, file_content):
         """

@@ -311,6 +311,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         items_insert_index = self.tabWidget.currentWidget().count()
         self.tabWidget.currentWidget().insertItem(items_insert_index, filepath)
+        if self.pymol:
+            self.file_to_pymol(filepath=filepath, state=self.get_current_state, set_defaults=True)
    
     def add_files(self, paths=False):
         """
