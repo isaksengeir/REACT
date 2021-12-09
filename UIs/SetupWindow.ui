@@ -61,9 +61,9 @@ background-color: rgb(20,20,20);
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
+             <y>-216</y>
              <width>578</width>
-             <height>681</height>
+             <height>676</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_28">
@@ -807,33 +807,14 @@ QPushButton:pressed
                  <bool>true</bool>
                 </property>
                 <property name="text">
-                 <string>Freq</string>
+                 <string>Freq   </string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_11">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="Button_freq">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+               <widget class="QCheckBox" name="checkBox_raman">
                 <property name="text">
-                 <string>Freq details</string>
+                 <string>Raman</string>
                 </property>
                </widget>
               </item>
@@ -1911,6 +1892,13 @@ QPushButton:pressed
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QCheckBox" name="checkBox_cp_to_reactmain">
+              <property name="text">
+               <string>Add to project table</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <spacer name="horizontalSpacer_8">
               <property name="orientation">

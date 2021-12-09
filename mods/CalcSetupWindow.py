@@ -98,6 +98,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.lineEdit_multiplicity.textChanged.connect(self.update_multiplicity)
         self.ui.tabWidget.currentChanged.connect(self.update_preview)
         self.Qbutton_group.buttonClicked.connect(self.update_print_button)
+        self.ui.checkbox_freq.clicked.connect(self.toggle_raman)
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -113,6 +114,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         # Pymol returns ordered atom id list, so we need to keep track of click order
         self.selected_ids = list()
+
+        self.toggle_raman()
 
     def change_selection_mode(self):
         if self.ui.comboBox_freezetype.currentText() == "Atoms":
@@ -274,17 +277,22 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.job_type == "IRC":
             self.multiple_files[self.filename + "_frwd"] = ["forward"] 
             self.multiple_files[self.filename + "_rev"] = ["reverse"] 
-        if self.job_type in ["Opt", "Opt (TS)"]:
+        if self.job_type in ["Opt", "Opt (TS)", "Freq"]:
             self.ui.checkbox_freq.setHidden(False)
-            self.ui.Button_freq.setHidden(False)
             self.ui.checkbox_freq.setEnabled(True)
-            self.ui.Button_freq.setEnabled(True)
+            self.toggle_raman()
         else:
             self.ui.checkbox_freq.setHidden(True)
-            self.ui.Button_freq.setHidden(True)
+            self.ui.checkBox_raman.setHidden(True)
 
         self.ui.List_add_job.clear()
         self.ui.List_add_job.addItems(self.job_options[self.job_type])
+
+    def toggle_raman(self):
+        if self.ui.checkbox_freq.isChecked():
+            self.ui.checkBox_raman.setHidden(False)
+        else:
+            self.ui.checkBox_raman.setHidden(True)
 
     def update_functional(self):
         self.functional = self.ui.comboBox_funct.currentText()
