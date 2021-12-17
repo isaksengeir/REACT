@@ -214,6 +214,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         Adds selected atoms to freeze section - append F to end of str for freeze
         """
+        if len(self.selected_indexes) < 1:
+            return
         type = "F"
         g_cmd = {"Atom": "X", "Bond": "B", "Angle": "A", "Dihedral": "D"}
         atoms = ""
@@ -232,6 +234,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # Get rows for selected to delete:
         to_del = [self.ui.list_freeze_atoms.row(x) for x in self.ui.list_freeze_atoms.selectedItems()]
         for row in to_del:
+            print(row)
+            if self.pymol:
+                for i in self.ui.list_freeze_atoms.item(row).text().split()[1:-1]:
+                    self.pymol_spheres(atom_nr=i, hide=True)
+
             self.ui.list_freeze_atoms.takeItem(row)
 
     def add_scan_atoms(self):
@@ -252,13 +259,18 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         except:
             pass
         
-    def pymol_spheres(self, atom_nr):
+    def pymol_spheres(self, atom_nr, hide=False):
         """
         Indicate withe spheres atoms to be frozen / modredundant
         """
         group = "state_%d" % self.react.get_current_state
-        self.pymol.pymol_cmd(f"show spheres, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
-        self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
+        _cmd = "show"
+        if hide:
+            _cmd = "hide"
+        self.pymol.pymol_cmd(f"{_cmd} spheres, id {atom_nr} and {group} and {self.mol_obj.filename.split('.')[0]}")
+        if not hide:
+            self.pymol.pymol_cmd(f"set sphere_scale, 0.3, id {atom_nr} and {group} and "
+                                 f"{self.mol_obj.filename.split('.')[0]}")
 
     def update_job_details(self):
         """
