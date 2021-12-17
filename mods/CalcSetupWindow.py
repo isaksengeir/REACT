@@ -117,6 +117,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.toggle_raman()
 
+        # TODO for v 2.0 :
+        self.ui.checkBox_moveconnected.setHidden(True)
+
+
     def change_selection_mode(self):
         if self.ui.comboBox_freezetype.currentText() == "Atoms":
             self.ui.list_model.setSelectionMode(1)

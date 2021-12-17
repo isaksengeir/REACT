@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>725</width>
-    <height>553</height>
+    <height>556</height>
    </rect>
   </property>
   <property name="font">
@@ -1360,19 +1360,6 @@ QPushButton:pressed
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="label_10">
-              <property name="font">
-               <font>
-                <weight>50</weight>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>+/-</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="0">
              <widget class="QDoubleSpinBox" name="spinbox_radius">
               <property name="decimals">
@@ -1424,6 +1411,19 @@ QPushButton:pressed
               </property>
               <property name="text">
                <string>R (Å)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="checkBox_pm">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="text">
+               <string>+-</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1644,21 +1644,21 @@ QPushButton:pressed
           <item row="6" column="1">
            <layout class="QGridLayout" name="gridLayout_15">
             <item row="0" column="0">
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="button_invert">
               <property name="text">
                <string>Invert</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QCheckBox" name="checkBox">
+             <widget class="QCheckBox" name="checkBox_moveboth">
               <property name="text">
                <string>Move both</string>
               </property>
              </widget>
             </item>
             <item row="0" column="2">
-             <widget class="QCheckBox" name="checkBox_2">
+             <widget class="QCheckBox" name="checkBox_moveconnected">
               <property name="text">
                <string>Move connected atoms</string>
               </property>
@@ -1979,6 +1979,9 @@ QPushButton:pressed
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
              <widget class="QCheckBox" name="checkBox_cp_to_reactmain">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
               <property name="text">
                <string>Add to project table</string>
               </property>
