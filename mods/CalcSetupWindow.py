@@ -1,11 +1,12 @@
-from os import link, tcsetpgrp, path
+from os import path, mkdir
+import shutil
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QTimer
 from UIs.SetupWindow import Ui_SetupWindow
-from mods.GaussianFile import InputFile
+from mods.ScanBond import AtomBond
 from mods.common_functions import atom_distance, random_color, write_file
 import copy
-
+import sys 
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def __init__(self, parent, filepath):
@@ -66,6 +67,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.opt_freq_details = {"checked": False, "keywords": []}
         self.num_files = 1
         self.multiple_files = {}
+        self.atom_bonds = {}
+        self.Qbutton_scan_group = QtWidgets.QButtonGroup(self)
+        self.Qbutton_scan_group.addButton(self.ui.radioButton_plus)
+        self.Qbutton_scan_group.addButton(self.ui.radioButton_minus)
+        self.Qbutton_scan_group.addButton(self.ui.radioButton_both)
 
         self.insert_model_atoms()
         self.fill_main_tab()
@@ -99,6 +105,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.tabWidget.currentChanged.connect(self.update_preview)
         self.Qbutton_group.buttonClicked.connect(self.update_print_button)
         self.ui.checkbox_freq.clicked.connect(self.toggle_raman)
+        self.Qbutton_scan_group.buttonClicked.connect(self.on_scan_mode_changed)
+        self.ui.spinbox_scan_pm.valueChanged.connect(lambda: self.on_spinbox_changed(self.ui.spinbox_scan_pm))
+        self.ui.spinbox_scan_increment.valueChanged.connect(lambda: self.on_spinbox_changed(self.ui.spinbox_scan_increment))
+        self.ui.button_invert.clicked.connect(self.on_invert_atoms)
+        self.ui.checkBox_moveboth.clicked.connect(self.on_move_both_changed)
+
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -118,6 +130,37 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.toggle_raman()
 
+    @property
+    def scan_bond(self):
+        """
+        Return AtomBond obj representing the bond selected from the scan list
+        """
+        return self.atom_bonds[self.ui.list_scan_bonds.currentItem().text()]
+
+    def on_invert_atoms(self):
+
+        if self.ui.list_scan_bonds.count() < 1:
+            return
+
+        self.scan_bond.invert_atoms()
+        self.ui.lineEdit_freeze.setText(str(self.scan_bond.atom1_idx))
+        self.ui.lineEdit_move.setText(str(self.scan_bond.atom2_idx))
+
+    def on_move_both_changed(self):
+
+        if self.ui.list_scan_bonds.count() < 1:
+            return
+
+        if self.ui.checkBox_moveboth.isChecked():
+            self.scan_bond.move_both == True
+            disable = True
+        else:
+            self.scan_bond.move_both == False
+            disable = False
+
+        self.ui.button_invert.setDisabled(disable)
+        self.ui.lineEdit_freeze.setDisabled(disable)
+        self.ui.lineEdit_move.setDisabled(disable)
 
     def change_selection_mode(self):
         if self.ui.comboBox_freezetype.currentText() == "Atoms":
@@ -242,40 +285,87 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     self.pymol_spheres(atom_nr=i, hide=True)
 
             self.ui.list_freeze_atoms.takeItem(row)
+    
+    def on_spinbox_changed(self, spinbox):
+        if spinbox == self.ui.spinbox_scan_pm:
+            self.scan_bond.scan_dist = spinbox.value()
+        elif spinbox == self.ui.spinbox_scan_increment:
+            self.scan_bond.step_size = spinbox.value()
 
     def add_scan_atoms(self):
         """
-        Atom pair for BSB scan atom algorithm
+        First, gather information from the UI. Then, pass all information
+        to a new instance of AtomBond object.
         """
-        freeze = "B "
+
+        freeze = ""
         atoms = list()
+        bond_size = self.ui.spinbox_radius.value()
+        scan_size = self.ui.spinbox_scan_pm.value()
+        scan_increment = self.ui.spinbox_scan_increment.value()
+
         for i in self.selected_indexes:
             atoms.append(self.mol_obj.molecule[i.row() + 1].atom_index)
-            freeze += f"{self.mol_obj.molecule[i.row() + 1].atom_index} "
+            freeze += f"{self.mol_obj.molecule[i.row() + 1].atom_name} ({self.mol_obj.molecule[i.row() + 1].atom_index})    "
 
-        freeze += f"{self.ui.spinbox_radius.value():.2f} {self.ui.spinbox_scan_pm.value():.2f} " \
-                  f"{self.ui.spinbox_scan_increment.value():.2f}"
-        self.ui.list_scan_bonds.insertItem(0, freeze)
+        if self.ui.radioButton_plus.isChecked():
+            scan_mode = '+'
+        elif self.ui.radioButton_minus.isChecked():
+            scan_mode = '-'
+        else:
+            scan_mode = '+/-'
+
+        self.atom_bonds[freeze] = AtomBond(self.mol_obj.formatted_xyz,
+                                           atoms[0], atoms[1], bond_size, scan_size,
+                                           scan_increment, self.ui.checkBox_moveboth.isChecked(),
+                                           scan_mode)
+
+
+        list_item = QtWidgets.QListWidgetItem(freeze)
+        self.ui.list_scan_bonds.addItem(list_item)
+        self.ui.list_scan_bonds.setCurrentItem(list_item)
         self.ui.lineEdit_freeze.setText(str(atoms[0]))
         self.ui.lineEdit_move.setText(str(atoms[1]))
 
+        self.update_scan()
+
+    def update_scan(self):
+
+        if not path.isdir('scan_temp'):
+            mkdir('scan_temp')
+
+        self.scan_bond.write_xyzfiles(self.react.react_path + '/scan_temp/')
+
+
     def remove_scan_atoms(self):
         try:
+            del self.atom_bonds[self.ui.list_scan_bonds.currentItem.text()]
             self.ui.list_scan_bonds.takeItem(self.ui.list_scan_bonds.currentRow())
         except:
             pass
 
     def scan_list_clicked(self):
-        try:
-            indexes = [int(x) - 1 for x in self.ui.list_scan_bonds.currentItem().text().split()[1:3]]
-        except AttributeError:
-            return
-
         self.ui.list_model.clearSelection()
-        self.ui.lineEdit_freeze.setText(str(self.mol_obj.molecule[indexes[0] + 1].atom_index))
-        self.ui.lineEdit_move.setText(str(self.mol_obj.molecule[indexes[1] + 1].atom_index))
-        for i in indexes:
+
+        self.ui.lineEdit_freeze.setText(str(self.scan_bond.atom1_idx))
+        self.ui.lineEdit_move.setText(str(self.scan_bond.atom2_idx))
+
+        self.ui.checkBox_moveboth.setChecked(self.scan_bond.move_both)
+        self.ui.spinbox_radius.setValue(self.scan_bond.bond_dist)
+        self.ui.spinbox_scan_pm.setValue(self.scan_bond.scan_dist)
+        self.ui.spinbox_scan_increment.setValue(self.scan_bond.step_size)
+        if self.scan_bond.scan_mode == '+':
+            self.ui.radioButton_plus.setChecked(True)
+        elif self.scan_bond.scan_mode == '-':
+            self.ui.radioButton_plus.setChecked(True)
+        else:
+            self.ui.radioButton_both.setChecked(True)
+
+        for i in [self.scan_bond.atom1_idx - 1, self.scan_bond.atom2_idx - 1]:
             self.ui.list_model.item(i).setSelected(True)
+
+        #self.scan_bond.write_xyzfiles()
+
 
         
     def pymol_spheres(self, atom_nr, hide=False):
@@ -414,6 +504,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         print_button_dict = {-2: "#t", -3: "#", -4: "#p"}
 
         self.output_print = print_button_dict[key]
+
+    def on_scan_mode_changed(self):
+
+        scan_mode_map = {-2: "+", -3: "-", -4: "+/-"}
+        key = self.Qbutton_scan_group.checkedId()
+        self.scan_bond.scan_mode = scan_mode_map[key]
+
 
     def update_preview(self):
         """
@@ -760,7 +857,16 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             job_list.remove(item_text)
         Qlist.takeItem(Qlist.currentRow())
 
+
+    def del_tempfiles(self):
+        try:
+            shutil.rmtree(self.react.react_path + '/scan_temp')
+        except OSError as e:
+            print("Error: %s" % (e.strerror))
+
     def on_close(self):
+
+        self.del_tempfiles()
         self.close()
 
     def on_write(self):
@@ -779,7 +885,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         #self.react.states[self.react.state_index].add_instance(self.mol_obj)
 
         self.make_files()
+        self.del_tempfiles()
 
+        
         #self.close()
 
     def closeEvent(self, event):

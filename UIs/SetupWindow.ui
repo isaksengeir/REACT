@@ -62,8 +62,8 @@ background-color: rgb(20,20,20);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>707</width>
-             <height>676</height>
+             <width>722</width>
+             <height>679</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_28">
@@ -1669,6 +1669,9 @@ QPushButton:pressed
            <layout class="QGridLayout" name="gridLayout_15">
             <item row="0" column="1">
              <widget class="QPushButton" name="button_invert">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string>Invert</string>
               </property>
@@ -1676,6 +1679,9 @@ QPushButton:pressed
             </item>
             <item row="0" column="2">
              <widget class="QCheckBox" name="checkBox_moveboth">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string>Move both</string>
               </property>
@@ -1692,6 +1698,9 @@ QPushButton:pressed
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_freeze">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>29</width>
@@ -1699,7 +1708,7 @@ QPushButton:pressed
                  </size>
                 </property>
                 <property name="text">
-                 <string>100</string>
+                 <string/>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
@@ -1715,6 +1724,9 @@ QPushButton:pressed
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_move">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>29</width>
@@ -1722,7 +1734,7 @@ QPushButton:pressed
                  </size>
                 </property>
                 <property name="text">
-                 <string>100</string>
+                 <string/>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
