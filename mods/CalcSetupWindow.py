@@ -104,6 +104,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.list_model.setSelectionMode(1)
 
         self.ui.list_freeze_atoms.itemSelectionChanged.connect(self.freeze_list_clicked)
+        self.ui.list_scan_bonds.itemSelectionChanged.connect(self.scan_list_clicked)
 
         self.atoms_to_select = 1
         self.enable_scan(enable=False)
@@ -247,18 +248,35 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         Atom pair for BSB scan atom algorithm
         """
         freeze = "B "
+        atoms = list()
         for i in self.selected_indexes:
+            atoms.append(self.mol_obj.molecule[i.row() + 1].atom_index)
             freeze += f"{self.mol_obj.molecule[i.row() + 1].atom_index} "
 
-        freeze += f"{self.ui.spinbox_radius.value()} {self.ui.spinbox_scan_pm.value()} " \
-                  f"{self.ui.spinbox_scan_increment.value()}"
-        self.ui.list_freeze_atoms_2.insertItem(0, freeze)
+        freeze += f"{self.ui.spinbox_radius.value():.2f} {self.ui.spinbox_scan_pm.value():.2f} " \
+                  f"{self.ui.spinbox_scan_increment.value():.2f}"
+        self.ui.list_scan_bonds.insertItem(0, freeze)
+        self.ui.lineEdit_freeze.setText(str(atoms[0]))
+        self.ui.lineEdit_move.setText(str(atoms[1]))
 
     def remove_scan_atoms(self):
         try:
-            self.ui.list_freeze_atoms_2.takeItem(self.ui.list_freeze_atoms_2.currentRow())
+            self.ui.list_scan_bonds.takeItem(self.ui.list_scan_bonds.currentRow())
         except:
             pass
+
+    def scan_list_clicked(self):
+        try:
+            indexes = [int(x) - 1 for x in self.ui.list_scan_bonds.currentItem().text().split()[1:3]]
+        except AttributeError:
+            return
+
+        self.ui.list_model.clearSelection()
+        self.ui.lineEdit_freeze.setText(str(self.mol_obj.molecule[indexes[0] + 1].atom_index))
+        self.ui.lineEdit_move.setText(str(self.mol_obj.molecule[indexes[1] + 1].atom_index))
+        for i in indexes:
+            self.ui.list_model.item(i).setSelected(True)
+
         
     def pymol_spheres(self, atom_nr, hide=False):
         """

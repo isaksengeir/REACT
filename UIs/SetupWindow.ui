@@ -42,7 +42,7 @@ background-color: rgb(20,20,20);
 </string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_main">
        <attribute name="title">
@@ -62,8 +62,8 @@ background-color: rgb(20,20,20);
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>722</width>
-             <height>679</height>
+             <width>707</width>
+             <height>676</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_28">
@@ -1418,6 +1418,9 @@ QPushButton:pressed
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
                <widget class="QRadioButton" name="radioButton_plus">
+                <property name="focusPolicy">
+                 <enum>Qt::NoFocus</enum>
+                </property>
                 <property name="text">
                  <string>+</string>
                 </property>
@@ -1425,6 +1428,9 @@ QPushButton:pressed
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_minus">
+                <property name="focusPolicy">
+                 <enum>Qt::NoFocus</enum>
+                </property>
                 <property name="text">
                  <string>-</string>
                 </property>
@@ -1432,8 +1438,14 @@ QPushButton:pressed
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_both">
+                <property name="focusPolicy">
+                 <enum>Qt::NoFocus</enum>
+                </property>
                 <property name="text">
                  <string>+/-</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -1689,6 +1701,9 @@ QPushButton:pressed
                 <property name="text">
                  <string>100</string>
                 </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
               <item>
@@ -1709,6 +1724,9 @@ QPushButton:pressed
                 <property name="text">
                  <string>100</string>
                 </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
              </layout>
@@ -1718,7 +1736,7 @@ QPushButton:pressed
           <item row="5" column="1">
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="0" column="1" rowspan="4">
-             <widget class="QListWidget" name="list_freeze_atoms_2">
+             <widget class="QListWidget" name="list_scan_bonds">
               <property name="minimumSize">
                <size>
                 <width>150</width>
