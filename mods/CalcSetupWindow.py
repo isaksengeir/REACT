@@ -145,6 +145,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.scan_bond.invert_atoms()
         self.ui.lineEdit_freeze.setText(str(self.scan_bond.atom1_idx))
         self.ui.lineEdit_move.setText(str(self.scan_bond.atom2_idx))
+        self.update_scan()
 
     def on_move_both_changed(self):
 
@@ -161,6 +162,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.button_invert.setDisabled(disable)
         self.ui.lineEdit_freeze.setDisabled(disable)
         self.ui.lineEdit_move.setDisabled(disable)
+        self.update_scan()
 
     def change_selection_mode(self):
         if self.ui.comboBox_freezetype.currentText() == "Atoms":
@@ -291,6 +293,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.scan_bond.scan_dist = spinbox.value()
         elif spinbox == self.ui.spinbox_scan_increment:
             self.scan_bond.step_size = spinbox.value()
+        
+        self.update_scan()
 
     def add_scan_atoms(self):
         """
