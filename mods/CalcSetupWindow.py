@@ -1,4 +1,5 @@
-from os import path, mkdir
+from os import path, mkdir, remove
+import glob
 import shutil
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QTimer
@@ -334,6 +335,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.update_scan()
 
     def update_scan(self):
+        """
+        Remove all old files before making new ones
+        """
+
+        tempfiles = glob.glob('scan_temp/*')
+        for f in tempfiles:
+            remove(f)
 
         if not path.isdir('scan_temp'):
             mkdir('scan_temp')
@@ -514,6 +522,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         scan_mode_map = {-2: "+", -3: "-", -4: "+/-"}
         key = self.Qbutton_scan_group.checkedId()
         self.scan_bond.scan_mode = scan_mode_map[key]
+        self.update_scan()
 
 
     def update_preview(self):
