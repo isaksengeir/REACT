@@ -338,16 +338,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         Remove all old files before making new ones
         """
+        if not path.isdir(f"{self.settings.workdir}/.scan_temp"):
+            mkdir(f"{self.settings.workdir}/.scan_temp")
+        else:
+            tempfiles = glob.glob(f"{self.settings.workdir}/.scan_temp/*")
+            for f in tempfiles:
+                remove(f)
 
-        tempfiles = glob.glob('scan_temp/*')
-        for f in tempfiles:
-            remove(f)
-
-        if not path.isdir('scan_temp'):
-            mkdir('scan_temp')
-
-        self.scan_bond.write_xyzfiles(self.react.react_path + '/scan_temp/')
-
+        self.scan_bond.write_xyzfiles(self.settings.workdir + '/.scan_temp/')
 
     def remove_scan_atoms(self):
         try:

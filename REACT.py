@@ -909,6 +909,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         return self.tabWidget.currentWidget().currentItem().text()
 
+    @property
+    def workdir(self):
+        """
+        :return: self.settings.workdir
+        """
+        return self.settings.workdir
+
     def closeEvent(self, event):
         if self.pymol:
             try:

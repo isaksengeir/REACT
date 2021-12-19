@@ -161,8 +161,9 @@ class AtomBond():
             xyz = self.convert_back(self.all_xyz[i])
 
             if not filename_in:
-                filename = f"scan_{i}.xyz"
+                filename = f"scan_{i:02d}.xyz"
             else:
+                return
                 pass #TODO
 
             with open(path + filename, "w+") as f:
