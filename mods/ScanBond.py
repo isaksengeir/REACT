@@ -191,6 +191,7 @@ class AtomBond():
                     
                     f.write("   ".join(atom) + "\n")
 
+
     @property
     def atom1_idx(self):
         return self._atom1_idx
@@ -247,14 +248,15 @@ class AtomBond():
     def move_both(self, value):
         self._move_both = value
 
-if __name__ == '__main__':
 
-    all_xyz = []
+#if __name__ == '__main__':
 
-    with open(sys.argv[1], 'r') as f:
-        for line in f:
-            line = line.replace("\n", "")
-            all_xyz.append(line)
+#    all_xyz = []
+
+#    with open(sys.argv[1], 'r') as f:
+#        for line in f:
+#            line = line.replace("\n", "")
+#            all_xyz.append(line)
 
     #AtomBond(all_xyz, 10, 78, 0.5, 0.2, move_both=False)
        

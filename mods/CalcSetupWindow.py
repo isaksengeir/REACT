@@ -1,3 +1,4 @@
+import os
 from os import path, mkdir, remove
 import glob
 import shutil
@@ -7,7 +8,7 @@ from UIs.SetupWindow import Ui_SetupWindow
 from mods.ScanBond import AtomBond
 from mods.common_functions import atom_distance, random_color, write_file
 import copy
-import sys 
+
 
 class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def __init__(self, parent, filepath):
@@ -16,7 +17,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.filepath = filepath
         self.settings = self.react.settings
 
+        # TODO this is temporary solution -> self.mol_obj should have a property state?
+        self.state = self.react.get_current_state
+
         self.pymol = False
+        self.pymol_animation = False
         if self.react.pymol:
             self.pymol = self.react.pymol
             self.pymol.pymol_cmd("set mouse_selection_mode, 0")
@@ -111,7 +116,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.spinbox_scan_increment.valueChanged.connect(lambda: self.on_spinbox_changed(self.ui.spinbox_scan_increment))
         self.ui.button_invert.clicked.connect(self.on_invert_atoms)
         self.ui.checkBox_moveboth.clicked.connect(self.on_move_both_changed)
-
 
         self.ui.list_model.itemSelectionChanged.connect(self.model_atom_clicked)
         self.ui.list_model.setSelectionMode(1)
@@ -210,8 +214,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         When selection i atom list is changed, update, and communicate with pymol
         """
 
-        sele = self.ui.list_model.selectedIndexes()
+        if self.pymol_animation:
+            self.stop_pymol_animation()
 
+        sele = self.ui.list_model.selectedIndexes()
         while len(sele) > self.atoms_to_select:
             if len(self.selected_indexes) > 0:
                 self.ui.list_model.item(self.selected_indexes.pop(0).row()).setSelected(False)
@@ -241,6 +247,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         When entry in "Atoms to freeze" is clicked, update to selected in "Atoms in model" list and pymol
         """
+        if self.pymol_animation:
+            self.stop_pymol_animation()
+
         try:
             indexes = [int(x) - 1 for x in self.ui.list_freeze_atoms.currentItem().text().split()[1:-1]]
         except AttributeError:
@@ -253,6 +262,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         for index in indexes:
             self.ui.list_model.item(index).setSelected(True)
+
+
 
     def update_pymol_selection(self, atoms):
         group = "state_%d" % self.react.get_current_state
@@ -290,10 +301,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.ui.list_freeze_atoms.takeItem(row)
     
     def on_spinbox_changed(self, spinbox):
+        if not hasattr(self, "scan_bond"):
+            return
         if spinbox == self.ui.spinbox_scan_pm:
             self.scan_bond.scan_dist = spinbox.value()
         elif spinbox == self.ui.spinbox_scan_increment:
             self.scan_bond.step_size = spinbox.value()
+            if spinbox.value() == 0:
+                return
         
         self.update_scan()
 
@@ -346,6 +361,30 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                 remove(f)
 
         self.scan_bond.write_xyzfiles(self.settings.workdir + '/.scan_temp/')
+        if self.pymol:
+            # read files to pymol obj
+            self.anmiate_bond_pymol()
+
+    def anmiate_bond_pymol(self):
+        # It is not possible to delete states, so we actually need to delete the mol_obj and load it again :/
+        self.pymol.pymol_cmd(f"delete {self.mol_obj.molecule_name} and state_{self.state}")
+        self.react.file_to_pymol(filepath=self.mol_obj.filepath, state=1, set_defaults=True)
+
+        state = 1
+        for f in sorted(os.listdir(f"{self.settings.workdir}/.scan_temp")):
+            state += 1
+            _mol = f"{self.settings.workdir}/.scan_temp/{f}"
+            self.pymol.pymol_cmd(f"load {_mol},  {self.mol_obj.molecule_name}, {state}")
+        self.pymol.set_default_rep()
+        self.pymol.pymol_cmd("set movie_fps, 10")
+        self.pymol_animation = True
+        self.pymol.pymol_cmd("mplay")
+
+    def stop_pymol_animation(self):
+        self.pymol.pymol_cmd("mstop")
+        self.pymol.pymol_cmd(f"delete {self.mol_obj.molecule_name} and state_{self.state}")
+        self.react.file_to_pymol(filepath=self.mol_obj.filepath, state=1, set_defaults=True)
+        self.pymol_animation = False
 
     def remove_scan_atoms(self):
         try:
@@ -516,7 +555,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.output_print = print_button_dict[key]
 
     def on_scan_mode_changed(self):
-
+        if not hasattr(self, "scan_bond"):
+            return
         scan_mode_map = {-2: "+", -3: "-", -4: "+/-"}
         key = self.Qbutton_scan_group.checkedId()
         self.scan_bond.scan_mode = scan_mode_map[key]
@@ -799,14 +839,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         self.basis_pol2 = self.ui.comboBox_basis4.currentText()
 
-
     def filename_update(self):
         
         self.filename = self.ui.lineEdit_filename.text()
 
         self.ui.lineEdit_chk.setText(self.filename + ".chk")
         self.ui.lineEdit_oldchk.setText(self.filename + "_old.chk")
-
 
     def insert_model_atoms(self):
         """
@@ -868,7 +906,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             job_list.remove(item_text)
         Qlist.takeItem(Qlist.currentRow())
 
-
     def del_tempfiles(self):
         try:
             shutil.rmtree(self.react.react_path + '/scan_temp')
@@ -897,8 +934,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.make_files()
         self.del_tempfiles()
-
-        
         #self.close()
 
     def closeEvent(self, event):
@@ -906,4 +941,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.pymol.pymol_cmd("set mouse_selection_mode, 1")
             self.pymol.pymol_cmd("hide spheres,")
             self.pymol.unmonitor_clicks()
+        if path.isdir(f"{self.settings.workdir}/.scan_temp"):
+            shutil.rmtree(f"{self.settings.workdir}/.scan_temp")
+        if self.pymol_animation:
+            self.stop_pymol_animation()
 
