@@ -715,7 +715,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Takes the selected file and prints the final ENERGY (SCF Done) in hartree and kcal/mol.
         :return:
         """
-        filepath = self.tabWidget.currentWidget().currentItem().text()
+        try:
+            filepath = self.tabWidget.currentWidget().currentItem().text()
+        except AttributeError:
+            return
+
         filename = filepath.split('/')[-1]
 
         if filename.split('.')[-1] not in  ["out", "log"]:
