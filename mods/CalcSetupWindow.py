@@ -625,9 +625,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             filepath = self._make_file(self.filename, content)
             files.append(filepath)
 
-        # Add files separate to avoid issues relating to multithreading prosess in REACT.py 
-        for filepath in files:
-            self.react.add_file(filepath)
+        # Add files separate to avoid issues relating to multithreading prosess in REACT.py
+        if self.ui.checkBox_cp_to_reactmain.isChecked():
+            for filepath in files:
+                self.react.add_file(filepath)
 
     def _make_file(self, filename, file_content):
         """
@@ -647,7 +648,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             f.write("\n")
         
         return new_filepath + ".com"
-
 
     def make_input_content(self, extra_job_keywords=False):
         """

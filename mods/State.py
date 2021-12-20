@@ -56,7 +56,7 @@ class State:
         return [x for x in self.files.keys()]
 
     def get_molecule_object(self, filepath):
-        print(f'this is states: {self.files}')
+        # print(f'this is states: {self.files}')
         return self.files[filepath]
 
     def get_energy(self, filepath):
