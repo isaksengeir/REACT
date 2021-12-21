@@ -447,15 +447,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.job_type == "IRC":
             self.multiple_files[self.filename + "_frwd"] = ["forward"] 
             self.multiple_files[self.filename + "_rev"] = ["reverse"] 
-
-        if self.job_type in ["Opt", "Opt (TS)", "Single point"]:
+        elif self.job_type in ["Opt", "Opt (TS)", "Single point"]:
             self.ui.checkbox_freq.setHidden(False)
             self.ui.checkBox_raman.setHidden(False)
             self.toggle_raman()
         elif self.job_type in ["Freq"]:
-            self.ui.checkbox_freq.setChecked(True)
-            self.ui.checkbox_freq.setHidden(False)
+            self.ui.checkbox_freq.setHidden(True)
             self.ui.checkBox_raman.setHidden(False)
+            self.toggle_raman()
         else:
             self.ui.checkbox_freq.setHidden(True)
             self.ui.checkBox_raman.setHidden(True)
@@ -464,14 +463,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.List_add_job.addItems(self.job_options[self.job_type])
 
     def toggle_raman(self):
-        if "Freq" in self.ui.comboBox_job_type.currentText():
-            self.ui.checkbox_freq.setChecked(True)
-
         if self.ui.checkbox_freq.isChecked():
             self.ui.checkBox_raman.setEnabled(True)
-        else:
+        if "noraman" in self.job_options["Freq"]:
             self.ui.checkBox_raman.setChecked(False)
-            self.ui.checkBox_raman.setEnabled(False)
+        else:
+            self.ui.checkBox_raman.setChecked(True)
 
     def update_functional(self):
         self.functional = self.ui.comboBox_funct.currentText()
@@ -716,36 +713,40 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if extra_job_keywords:
             job_keywords.extend(extra_job_keywords)
 
-        if self.ui.list_freeze_atoms.count() > 0:
+        if self.ui.list_freeze_atoms.count() > 0 or len(self.atom_bonds) > 0:
             job_keywords.append("modredundant")
 
         if self.job_type == "Opt (TS)":
             job_keywords.append("TS")
             job_type = "Opt"
-        
-        for i in self.job_options[job_type]:
-            job_keywords.append(i)
+            for i in self.job_options["Opt (TS)"]:
+                job_keywords.append(i)
+        else:
+            for i in self.job_options[job_type]:
+                job_keywords.append(i)
 
-        freq = False
-        if self.opt_freq_details["checked"]:
-            if self.opt_freq_details["keywords"]:
-                freq = "Freq=(" + ", ".join(self.opt_freq_details["keywords"] + ")")
-            else:
-                freq = "Freq"
+
+        freq = ""
+        if self.ui.checkbox_freq.isChecked():
+            freq_keywords = []
+            for i in self.job_options["Freq"]:
+                freq_keywords.append(i.lower())
+
+            if not self.ui.checkBox_raman.isChecked():
+                if "noraman" not in freq_keywords:
+                    freq_keywords.append("noraman")                    
                 
+            if freq_keywords: 
+                freq = "Freq=(" + ", ".join(freq_keywords) + ") "
+            else:
+                freq = "Freq "
 
         if job_keywords:
             keywords = ", ".join(job_keywords)
-            if freq:
-                job_str = f"Opt=({keywords}) {freq}"
-            else:
-                job_str = f"{job_type}=({keywords})"
+            job_str = f"{job_type}=({keywords}) {freq}"
 
         else:
-            if freq:
-                job_str = f"Opt {freq}"
-            else:
-                job_str = f"{job_type}" 
+            job_str = f"{job_type}" 
 
 
         if self.basis_diff and not self.basis_diff.isspace():
