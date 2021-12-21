@@ -119,37 +119,45 @@ class AtomBond():
         steps = int(self.scan_dist/self.step_size)
 
         if self.move_both == True:
-
             for i in range(steps):
-                atom1_forw = self.move_atom(atom1_forw, abc_vector, (self.step_size * 0.5))
-                atom2_rev = self.move_atom(atom2_rev, abc_vector, (self.step_size * -0.5))
+                if self._scan_mode == '-' or self.scan_mode == '+/-':
+                # negative direction
+                    atom1_forw = self.move_atom(atom1_forw, abc_vector, (self.step_size * 0.5))
+                    atom2_rev = self.move_atom(atom2_rev, abc_vector, (self.step_size * -0.5))
+                    
+                    temp = self.update_xyz(xyz, atom1_idx, atom1_forw)
+                    xyz_decrease_bond.append(self.update_xyz(temp, atom2_idx, atom2_rev))
 
-                atom1_rev = self.move_atom(atom1_rev, abc_vector, (self.step_size * -0.5))
-                atom2_forw = self.move_atom(atom2_forw, abc_vector, (self.step_size * 0.5))
+                if self._scan_mode == '+' or self.scan_mode == '+/-':
+                    #positive direction
+                    atom1_rev = self.move_atom(atom1_rev, abc_vector, (self.step_size * -0.5))
+                    atom2_forw = self.move_atom(atom2_forw, abc_vector, (self.step_size * 0.5))
 
-                temp = self.update_xyz(xyz, atom1_idx, atom1_forw)
-                xyz_decrease_bond.append(self.update_xyz(temp, atom2_idx, atom2_rev))
-
-                temp = self.update_xyz(xyz, atom1_idx, atom1_rev)
-                xyz_extend_bond.append(self.update_xyz(temp, atom2_idx, atom2_forw))
-
-            xyz_extend_bond.reverse()
-            xyz_extend_bond.extend(xyz_decrease_bond)
-
-            return xyz_extend_bond
-
+                    temp = self.update_xyz(xyz, atom1_idx, atom1_rev)
+                    xyz_extend_bond.append(self.update_xyz(temp, atom2_idx, atom2_forw))
         else:
             for i in range(steps):
-                atom2_forw = self.move_atom(atom2_forw, abc_vector, self.step_size)
-                atom2_rev = self.move_atom(atom2_rev, abc_vector, (self.step_size * -1))
 
-                xyz_extend_bond.append(self.update_xyz(xyz, atom2_idx, atom2_forw))
-                xyz_decrease_bond.append(self.update_xyz(xyz, atom2_idx, atom2_rev))
+                if self._scan_mode == '-' or self.scan_mode == '+/-':
+                # negative direction
+                    atom2_rev = self.move_atom(atom2_rev, abc_vector, (self.step_size * -1))
+                    xyz_decrease_bond.append(self.update_xyz(xyz, atom2_idx, atom2_rev))
 
-            xyz_decrease_bond.reverse()
-            xyz_decrease_bond.extend(xyz_extend_bond)
+                if self._scan_mode == '+' or self.scan_mode == '+/-':
+                    #positive direction
+                    atom2_forw = self.move_atom(atom2_forw, abc_vector, (self.step_size))
+                    xyz_extend_bond.append(self.update_xyz(xyz, atom2_idx, atom2_forw))
 
+        if self._scan_mode == '+/-':
+            xyz_extend_bond.reverse()
+            xyz_extend_bond.extend(xyz_decrease_bond)
+            return xyz_extend_bond
+
+        if self._scan_mode == '-':
             return xyz_decrease_bond
+        else:
+            return xyz_extend_bond
+
 
     def write_xyzfiles(self, path, filename_in=False):
         """
