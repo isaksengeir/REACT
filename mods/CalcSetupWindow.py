@@ -57,7 +57,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         # -2 = low (#t), -3 = normal (# or #n), -4 = high (#p) 
         self.output_print = "#" # TODO add this to settings class?
         self.additional_keys = copy.deepcopy(self.settings.additional_keys)
-        self.job_type = "Opt"
+        self.job_type = self.settings.job_type
         self.opt_freq_combi = False
         self.job_options = copy.deepcopy(self.settings.job_options)
         self.link0_options = copy.deepcopy(self.settings.link0_options)
@@ -445,6 +445,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.job_type = self.ui.comboBox_job_type.currentText()
 
+        if self.job_type in ["Opt", "Opt (TS)"]:
+            self.ui.tabWidget.setTabEnabled(1, True)
+        else:
+            self.ui.tabWidget.setTabEnabled(1, False)
+
+
+            
         if self.job_type == "IRC":
             self.IRC_files[self.filename + "_frwd"] = ["forward"]
             self.IRC_files[self.filename + "_rev"] = ["reverse"]
@@ -500,7 +507,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.radioButton_2.setChecked(True)
         self.ui.lineEdit_charge.setText(self.charge)
         self.ui.lineEdit_multiplicity.setText(self.multiplicity)
-    
+
         link0_to_add_to_list = [x for x in self.link0_options]
 
         for checkbox, lineEdit in self.link0_checkboxes.items():
@@ -542,6 +549,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     found_keyword = False
 
         self.ui.list_link0.addItems(link0_to_add_to_list)
+
+        if self.job_type in ["Opt", "Opt (TS)"]:
+            self.ui.tabWidget.setTabEnabled(1, True)
+        else:
+            self.ui.tabWidget.setTabEnabled(1, False)
 
     def update_print_button(self):
 
