@@ -722,7 +722,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         filename = filepath.split('/')[-1]
 
-        if filename.split('.')[-1] not in  ["out", "log"]:
+        if filename.split('.')[-1] not in ["out", "log"]:
             self.append_text("%s does not seem to be a Gaussian output file." % filename)
             return
 

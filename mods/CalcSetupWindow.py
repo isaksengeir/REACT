@@ -464,12 +464,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.List_add_job.addItems(self.job_options[self.job_type])
 
     def toggle_raman(self):
-        if self.ui.checkbox_freq.isChecked():
+        if self.ui.checkbox_freq.isChecked() and "noraman" not in self.job_options["Freq"]:
             self.ui.checkBox_raman.setEnabled(True)
-        if "noraman" in self.job_options["Freq"]:
-            self.ui.checkBox_raman.setChecked(False)
         else:
-            self.ui.checkBox_raman.setChecked(True)
+            self.ui.checkBox_raman.setChecked(False)
 
     def update_functional(self):
         self.functional = self.ui.comboBox_funct.currentText()
