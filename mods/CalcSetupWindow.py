@@ -159,10 +159,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             return
 
         if self.ui.checkBox_moveboth.isChecked():
-            self.scan_bond.move_both == True
+            self.scan_bond.move_both = True
             disable = True
         else:
-            self.scan_bond.move_both == False
+            self.scan_bond.move_both = False
             disable = False
 
         self.ui.button_invert.setDisabled(disable)
@@ -666,7 +666,6 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             i += 1
             new_filepath = new_filepath + f'_{i}'
 
-        print(new_filepath)
         with open(new_filepath + ".com", "w+") as f:
             f.write(file_content)
             f.write("\n")
