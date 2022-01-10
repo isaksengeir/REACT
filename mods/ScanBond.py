@@ -20,11 +20,13 @@ class AtomBond():
         self.num_atoms = len(xyz)
         self._move_both = move_both
         self._scan_mode = scan_mode
+        self.steps = int(self.scan_dist/self.step_size)
+
 
     def invert_atoms(self):
         temp = self.atom1_idx
         self.atom1_idx = self.atom2_idx
-        self.atom2_idx = temp 
+        self.atom2_idx = temp
 
     def get_dist(self, atomA, atomB):
         vector = np.array([atomB['x']-atomA['x'], atomB['y']-atomA['y'], atomB['z']-atomA['z']])
@@ -97,6 +99,53 @@ class AtomBond():
 
         return new_xyz
 
+    def scan_make_filenames(self, atom1_idx, atom2_idx, steps):
+
+        dist = self.bond_dist
+        basisname = f"{self.xyz[atom1_idx]['element']}{self.xyz[atom2_idx]['element']}"
+        dist_formatted = f"{dist:.2f}"
+        dist_final = dist_formatted.replace(".", "_")
+
+        filenames = [f"{basisname}_{dist_final}"]
+        
+        if self.scan_mode == '+/-':
+
+            extend = self._scan_make_filenames(dist, steps, self.step_size, '+', basisname)
+            decrease = self._scan_make_filenames(dist, steps, self.step_size, '-', basisname)
+
+            decrease.reverse()
+            decrease.extend(filenames)
+            decrease.extend(extend)
+
+            return decrease
+
+        elif self._scan_mode == '-':
+            decrease = self._scan_make_filenames(dist, steps, self.step_size, '-', basisname)
+            filenames.extend(decrease)
+
+            return filenames
+        else:
+            extend = self._scan_make_filenames(dist, steps, self.step_size, '+', basisname)
+            filenames.extend(extend)
+            return filenames
+
+    def _scan_make_filenames(self, dist, steps, stepsize, scanmode, basisname):
+
+        filenames = []
+
+        for i in range(steps):
+            if scanmode == '+':
+                dist = dist + stepsize
+            else:
+                dist = dist - stepsize
+
+            dist_formatted = f"{dist:.2f}"
+            dist_final = dist_formatted.replace(".", "_")
+            filenames.append(f"{basisname}_{dist_final}")
+
+        return filenames
+    
+
     def scan_bond(self, atom1_idx, atom2_idx, xyz):
         """
         First, calcuate the vector moving from atom1 and to atom2.
@@ -116,10 +165,8 @@ class AtomBond():
         xyz_extend_bond = [xyz]
         xyz_decrease_bond = []
 
-        steps = int(self.scan_dist/self.step_size)
-
         if self.move_both == True:
-            for i in range(steps):
+            for i in range(self.steps):
                 if self._scan_mode == '-' or self.scan_mode == '+/-':
                 # negative direction
                     atom1_forw = self.move_atom(atom1_forw, abc_vector, (self.step_size * 0.5))
@@ -136,7 +183,7 @@ class AtomBond():
                     temp = self.update_xyz(xyz, atom1_idx, atom1_rev)
                     xyz_extend_bond.append(self.update_xyz(temp, atom2_idx, atom2_forw))
         else:
-            for i in range(steps):
+            for i in range(self.steps):
 
                 if self._scan_mode == '-' or self.scan_mode == '+/-':
                 # negative direction
@@ -149,9 +196,9 @@ class AtomBond():
                     xyz_extend_bond.append(self.update_xyz(xyz, atom2_idx, atom2_forw))
 
         if self._scan_mode == '+/-':
-            xyz_extend_bond.reverse()
-            xyz_extend_bond.extend(xyz_decrease_bond)
-            return xyz_extend_bond
+            xyz_decrease_bond.reverse()
+            xyz_decrease_bond.extend(xyz_extend_bond)
+            return xyz_decrease_bond
 
         if self._scan_mode == '-':
             return xyz_decrease_bond
@@ -163,18 +210,15 @@ class AtomBond():
         """
         Write all xyz as .xyz files
         """
+
         self.all_xyz = self.scan_bond(self.atom1_idx-1, self.atom2_idx-1, self.xyz)
+        filenames = self.scan_make_filenames(self.atom1_idx-1, self.atom2_idx-1, self.steps)
 
         for i in range(len(self.all_xyz)):
             xyz = self.convert_back(self.all_xyz[i])
+            filename =  filenames[i]
 
-            if not filename_in:
-                filename = f"scan_{i:02d}.xyz"
-            else:
-                return
-                pass #TODO
-
-            with open(path + filename, "w+") as f:
+            with open(path + filename + '.xyz', "w+") as f:
                 for item in xyz:
 
                     whitespaces = []
@@ -198,6 +242,49 @@ class AtomBond():
                     atom[1::2] = whitespaces
                     
                     f.write("   ".join(atom) + "\n")
+
+    @property
+    def scan_new_coordinates(self):
+
+        self.all_xyz = self.scan_bond(self.atom1_idx-1, self.atom2_idx-1, self.xyz)
+        filenames = self.scan_make_filenames(self.atom1_idx-1, self.atom2_idx-1, self.steps)
+
+        all_xyz = {}
+
+        for i in range(len(self.all_xyz)):
+            xyz = self.convert_back(self.all_xyz[i])
+            filename =  filenames[i]
+            lines_in_xyz = []
+
+            
+            for item in xyz:
+
+                whitespaces = []
+
+                if item[1][0] == '-':
+                    whitespaces.append('     ')
+                else:
+                    whitespaces.append('      ')
+                if item[2][0] == '-':
+                    whitespaces.append('  ')
+                else:
+                    whitespaces.append('   ')
+                if item[3][0] == '-':
+                    whitespaces.append('  ')
+                else:
+                    whitespaces.append('   ')
+
+                #length of whitespace + xyz = 7
+                atom = [None]*(7)
+                atom[::2] = item
+                atom[1::2] = whitespaces
+                
+                lines_in_xyz.append("   ".join(atom))
+            
+            all_xyz[filename] = lines_in_xyz
+
+        return all_xyz
+
 
 
     @property
@@ -231,6 +318,7 @@ class AtomBond():
     @scan_dist.setter
     def scan_dist(self, value):
         self._scan_dist = value
+        self.steps = int(value/self.step_size)
 
     @property
     def step_size(self):
@@ -239,6 +327,7 @@ class AtomBond():
     @step_size.setter
     def step_size(self, value):
         self._step_size = value
+        self.steps = int(self.scan_dist/value)
 
     @property
     def scan_mode(self):

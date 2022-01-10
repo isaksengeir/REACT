@@ -72,7 +72,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.opt_freq_details = {"checked": False, "keywords": []}
         self.num_files = 1
-        self.multiple_files = {}
+        self.scan_bond_files = {}
+        self.IRC_files = {}
         self.atom_bonds = {}
         self.Qbutton_scan_group = QtWidgets.QButtonGroup(self)
         self.Qbutton_scan_group.addButton(self.ui.radioButton_plus)
@@ -437,7 +438,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         buttons whenever job != opt. 
         :return:
         """
-        self.multiple_files.clear()
+        self.IRC_files.clear()
         self.ui.ComboBox_files.blockSignals(True)
         self.ui.ComboBox_files.clear()
         self.ui.ComboBox_files.blockSignals(False)
@@ -445,8 +446,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.job_type = self.ui.comboBox_job_type.currentText()
 
         if self.job_type == "IRC":
-            self.multiple_files[self.filename + "_frwd"] = ["forward"] 
-            self.multiple_files[self.filename + "_rev"] = ["reverse"] 
+            self.IRC_files[self.filename + "_frwd"] = ["forward"]
+            self.IRC_files[self.filename + "_rev"] = ["reverse"]
         elif self.job_type in ["Opt", "Opt (TS)", "Single point"]:
             self.ui.checkbox_freq.setHidden(False)
             self.ui.checkBox_raman.setHidden(False)
@@ -576,14 +577,21 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.ComboBox_files.clear()
         self.ui.ComboBox_files.blockSignals(False)
 
-        if self.multiple_files:
-            for filename, keywords in self.multiple_files.items():
+        if self.atom_bonds:
+            for bond, bond_obj in self.atom_bonds.items():
+                for filename, xyz in bond_obj.scan_new_coordinates.items():
+                    self.ui.ComboBox_files.addItem(filename)
+
+                self.ui.ComboBox_files.setCurrentText(filename)
+                file_content = self.make_input_content(filename=filename, xyz=xyz, bond_obj=bond_obj)
+        elif self.IRC_files:
+            for filename, keywords in self.IRC_files.items():
                 self.ui.ComboBox_files.addItem(filename)
 
             self.ui.ComboBox_files.setCurrentText(filename)
-            file_content = self.make_input_content(keywords)
+            file_content = self.make_input_content(filename=filename, extra_job_keywords=keywords)
         else:
-            file_content = self.make_input_content()
+            file_content = self.make_input_content(filename=self.filename)
             self.ui.ComboBox_files.addItem(self.filename)
 
         self.ui.text_preview.setPlainText(file_content)
@@ -596,8 +604,23 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         """
         if self.ui.ComboBox_files.count() > 1:
             filename = self.ui.ComboBox_files.currentText()
-            file_content = self.make_input_content(self.multiple_files[filename])
-            self.ui.text_preview.setPlainText(file_content)
+            try:
+                file_content = self.make_input_content(filename=filename,
+                                                       extra_job_keywords=self.IRC_files[filename])
+                self.ui.text_preview.setPlainText(file_content)
+                return
+            except KeyError:
+                pass
+
+
+            for bond, bond_obj in self.atom_bonds.items():
+                for filename_scan, xyz in bond_obj.scan_new_coordinates.items():
+                    if filename_scan == filename:
+                        file_content = self.make_input_content(filename=filename, 
+                                                               xyz=xyz, bond_obj=bond_obj)
+                        self.ui.text_preview.setPlainText(file_content)
+
+
 
     def update_charge(self):
         self.charge = self.ui.lineEdit_charge.text()
@@ -612,13 +635,18 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         function in REACT.py
         """
         files = []
-        if self.multiple_files:
-            for filename, keywords in self.multiple_files.items():
-                content = self.make_input_content(keywords)
+        if self.IRC_files:
+            for filename, keywords in self.IRC_files.items():
+                content = self.make_input_content(filename=filename, extra_job_keywords=keywords)
                 filepath = self._make_file(filename, content)
                 files.append(filepath)
+        if self.atom_bonds:
+            for bond, bond_obj in self.atom_bonds.items():
+                for filename_scan, xyz in bond_obj.scan_new_coordinates.items():
+                    content = self.make_input_content(filename=filename, xyz=xyz, bond_obj=bond_obj)
+                    filepath = self._make_file(filename_scan, content)
         else:
-            content = self.make_input_content()
+            content = self.make_input_content(filename=self.filename)
             filepath = self._make_file(self.filename, content)
             files.append(filepath)
 
@@ -640,13 +668,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             i += 1
             new_filepath = new_filepath + f'_{i}'
 
+        print(new_filepath)
         with open(new_filepath + ".com", "w+") as f:
             f.write(file_content)
             f.write("\n")
         
         return new_filepath + ".com"
 
-    def make_input_content(self, extra_job_keywords=False):
+    def make_input_content(self, filename, extra_job_keywords=False, xyz=False, bond_obj=False):
         """
         Make content (not file) for one Gaussian inputfile.
         :return: str
@@ -688,11 +717,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     link0_list.append("%mem=" + value)
 
                 elif checkbox.text().lower() == "chk":
-                    link0_list.append("%chk=" + value)
+                    link0_list.append(f"%chk={filename}.chk") 
                 elif checkbox.text().lower() == "oldchk":
-                    link0_list.append("%oldchk=" + value)
+                    link0_list.append(f"%oldchk={filename}.chk")
                 elif checkbox.text().lower() == "rwf":
-                    link0_list.append("%rwf=" + value)
+                    link0_list.append(f"%rwf={filename}.chk")
 
         for item in [self.ui.list_link0.item(x).text() for x in range(self.ui.list_link0.count())]:
             item.replace(" ", "")
@@ -713,8 +742,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if extra_job_keywords:
             job_keywords.extend(extra_job_keywords)
 
-        if self.ui.list_freeze_atoms.count() > 0 or len(self.atom_bonds) > 0:
-            job_keywords.append("modredundant")
+        if self.job_type in ["Opt", "Opt (TS)"]:
+            if self.ui.list_freeze_atoms.count() > 0 or len(self.atom_bonds) > 0:
+                job_keywords.append("modredundant")
 
         if self.job_type == "Opt (TS)":
             job_keywords.append("TS")
@@ -780,13 +810,20 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
 
         ### This part prepares the molecule ###
-        molecule_str = f"{self.charge} {self.multiplicity}\n" + "\n".join(self.mol_obj.formatted_xyz)
+        if xyz:
+            molecule_str = f"{self.charge} {self.multiplicity}\n" + "\n".join(xyz)
+        else:
+            molecule_str = f"{self.charge} {self.multiplicity}\n" + "\n".join(self.mol_obj.formatted_xyz)
 
         ### This part prepares the restraints, if there are any ###
         restraints_list = []
         
         for item in [self.ui.list_freeze_atoms.item(x).text() for x in range(self.ui.list_freeze_atoms.count())]:
             restraints_list.append(item)
+        if bond_obj:
+            restraints_list.extend([f"X {bond_obj.atom1_idx} F", f"X {bond_obj.atom2_idx} F"])
+        
+
 
         restraints_str = "\n".join(restraints_list)
 
@@ -909,7 +946,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def del_tempfiles(self):
         try:
-            shutil.rmtree(self.react.react_path + '/scan_temp')
+            shutil.rmtree(self.react.react_path + '/.scan_temp')
         except OSError as e:
             print("Error: %s" % (e.strerror))
 
