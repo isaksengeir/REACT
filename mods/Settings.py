@@ -427,7 +427,7 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
             if text not in self.settings.functional_options:
                 # new functional not listed in settings from before
 
-                self.settings.functional.append(text)
+                self.settings.functional_options.append(text)
             
         if key == 'basis':
             if text not in self.settings.basis_options:
