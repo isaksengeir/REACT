@@ -449,20 +449,23 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.ui.tabWidget.setTabEnabled(1, True)
         else:
             self.ui.tabWidget.setTabEnabled(1, False)
-
-
             
         if self.job_type == "IRC":
             self.IRC_files[self.filename + "_frwd"] = ["forward"]
             self.IRC_files[self.filename + "_rev"] = ["reverse"]
+            self.ui.checkbox_freq.setHidden(True)
+            self.ui.checkBox_raman.setHidden(True)
+
         elif self.job_type in ["Opt", "Opt (TS)", "Single point"]:
             self.ui.checkbox_freq.setHidden(False)
-            self.ui.checkBox_raman.setHidden(False)
-            self.toggle_raman()
+            if "noraman" not in self.job_options["Freq"]:
+                self.ui.checkBox_raman.setEnabled(True)
+                self.toggle_raman()
         elif self.job_type in ["Freq"]:
             self.ui.checkbox_freq.setHidden(True)
             self.ui.checkBox_raman.setHidden(False)
-            self.toggle_raman()
+            if "noraman" not in self.job_options["Freq"]:
+                self.ui.checkBox_raman.setEnabled(True)
         else:
             self.ui.checkbox_freq.setHidden(True)
             self.ui.checkBox_raman.setHidden(True)
@@ -471,10 +474,15 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.ui.List_add_job.addItems(self.job_options[self.job_type])
 
     def toggle_raman(self):
-        if self.ui.checkbox_freq.isChecked() and "noraman" not in self.job_options["Freq"]:
-            self.ui.checkBox_raman.setEnabled(True)
+        if self.ui.checkbox_freq.isChecked():
+            self.ui.checkBox_raman.setHidden(False)
+            if "noraman" not in self.job_options["Freq"]:
+                self.ui.checkBox_raman.setEnabled(True)
+            else:
+                self.ui.checkBox_raman.setChecked(False)
         else:
-            self.ui.checkBox_raman.setChecked(False)
+            self.ui.checkBox_raman.setHidden(True)
+
 
     def update_functional(self):
         self.functional = self.ui.comboBox_funct.currentText()
@@ -554,6 +562,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.ui.tabWidget.setTabEnabled(1, True)
         else:
             self.ui.tabWidget.setTabEnabled(1, False)
+
+        self.update_job_details()
 
     def update_print_button(self):
 
@@ -766,7 +776,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
 
         freq = ""
-        if self.ui.checkbox_freq.isChecked():
+        if self.ui.checkbox_freq.isChecked() or self.job_type == "Freq":
             freq_keywords = []
             for i in self.job_options["Freq"]:
                 freq_keywords.append(i.lower())
@@ -780,12 +790,13 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             else:
                 freq = "Freq "
 
-        if job_keywords:
+        if self.job_type == "Freq":
+            job_str = freq
+        elif job_keywords:
             keywords = ", ".join(job_keywords)
             job_str = f"{job_type}=({keywords}) {freq}"
-
         else:
-            job_str = f"{job_type}" 
+            job_str = f"{job_type} {freq}" 
 
 
         if self.basis_diff and not self.basis_diff.isspace():
@@ -814,7 +825,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         else:
             basis_str = f"{basis}"
 
-        route_str = f"{self.output_print} {job_str} {self.functional}/{basis_str} "\
+        route_str = f"{self.output_print} {job_str}{self.functional}/{basis_str} "\
                     + " ".join(self.additional_keys)
 
 
