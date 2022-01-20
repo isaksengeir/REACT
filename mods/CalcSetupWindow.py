@@ -304,12 +304,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
     def on_spinbox_changed(self, spinbox):
         if not hasattr(self, "scan_bond"):
             return
+
+        if spinbox.value() == 0:
+            return
         if spinbox == self.ui.spinbox_scan_pm:
             self.scan_bond.scan_dist = spinbox.value()
         elif spinbox == self.ui.spinbox_scan_increment:
             self.scan_bond.step_size = spinbox.value()
-            if spinbox.value() == 0:
-                return
+
         
         self.update_scan()
 
@@ -389,12 +391,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
     def remove_scan_atoms(self):
         try:
-            del self.atom_bonds[self.ui.list_scan_bonds.currentItem.text()]
+            del self.atom_bonds[self.ui.list_scan_bonds.currentItem().text()]
             self.ui.list_scan_bonds.takeItem(self.ui.list_scan_bonds.currentRow())
         except:
             pass
 
     def scan_list_clicked(self):
+        if not hasattr(self, "scan_bond"):
+            return
         self.ui.list_model.clearSelection()
 
         self.ui.lineEdit_freeze.setText(str(self.scan_bond.atom1_idx))
@@ -754,7 +758,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         ### This part prepares all part of the route comment, by first adding them to route_list ###
         ### Then, all items  in route_list are joined into one str.                              ###
 
-        job_str = ""
+        job_str = "" # TODO <-- BENTE this variable is never used?
         job_keywords = []
         job_type = self.job_type
 
