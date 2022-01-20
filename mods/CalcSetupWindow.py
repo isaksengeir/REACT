@@ -667,8 +667,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.atom_bonds:
             for bond, bond_obj in self.atom_bonds.items():
                 for filename_scan, xyz in bond_obj.scan_new_coordinates.items():
-                    content = self.make_input_content(filename=filename, xyz=xyz, bond_obj=bond_obj)
+                    content = self.make_input_content(filename=filename_scan, xyz=xyz, bond_obj=bond_obj)
                     filepath = self._make_file(filename_scan, content)
+                    files.append(filepath)
         else:
             content = self.make_input_content(filename=self.filename)
             filepath = self._make_file(self.filename, content)
@@ -678,6 +679,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.ui.checkBox_cp_to_reactmain.isChecked():
             for filepath in files:
                 self.react.add_file(filepath)
+
+        # TODO QDialogButtonBox to verify files written
 
     def _make_file(self, filename, file_content):
         """
