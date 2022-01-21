@@ -761,7 +761,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         ### This part prepares all part of the route comment, by first adding them to route_list ###
         ### Then, all items  in route_list are joined into one str.                              ###
 
-        job_str = "" # TODO <-- BENTE this variable is never used?
+        job_str = ""
         job_keywords = []
         job_type = self.job_type
 
@@ -803,8 +803,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             keywords = ", ".join(job_keywords)
             job_str = f"{job_type}=({keywords}) {freq}"
         else:
-            job_str = f"{job_type} {freq}" 
-
+            job_str = f"{job_type} {freq}"
 
         if self.basis_diff and not self.basis_diff.isspace():
             tmp = list(self.basis)
