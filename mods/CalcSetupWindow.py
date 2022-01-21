@@ -676,11 +676,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             files.append(filepath)
 
         # Add files separate to avoid issues relating to multithreading prosess in REACT.py
-        if self.ui.checkBox_cp_to_reactmain.isChecked():
-            for filepath in files:
+        for filepath in files:
+            self.react.append_text(f"{filepath.split('/')[-1]} saved to: {filepath}")
+            if self.ui.checkBox_cp_to_reactmain.isChecked():
                 self.react.add_file(filepath)
 
-        # TODO QDialogButtonBox to verify files written
 
     def _make_file(self, filename, file_content):
         """
