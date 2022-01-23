@@ -689,17 +689,16 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         filepath is found.
         """
         i = 0
-        new_filepath = self.react.settings.workdir + '/' + filename
+        new_filepath = self.react.settings.workdir + '/' + filename + '.com'
 
-        while path.isfile(new_filepath + ".com") == True:
-            i += 1
-            new_filepath = new_filepath + f'_{i}'
+        if path.isfile(new_filepath) == True:
+            new_filepath, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Filename already exists, please select a different filename", self.react.settings.workdir, "input files (*.com *.inp)")
 
-        with open(new_filepath + ".com", "w+") as f:
+        with open(new_filepath, "w+") as f:
             f.write(file_content)
             f.write("\n")
         
-        return new_filepath + ".com"
+        return new_filepath
 
     def make_input_content(self, filename, extra_job_keywords=False, xyz=False, bond_obj=False):
         """
