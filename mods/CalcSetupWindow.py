@@ -66,9 +66,11 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         self.Qbutton_group.addButton(self.ui.radioButton)
         self.Qbutton_group.addButton(self.ui.radioButton_2)
         self.Qbutton_group.addButton(self.ui.radioButton_3)
-        self.link0_checkboxes = {self.ui.checkBox_chk: self.ui.lineEdit_chk,
-                      self.ui.checkBox_mem_2: self.ui.lineEdit_mem_2,
-                      self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk}
+
+        self.ui.lineEdit_chk.setHidden(True)
+        self.link0_checkboxes = {self.ui.checkBox_chk: None,
+                                 self.ui.checkBox_mem_2: self.ui.lineEdit_mem_2,
+                                 self.ui.checkBox_oldchk: self.ui.lineEdit_oldchk}
 
         self.opt_freq_details = {"checked": False, "keywords": []}
         self.num_files = 1
@@ -727,26 +729,25 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                     value = LineEdit.text()
 
                     if not value or value.isspace():
-                        return  # TODO some error window to indicate that LineEdit is empty
-
-                    value = LineEdit.text()
+                        self.react.append_text(f"WARNING - {checkbox.text()}: no text given, default settings use instead. Please fill details in the text line")
 
                     if "=" in value:
                         value = value.split("=")[1]
                         value.replace(" ", "")
 
                 if checkbox.text() == "Memory":
-
                     if value.isnumeric():
                         value = value + "GB"
+                    else:
+                        value = "3GB"
                     link0_list.append("%mem=" + value)
-
                 elif checkbox.text().lower() == "chk":
                     link0_list.append(f"%chk={filename}.chk") 
                 elif checkbox.text().lower() == "oldchk":
-                    link0_list.append(f"%oldchk={filename}.chk")
-                elif checkbox.text().lower() == "rwf":
-                    link0_list.append(f"%rwf={filename}.chk")
+                    if value:
+                        link0_list.append(f"%oldchk={value}.chk")
+                    else:
+                        link0_list.append(f"%oldchk={filename}_old.chk")
 
         for item in [self.ui.list_link0.item(x).text() for x in range(self.ui.list_link0.count())]:
             item.replace(" ", "")
