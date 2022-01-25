@@ -355,6 +355,8 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.save_button.clicked.connect(self.save_settings)
         self.ui.cancel_button.clicked.connect(self.close)
         self.ui.comboBox_funct.textActivated.connect(lambda: self.combobox_update(self.ui.comboBox_funct, "functional"))
+        self.ui.add_DFT_button_0.clicked.connect(self.add_funct_or_basis)
+        self.ui.del_DFT_button_0.clicked.connect(self.rem_funct_or_basis)
         self.ui.basis1_comboBox_3.textActivated.connect(lambda: self.combobox_update(self.ui.basis1_comboBox_3, "basis"))
         self.ui.basis2_comboBox_4.textActivated.connect(lambda: self.combobox_update(self.ui.basis2_comboBox_4, "diff"))
         self.ui.basis3_comboBox_6.textActivated.connect(lambda: self.combobox_update(self.ui.basis3_comboBox_6, "pol1"))
@@ -409,6 +411,46 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
 #        else:
 #            self.settings[key] = False
 
+    def add_funct_or_basis(self):
+        curr_combobox = QtWidgets.QApplication.focusWidget()
+        text = curr_combobox.currentText()
+        curr_combobox.addItem(text)
+
+        if curr_combobox == self.ui.comboBox_funct:
+            key = "functional"
+        elif curr_combobox == self.ui.basis1_comboBox_3:
+            key = "basis"
+        elif curr_combobox == self.ui.basis2_comboBox_4:
+            key = "diff"
+        elif curr_combobox == self.ui.basis3_comboBox_6:
+            key = "pol1"
+        elif curr_combobox == self.ui.basis4_comboBox_5:
+            key = "pol2"
+
+        self.combobox_update(curr_combobox, key)
+
+    def rem_funct_or_basis(self):
+        
+        curr_combobox = QtWidgets.QApplication.focusWidget()
+        text = curr_combobox.currentText()
+        index = curr_combobox.currentIndex()
+        curr_combobox.removeItem(index)
+        basis = self.ui.basis1_comboBox_3.currentText()
+
+        try:
+            if curr_combobox == self.ui.comboBox_funct:
+                self.settings.functional_options.remove(text)
+            elif curr_combobox == self.ui.basis1_comboBox_3:
+                self.settings.basis_options.pop(text)  
+            elif curr_combobox == self.ui.basis2_comboBox_4:
+                self.settings.basis_options[basis]["diff"].remove(text)
+            elif curr_combobox == self.ui.basis3_comboBox_6:
+                self.settings.basis_options[basis]["pol1"].remove(text)
+            elif curr_combobox == self.ui.basis4_comboBox_5:
+                self.settings.basis_options[basis]["pol2"].remove(text)
+        except (KeyError, ValueError) as e:
+            pass
+
     def combobox_update(self, widget, key):
         """
         :param combobox: QComboBox
@@ -426,7 +468,6 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         if key == "functional":
             if text not in self.settings.functional_options:
                 # new functional not listed in settings from before
-
                 self.settings.functional_options.append(text)
             
         if key == 'basis':
@@ -484,8 +525,6 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
                 self.job_options[job_type].remove(item)
             except ValueError:
                 pass
-
-
 
 
     def update_basis_options(self, basis):
