@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from UIs.SettingsWindow import Ui_SettingsWindow
 import os
+import copy
 import json
 import copy
 import mods.common_functions as cf
@@ -41,7 +42,6 @@ class Settings():
 
         try:
             with open(self.settingspath, 'r') as f:
-                print(self.settingspath)
                 custom_data = json.load(f, object_hook=cf.json_hook_int_bool_converter)
                 self.load_custom_settings(custom_data)
         except:
@@ -183,9 +183,42 @@ class Settings():
     @link0_options.setter
     def link0_options(self, value):
         self._link0_options = value
+
+    @property
+    def default_settings(self):
+        return {"functional": "B3LYP",
+                "basis": "6-31G",
+                "basis_diff": None,
+                "basis_pol1": "d",
+                "basis_pol2": "p",
+                "job_type": "Opt",
+                "additional_keys" : ["empiricaldispersion=gd3"],
+                "job_mem": 6,
+                "chk": True,
+                "schk": False,
+                "oldchk": False,
+                "job_options": {"Opt": ["noeigentest", "calcfc"], 
+                                "Opt (TS)": ["noeigentest", "calcfc"], 
+                                "Freq": [], "IRC": [], "IRCMax": [], 
+                                "Single point": []},
+                "link0_options": ["chk", "mem=6GB"],
+                "basis_options": {'3-21G': {'pol1': [''], 'pol2': [''], 'diff': ['', '+']},
+                                           '6-21G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
+                                           '4-31G': {'pol1': ['', 'd'], 'pol2': ['', 'p'], 'diff': ['']},
+                                           '6-31G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
+                                                     'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
+                                                     'diff': ['', '+', '++']},
+                                           '6-311G': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
+                                                      'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
+                                                      'diff': ['', '+', '++']},
+                                           'D95': {'pol1': ['', 'd', '2d', '3d', 'df', '2df', '3df', '3d2f'],
+                                                   'pol2': ['', 'p', '2p', '3p', 'pd', '2pd', '3pd', '3p2d'],
+                                                   'diff': ['', '+', '++']} 
+                                  },
+                "functional_options": ['B3LYP', 'rB3LYP', 'M062X']
+                }
     
     def set_default_settings(self):
-        print("setting default settings")
         self.workdir = os.getcwd()
         self.pymolpath = None
         self.REACT_pymol = True
@@ -313,6 +346,10 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui = Ui_SettingsWindow()
         self.ui.setupUi(self)
 
+        self.job_options = copy.deepcopy(self.settings.job_options)
+        self.basis_options = copy.deepcopy(self.settings.basis_options)
+        self.functional_options = copy.deepcopy(self.settings.functional_options)
+
         # fill functional and basis set comboboxes
 
         try:
@@ -320,8 +357,6 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         except:
             self.settings.set_default_settings()
             self.add_items_to_window()
-
-        self.job_options = copy.deepcopy(self.settings.job_options)
 
         self.ui.cwd_lineEdit.setText(self.settings.workdir)
 
@@ -365,6 +400,35 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.change_cwd_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.cwd_lineEdit, "Select working directory"))
         self.ui.change_pymol_button.clicked.connect(lambda: self.new_path_from_dialog(self.ui.pymol_lineEdit_2,"select PyMOL path"))
         self.ui.checkBox.clicked.connect(self.on_pymolpath_checkbox_change)
+        self.ui.reset_button.clicked.connect(self.reset_settings)
+
+    def reset_settings(self):
+
+        for DFT_list in [self.ui.add_DFT_list_1, self.ui.add_DFT_list_2, self.ui.add_DFT_list_3]:
+            DFT_list.clear()
+
+        self.job_options = copy.deepcopy(self.settings.default_settings["job_options"])
+        self.basis_options = copy.deepcopy(self.settings.default_settings["basis_options"])
+        self.functional_options = copy.deepcopy(self.settings.default_settings["functional_options"])
+
+        self.ui.comboBox_funct.addItems(self.settings.default_settings["functional_options"])
+        self.ui.basis1_comboBox_3.addItems([x for x in self.settings.default_settings["basis_options"]])
+        self.ui.job_type_comboBox.addItems(["Opt", "Opt (TS)", "Freq", "IRC", "IRCMax", "Single point"])
+        self.ui.job_type_comboBox.setCurrentText(self.settings.default_settings["job_type"])
+
+        self.ui.comboBox_funct.setCurrentText(self.settings.default_settings["functional"])
+        self.ui.basis1_comboBox_3.setCurrentText(self.settings.default_settings["basis"])
+        self.update_basis_options(self.settings.default_settings["basis"])
+
+        self.ui.basis2_comboBox_4.setCurrentText(self.settings.default_settings["basis_diff"])
+        self.ui.basis3_comboBox_6.setCurrentText(self.settings.default_settings["basis_pol1"])
+        self.ui.basis4_comboBox_5.setCurrentText(self.settings.default_settings["basis_pol2"])
+
+        self.ui.add_DFT_list_1.addItems(self.settings.default_settings["additional_keys"])
+        self.ui.add_DFT_list_2.addItems(self.settings.default_settings["link0_options"])
+        self.ui.add_DFT_list_3.addItems(self.settings.default_settings["job_options"][self.ui.job_type_comboBox.currentText()])
+
+
 
     def on_pymolpath_checkbox_change(self):
 
@@ -439,15 +503,15 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
 
         try:
             if curr_combobox == self.ui.comboBox_funct:
-                self.settings.functional_options.remove(text)
+                self.functional_options.remove(text)
             elif curr_combobox == self.ui.basis1_comboBox_3:
-                self.settings.basis_options.pop(text)  
+                self.basis_options.pop(text)  
             elif curr_combobox == self.ui.basis2_comboBox_4:
-                self.settings.basis_options[basis]["diff"].remove(text)
+                self.basis_options[basis]["diff"].remove(text)
             elif curr_combobox == self.ui.basis3_comboBox_6:
-                self.settings.basis_options[basis]["pol1"].remove(text)
+                self.basis_options[basis]["pol1"].remove(text)
             elif curr_combobox == self.ui.basis4_comboBox_5:
-                self.settings.basis_options[basis]["pol2"].remove(text)
+                self.basis_options[basis]["pol2"].remove(text)
         except (KeyError, ValueError) as e:
             pass
 
@@ -466,23 +530,26 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
             self.ui.add_DFT_list_3.addItems(self.job_options[text])
     
         if key == "functional":
-            if text not in self.settings.functional_options:
+            if text not in self.functional_options:
                 # new functional not listed in settings from before
-                self.settings.functional_options.append(text)
+                self.functional_options.append(text)
             
         if key == 'basis':
-            if text not in self.settings.basis_options:
+            if text not in self.basis_options:
                 # new basis not listed in settings from before
 
-                self.settings.basis_options[text] = {"pol1": [], "pol2": [], "diff": []}
+                self.basis_options[text] = {"pol1": [], "pol2": [], "diff": []}
             self.update_basis_options(text)
 
         elif key in ["diff", "pol1", "pol2"]:
             basis = self.ui.basis1_comboBox_3.currentText()
 
-            if text not in self.settings.basis_options[basis][key]:
-                # diff, pol1 or pol2 not listed for current basis
-                self.settings.basis_options[basis][key].append(text)
+            try:
+                if text not in self.basis_options[basis][key]:
+                    # diff, pol1 or pol2 not listed for current basis
+                    self.basis_options[basis][key].append(text)
+            except KeyError:
+                self.react.append_text(f"ERROR: cannot add custom options before basis {basis} has been properly added to REACT. Select {basis}, then click on the add button.")
 
 
     def add_item_to_list(self, Qtextinput, Qlist, DFT_key):
@@ -516,8 +583,13 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         Removes item in QlistWdiget and updates self.settings accordingly.
         """
 
-        item = Qlist.currentItem().text()
-        Qlist.takeItem(Qlist.currentRow())
+        try:
+            item = Qlist.currentItem().text()
+            Qlist.takeItem(Qlist.currentRow())
+        except:
+            # User tried to delete item from list before selecting
+            # an item in the list, or some other stupid thing
+            return
         
         if DFT_key == "job keys":
             job_type = self.ui.job_type_comboBox.currentText()
@@ -525,7 +597,6 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
                 self.job_options[job_type].remove(item)
             except ValueError:
                 pass
-
 
     def update_basis_options(self, basis):
         """
@@ -539,9 +610,14 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.ui.basis3_comboBox_6.clear()
         self.ui.basis4_comboBox_5.clear()
 
-        self.ui.basis2_comboBox_4.addItems(self.settings.basis_options[basis]['diff'])
-        self.ui.basis3_comboBox_6.addItems(self.settings.basis_options[basis]['pol1'])
-        self.ui.basis4_comboBox_5.addItems(self.settings.basis_options[basis]['pol2'])
+        try:
+            self.ui.basis2_comboBox_4.addItems(self.basis_options[basis]['diff'])
+            self.ui.basis3_comboBox_6.addItems(self.basis_options[basis]['pol1'])
+            self.ui.basis4_comboBox_5.addItems(self.basis_options[basis]['pol2'])
+        except KeyError:
+            #exception: when the basis set has been removed by user. 
+            #nothing to do when there is no basis!
+            pass
 
         self.block_all_combo_signals(False)
 
@@ -567,13 +643,13 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         self.settings.additional_keys = [self.ui.add_DFT_list_1.item(x).text() for x in range(self.ui.add_DFT_list_1.count())]
         self.settings.job_options = copy.deepcopy(self.job_options)
         self.settings.link0_options = [self.ui.add_DFT_list_2.item(x).text() for x in range(self.ui.add_DFT_list_2.count())]
+        self.settings.functional_options = copy.deepcopy(self.functional_options)
+        self.settings.basis_options = copy.deepcopy(self.basis_options)
 
         if os.path.exists(self.ui.cwd_lineEdit.text()):
             self.settings.workdir = self.ui.cwd_lineEdit.text()
-            print("workpath exists")
         else:
             #TODO promt errormessage on screen
-            print("workpath dont exist??")
             pass
 
         if self.ui.checkBox.isChecked():

@@ -1470,6 +1470,31 @@ keywords:</string>
           </item>
          </layout>
         </widget>
+        <widget class="QPushButton" name="reset_button">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>400</y>
+           <width>150</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <italic>true</italic>
+          </font>
+         </property>
+         <property name="text">
+          <string>Reset default settings</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item row="1" column="1">

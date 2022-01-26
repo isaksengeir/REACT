@@ -498,6 +498,14 @@ class Ui_SettingsWindow(object):
         self.open_pymol_checkBox.setAutoFillBackground(False)
         self.open_pymol_checkBox.setObjectName("open_pymol_checkBox")
         self.verticalLayout.addWidget(self.open_pymol_checkBox, 0, QtCore.Qt.AlignHCenter)
+        self.reset_button = QtWidgets.QPushButton(self.frame_2)
+        self.reset_button.setGeometry(QtCore.QRect(10, 400, 150, 32))
+        self.reset_button.setMinimumSize(QtCore.QSize(150, 0))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setItalic(True)
+        self.reset_button.setFont(font)
+        self.reset_button.setObjectName("reset_button")
         self.gridLayout_2.addWidget(self.frame_2, 0, 1, 1, 1)
         self.frame_4 = QtWidgets.QFrame(self.centralwidget)
         self.frame_4.setMinimumSize(QtCore.QSize(0, 0))
@@ -609,6 +617,7 @@ class Ui_SettingsWindow(object):
 "  PyMOL"))
         self.open_pymol_checkBox.setText(_translate("SettingsWindow", "  Open Pymol\n"
 "  at launch "))
+        self.reset_button.setText(_translate("SettingsWindow", "Reset default settings"))
         self.save_button.setText(_translate("SettingsWindow", "Save"))
         self.cancel_button.setText(_translate("SettingsWindow", "Cancel"))
 #import icons_rc
