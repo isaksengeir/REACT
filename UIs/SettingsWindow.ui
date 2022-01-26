@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>574</width>
-    <height>574</height>
+    <height>591</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>574</width>
-    <height>574</height>
+    <height>591</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -45,8 +45,8 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>500</width>
-          <height>565</height>
+          <width>5000000</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -1177,13 +1177,13 @@ keywords:</string>
         <property name="minimumSize">
          <size>
           <width>171</width>
-          <height>431</height>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>171</width>
-          <height>500</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="frameShape">

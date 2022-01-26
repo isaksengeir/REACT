@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SettingsWindow(object):
     def setupUi(self, SettingsWindow):
         SettingsWindow.setObjectName("SettingsWindow")
-        SettingsWindow.resize(574, 574)
-        SettingsWindow.setMinimumSize(QtCore.QSize(574, 574))
+        SettingsWindow.resize(574, 591)
+        SettingsWindow.setMinimumSize(QtCore.QSize(574, 591))
         SettingsWindow.setMaximumSize(QtCore.QSize(1000, 1000))
         SettingsWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(SettingsWindow)
@@ -27,7 +27,7 @@ class Ui_SettingsWindow(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(self.centralwidget)
         self.frame.setMinimumSize(QtCore.QSize(375, 565))
-        self.frame.setMaximumSize(QtCore.QSize(500, 565))
+        self.frame.setMaximumSize(QtCore.QSize(5000000, 16777215))
         self.frame.setStyleSheet("QPushButton {\n"
 "    background-color: rgb(143, 23, 119);\n"
 "      color: white;\n"
@@ -400,8 +400,8 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_10.addWidget(self.del_DFT_button_0)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 2, 1)
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
-        self.frame_2.setMinimumSize(QtCore.QSize(171, 431))
-        self.frame_2.setMaximumSize(QtCore.QSize(171, 500))
+        self.frame_2.setMinimumSize(QtCore.QSize(171, 0))
+        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
