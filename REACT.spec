@@ -1,12 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-block_cipher = None
+import os
 
+block_cipher = None
+file_path = os.getcwd()
 
 a = Analysis(['REACT.py'],
-             pathex=['/Users/gvi022/programming/REACT/'],
+             pathex=[f'{file_path}}'],
              binaries=[],
-             datas=[("/Users/gvi022/programming/REACT/OpenSourcePymol/dist/OpenSourcePymol.app/", "OpenSourcePymol/dist/OpenSourcePymol.app/")],
+             datas=[(f"{file_path}/OpenSourcePymol/dist/OpenSourcePymol.app/", "OpenSourcePymol/dist/OpenSourcePymol.app/")],
              hiddenimports=["PyQt5.sip"],
              hookspath=[],
              runtime_hooks=[],

@@ -1,12 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 
 block_cipher = None
-
+file_path = os.getcwd()
 
 a = Analysis(['run_pymol.py'],
-             pathex=['/Users/gvi022/Onedrive - UiT Office 365/programming/pymol/test/lib/python3.9/site-packages'],
+             pathex=[f'file_path'],
              binaries=[('pymol/_cmd.cpython-39-darwin.so', 'pymol')],
-             datas=[("/Users/gvi022/Onedrive - UiT Office 365/programming/pymol/test/lib/python3.9/site-packages/pymol/pymol_path/*","pymol/pymol_path/data")
+             datas=[(f"{file_path}/pymol/pymol_path/*","pymol/pymol_path/data")
                     ],
              hiddenimports=['pymol','pymol.povray', 'pymol.parser'],
              hookspath=[],
