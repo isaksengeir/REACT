@@ -2,24 +2,24 @@
 from PyQt5 import QtWidgets
 import os
 from UIs.FileEditorWindow import Ui_FileEditorWindow
-from mods.DialogsAndExceptions import DialogMessage
-
 
 class FileEditor(QtWidgets.QMainWindow):
     def __init__(self, parent, filepath, readonly=False):
         super().__init__(parent)
-
-        if not os.path.isfile(filepath):
-            dialog = DialogMessage(self, "File not found. Please check to see"
-                                   "if file has been moved or deleted.")
-            dialog.exec_()
-            self.close
 
         self.react = parent
         self.ui = Ui_FileEditorWindow()
         self.ui.setupUi(self)
         self.filepath = filepath
         self.filename = self.filepath.split("/")[-1]
+
+        if not os.path.isfile(filepath):
+            self.react.append_text("File not found. Please check and see if\
+                                   file has been moved or deleted.")
+            self.close
+
+        self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
+
         self.setWindowTitle(self.filename)
 
         self.ui.comboBox.currentIndexChanged.connect(self.on_combobox_changed)
@@ -36,12 +36,16 @@ class FileEditor(QtWidgets.QMainWindow):
 
         self.filetype = self.filename.split(".")[-1]
 
+        self.ui.comboBox.blockSignals(True)
+
         if self.filetype in ['xyz']:
             self.ui.comboBox.addItems(['com', 'xyz'])
-
+        elif self.filetype == 'pdb':
+            self.ui.comboBox.addItems(['com', 'xyz', 'pdb'])
         elif self.filetype == 'out':
             self.ui.comboBox.addItems(['out', 'com', 'xyz'])
-
+        elif self.filetype in ['com']:  # TODO what about .inp?
+            self.ui.comboBox.addItems(['com', 'xyz'])
         else:
             self.ui.comboBox.addItem(self.filetype)
 
@@ -52,6 +56,8 @@ class FileEditor(QtWidgets.QMainWindow):
         self.orig_text = text
         self.ui.comboBox.setCurrentText(self.filetype)
         self.ui.textwindow.setPlainText(self.orig_text)
+
+        self.ui.comboBox.blockSignals(False)
 
     def on_combobox_changed(self):
         """
@@ -67,11 +73,10 @@ class FileEditor(QtWidgets.QMainWindow):
 
         elif new_filetype == 'com':
             try:
-                text = self.react.create_input_content(self.filepath)
-                new_filename = self.filename.split('.')[0] + '_new.com'
+                text = self.make_input_content()
+                new_filename = self.filename.rsplit(".", 1)[0] + ".com"
             except:
-                dialog = DialogMessage(self, "Failed to convert file to com format")
-                dialog.exec_()
+                self.react.append_text("Failed to convert file to input format")
                 return
 
         elif new_filetype == 'xyz':
@@ -79,12 +84,88 @@ class FileEditor(QtWidgets.QMainWindow):
                 text = self.react.create_xyz_filecontent(self.filepath)
                 new_filename = self.filename.split('.')[0] + '_new.xyz'
             except:
-                dialog = DialogMessage(self, "Failed to convert file to xyz format")
-                dialog.exec_()
+                self.react.append_text("Failed to convert file to xyz format")
                 return
 
         self.setWindowTitle(new_filename)
         self.ui.textwindow.setPlainText(text)
+
+    def make_input_content(self):
+        """
+        Make content (not file) for one Gaussian inputfile.
+        :return: str
+        The code is divided into the following parts: link0, route, molecule and restraint.
+        Each part prepares it's respective part as a string. named for ex. link0_str. 
+        Finally, all sub-strings are jointed into one string, containing the whole file content
+        """
+
+        s = self.react.settings
+
+        # sub-strings that will be edited by their respective part
+        link0_str = ""
+        route_str = ""
+        molecule_str = ""
+
+
+        ### This part creates prepares all link0 keyword by adding them first to the 'link0_list' ###
+
+        link0_list = []
+        for item in s.link0_options:
+            if item.lower().strip() == "chk":
+                filename_stripped = self.filename.rsplit(".", 1)[0]
+                link0_list.append("chk=" + filename_stripped)
+            else:
+                link0_list.append(item)
+
+        link0_str = "\n".join(link0_list)
+
+        ### This part prepares all part of the route comment ###
+
+        job_options = s.job_options[s.job_type]
+
+        if s.job_type == "Opt (TS)":
+            job_options.append("TS")
+            options = ", ".join(s.job_options[s.job_type])
+            job = f"Opt=({options}) "
+        else:
+            if job_options:
+                options = ", ".join(s.job_options[s.job_type])
+                job = f"{s.job_type}=({options}) "
+            else:
+                job = f"{s.job_type} "
+
+
+        if s.basis_diff and not s.basis_diff.isspace():
+            tmp = list(s.basis)
+            if tmp[-1] == 'G':
+                tmp[-1] = s.basis_diff
+                tmp.append('G')
+            else:
+                tmp.append(s.basis_diff)
+            basis = "".join(tmp)
+        else:
+            basis = self.basis
+
+        if s.basis_pol1 and not s.basis_pol1.isspace\
+           and s.basis_pol2 and not s.basis_pol2.isspace():
+            basis_pol = f"({s.basis_pol1},{s.basis_pol2})"
+        elif s.basis_pol1 and not s.basis_pol1.isspace():
+            basis_pol = f"({s.basis_pol1})"
+        elif s.basis_pol2 and not s.basis_pol2.isspace():
+            basis_pol = f"({s.basis_pol2})"
+        else:
+            basis_pol = False
+
+        if basis_pol:
+            basis = f"{basis}{basis_pol}"
+        else:
+            basis = f"{basis}"
+
+        route_str = f"#p {job}{s.functional}/{basis} " + " ".join(s.additional_keys)
+
+        molecule_str = f"{self.mol_obj.charge} {self.mol_obj.multiplicity}\n" + "\n".join(self.mol_obj.formatted_xyz)
+
+        return f"{link0_str}\n{route_str}\n\n{molecule_str}\n\n"
 
     def save_file_(self):
         """
