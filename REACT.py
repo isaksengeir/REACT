@@ -38,8 +38,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.pymol = None
 
-        #self.pymol_path = '/Applications/PyMOL.app/Contents/MacOS/pymol'
-
         # bool to keep track of unsaved changes to project.
         self.unsaved_proj = False
 

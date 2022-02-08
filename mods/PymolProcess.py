@@ -332,7 +332,7 @@ class PymolSession(QObject):
             for atomnr in junk.split("\n"):
                 if atomnr.isnumeric():
                     self.atoms_selected.append(atomnr)
-                elif "atoms" in atomnr:
+                elif "atoms" in atomnr and len(self.atoms_selected) > 0:
                     del self.atoms_selected[-1]
 
     def collect_dihedral(self, stdout):
