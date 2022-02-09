@@ -377,7 +377,7 @@ class PymolSession(QObject):
     def pdb_written(self, stdout):
         pdb_path = ""
         if "Save: wrote" in stdout:
-            pdb_path = stdout.split()[2][1:-2]
+            pdb_path = stdout.split('"')[1]
 
         self.importSavedPDB.emit(pdb_path)
 

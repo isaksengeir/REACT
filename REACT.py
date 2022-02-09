@@ -824,7 +824,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def pdb_from_pymol(self, pdb_path):
         if not self.cluster_window:
             return
-        print(pdb_path)
+        print(f"this is what I got; {pdb_path}")
         if self.cluster_window.ui.copy_to_project.isChecked():
             self.add_file(pdb_path)
 

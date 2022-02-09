@@ -399,6 +399,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         temp_filepath = self.react.settings.workdir + '/'
         pdb_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save PDB model", temp_filepath, "PDB (*.pdb)")
         self.pymol.pymol_cmd("save %s, model_final" % pdb_path)
+        self.reac.append_text(f"\n{pdb_path} written.")
 
     def closeEvent(self, event):
         self.react.cluster_window = None
