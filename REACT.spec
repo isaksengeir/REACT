@@ -6,7 +6,7 @@ block_cipher = None
 file_path = os.getcwd()
 
 a = Analysis(['REACT.py'],
-             pathex=[f'{file_path}}'],
+             pathex=[f'{file_path}'],
              binaries=[],
              datas=[(f"{file_path}/OpenSourcePymol/dist/OpenSourcePymol.app/", "OpenSourcePymol/dist/OpenSourcePymol.app/")],
              hiddenimports=["PyQt5.sip"],
