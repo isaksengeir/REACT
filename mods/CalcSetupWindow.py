@@ -210,7 +210,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
             self.selected_ids.append(id)
             if len(self.selected_ids) > self.atoms_to_select:
                 self.selected_ids.pop(0)
-            self.ui.list_model.item(id).setSelected(True)
+            try:
+                self.ui.list_model.item(id).setSelected(True)
+            except AttributeError:
+                pass
 
     def model_atom_clicked(self):
         """
