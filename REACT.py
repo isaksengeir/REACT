@@ -2,16 +2,16 @@ import sys
 import os
 import json
 import time
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QThreadPool, QTimer
+from PyQt5.QtCore import QThreadPool, QTimer, pyqtSlot
 from mods.SplashScreen import SplashScreen
 import UIs.icons_rc
 import mods.common_functions as cf
 from UIs.MainWindow import Ui_MainWindow
 from mods.ReactWidgets import DragDropListWidget
 from mods.State import State
-from mods.DialogsAndExceptions import DialogMessage, DialogSaveProject
+from mods.DialogsAndExceptions import DialogSaveProject
 from mods.CalcSetupWindow import CalcSetupWindow
 from mods.ReactPlot import PlotEnergyDiagram
 from mods.Plotter import Plotter
@@ -139,6 +139,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.pymol.pymol_cmd("group state_%d" % 1)
         self.load_all_states_pymol()
+
+        self.pymol.importSavedPDB.connect(self.pdb_from_pymol)
 
     def connect_pymol_structures(self, connect=True):
         """
@@ -809,18 +811,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def create_cluster(self):
         """
         """
+        if not self.pymol:
+            self.append_text("\nINFO:\nPlease launch Pymol to use the Create cluster app.\n")
+            return
         if self.cluster_window:
             self.cluster_window.raise_()
         else:
             self.cluster_window = ModelPDB(self)
             self.cluster_window.show()
 
+    @pyqtSlot(str)
+    def pdb_from_pymol(self, pdb_path):
+        if not self.cluster_window:
+            return
+        print(pdb_path)
+        if self.cluster_window.ui.copy_to_project.isChecked():
+            self.add_file(pdb_path)
+
     def open_plotter(self):
         """
-
         :return:
         """
-
         self.plotter = Plotter(self)
         self.plotter.show()
 

@@ -9,7 +9,8 @@ class PymolSession(QObject):
     ntermResidues = pyqtSignal(list)
     ctermResidues = pyqtSignal(list)
     countAtomsSignal = pyqtSignal(dict)
-    #atomClickedSignal = pyqtSignal(list)
+    importSavedPDB = pyqtSignal(str)
+    # atomClickedSignal = pyqtSignal(list)
 
     def __init__(self, parent=None, home=None, pymol_path=None):
         super(QObject, self).__init__(parent)
@@ -56,7 +57,12 @@ class PymolSession(QObject):
                                "count_atoms ": {"collect": False,
                                                  "process": self.return_atom_count,
                                                  "return": "count_atoms:",
-                                                 "signal": None}
+                                                 "signal": None},
+                               "Save: wrote ": {"collect": False,
+                                                 "process": self.pdb_written,
+                                                 "return": "Save: wrote",
+                                                 "signal": None
+                                                }
                                }
 
         self.start_pymol()
@@ -366,6 +372,14 @@ class PymolSession(QObject):
                 if not self.atom_count[k]:
                     self.atom_count[k] = stdout.split()[1]
             self.countAtomsSignal.emit(self.atom_count)
+
+    @pyqtSlot()
+    def pdb_written(self, stdout):
+        pdb_path = ""
+        if "Save: wrote" in stdout:
+            pdb_path = stdout.split()[2][1:-2]
+
+        self.importSavedPDB.emit(pdb_path)
 
     def handle_state(self, state):
         states = {

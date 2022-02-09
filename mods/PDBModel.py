@@ -28,8 +28,9 @@ class ModelPDB(QtWidgets.QMainWindow):
 
         self.setWindowTitle("REACT - PDB model generation")
 
-        # Need pymol for this:
         if not self.react.pymol:
+
+            self.close()
             self.react.start_pymol()
 
         self.pymol = self.react.pymol
@@ -47,6 +48,7 @@ class ModelPDB(QtWidgets.QMainWindow):
         self.pymol.ctermResidues.connect(self.update_cterm)
         self.pymol.dihedralSignal.connect(self.update_dihedral)
         self.pymol.countAtomsSignal.connect(self.update_atom_count)
+
 
         # Connect UI widgets:
         self.ui.select_byres.clicked.connect(self.update_inclusion_size)
@@ -395,15 +397,8 @@ class ModelPDB(QtWidgets.QMainWindow):
             return
 
         temp_filepath = self.react.settings.workdir + '/'
-
         pdb_path, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Save PDB model", temp_filepath, "PDB (*.pdb)")
-
         self.pymol.pymol_cmd("save %s, model_final" % pdb_path)
-
-        if self.ui.copy_to_project.isChecked():
-            self.react.add_files([pdb_path])
-            # We need to wait for file to be written:
-            #QTimer.singleShot(100, lambda: self.react.add_files([pdb_path]))
 
     def closeEvent(self, event):
         self.react.cluster_window = None
