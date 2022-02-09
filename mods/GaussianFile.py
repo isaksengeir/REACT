@@ -231,29 +231,56 @@ class OutputFile(Properties):
         # list with GaussianAtom objects per geometry optimization --> iter_atoms[-1] is the final atom coordinates
         iter_atoms = list()
 
-        print('now in get_coordinates')
-
         atoms = list()
         with open(self.filepath, 'r') as gout:
-            standard_orientation = False
+
+            gaussian_v = False
+            found_coordinates = False
             get_coordinates = False
+
             for line in gout:
-                if standard_orientation and line.split()[0].isdigit():
-                    get_coordinates = True
 
-                if get_coordinates:
-                    if not line.split()[0].isdigit():
-                        standard_orientation = False
-                        get_coordinates = False
-
-                        iter_atoms.append(atoms)
+                if not gaussian_v:
+                    if "Gaussian(R) 16 program" in line:
+                        gaussian_v = 16
+                        continue
+                    elif "Gaussian(R) 09 program" in line:
+                        gaussian_v = 9
+                        continue
                     else:
-                        atoms.append(GaussianAtom(line))
+                        continue
+                elif gaussian_v == 9:
+                    if found_coordinates and line.split()[0].isdigit():
+                        get_coordinates = True
 
-                if "Standard orientation" in line:
-                    standard_orientation = True
-                    atoms = list()
+                    if get_coordinates:
+                        if not line.split()[0].isdigit():
+                            found_coordinates = False
+                            get_coordinates = False
 
+                            iter_atoms.append(atoms)
+                        else:
+                            atoms.append(GaussianAtom(line))
+
+                    if "Standard orientation" in line:
+                        found_coordinates = True
+                        atoms = list()
+                elif gaussian_v == 16:
+                    if found_coordinates and line.split()[0].isdigit():
+                        get_coordinates = True
+
+                    if get_coordinates:
+                        if not line.split()[0].isdigit():
+                            found_coordinates = False
+                            get_coordinates = False
+
+                            iter_atoms.append(atoms)
+                        else:
+                            atoms.append(GaussianAtom(line))
+
+                    if "Input orientation:" in line:
+                        found_coordinates = True
+                        atoms = list()
         return iter_atoms
 
     def has_solvent(self):
