@@ -462,8 +462,11 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
         Changes text in work directory field using file dialog.
         No change saved in self.settings, this is handeled in save_settings. 
         """
-
-        new_dir = QtWidgets.QFileDialog.getExistingDirectory(self, title_, self.settings.workdir, options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        if textwidget == self.ui.pymol_lineEdit_2:
+            new_dir = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption=title_, directory=self.settings.workdir,
+                                                            filter="Any (*)")[0]
+        else:
+            new_dir = QtWidgets.QFileDialog.getExistingDirectory(self, title_, self.settings.workdir)
                                                
         if new_dir:
             textwidget.setText(new_dir)
