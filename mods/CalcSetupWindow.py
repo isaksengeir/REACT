@@ -695,7 +695,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         if path.isfile(new_filepath) == True:
             new_filepath, filter_ = QtWidgets.QFileDialog.getSaveFileName(self, "Filename already exists, please select a different filename", self.react.settings.workdir, "input files (*.com *.inp)")
-
+        if new_filepath == '':
+            return
         with open(new_filepath, "w+") as f:
             f.write(file_content)
             f.write("\n")
@@ -847,14 +848,14 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         for item in [self.ui.list_freeze_atoms.item(x).text() for x in range(self.ui.list_freeze_atoms.count())]:
             restraints_list.append(item)
         if bond_obj:
-            restraints_list.extend([f"X {bond_obj.atom1_idx} F", f"X {bond_obj.atom2_idx} F"])
+            restraints_list.append(f"B {bond_obj.atom1_idx} {bond_obj.atom2_idx} F")
         
 
 
         restraints_str = "\n".join(restraints_list)
 
 
-        return f"{link0_str}\n{route_str}\n\n{molecule_str}\n\n{restraints_str}\n\n"
+        return f"{link0_str}\n{route_str}\n\n{filename} {self.job_type}\n\n{molecule_str}\n\n{restraints_str}\n\n"
     
 
     def route_checkboxes_update(self, checkbox, lineEdit):
