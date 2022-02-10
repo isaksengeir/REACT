@@ -118,16 +118,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Things get a bit different in bundle mode:
         bundle_dir = getattr(sys, "_MEIPASS", os.path.abspath(os.path.dirname(__file__)))
-        #self.append_text(f"_MEIPASS: {bundle_dir}")
         if self.settings.REACT_pymol:
             if os.path.isdir(f'OpenSourcePymol/dist/'):
                 pymol_path = f'OpenSourcePymol/dist/{pymol}'
             elif os.path.abspath(os.path.join(bundle_dir, "/OpenSourcePymol/dist/")):
                 pymol_path = os.path.abspath(os.path.join(bundle_dir, f"OpenSourcePymol/dist/{pymol}"))
-
-            #elif os.path.isdir(f"{'/'.join(sys.path[0].split('/')[0:-1])}/OpenSourcePymol/dist/"):
-            #    pymol_path = f"{'/'.join(sys.path[0].split('/')[0:-1])}/OpenSourcePymol/dist/{pymol}"
-
             else:
                 self.append_text("Can not find REACT Open Source Pymol")
                 self.append_text(sys.path[0])
