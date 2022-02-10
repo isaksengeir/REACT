@@ -113,7 +113,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pymol.close()
             return
 
-        pymol_platform = {"darwin": "OpenSourcePymol.app", "linux": "OpenSourcePymol.app", "windows": "OpenSourcePymol.exe"}
+        pymol_platform = {"darwin": "OpenSourcePymol.app", "linux": "OpenSourcePymol", "windows": "OpenSourcePymol.exe"}
         pymol = pymol_platform[sys.platform.lower()]
 
         # Things get a bit different in bundle mode:
