@@ -113,11 +113,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.pymol.close()
             return
 
+        pymol_platform = {"darwin": "OpenSourcePymol.app", "linux": "OpenSourcePymol.app", "windows": "OpenSourcePymol.exe"}
+        pymol = pymol_platform[sys.platform.lower()]
         if self.settings.REACT_pymol:
-            if os.path.isdir('OpenSourcePymol/dist/OpenSourcePymol.app'):
-                pymol_path = 'OpenSourcePymol/dist/OpenSourcePymol.app'
-            elif os.path.isdir("%s/OpenSourcePymol/dist/OpenSourcePymol.app" % '/'.join(sys.path[0].split('/')[0:-1])):
-                pymol_path = "%s/OpenSourcePymol/dist/OpenSourcePymol.app" % '/'.join(sys.path[0].split('/')[0:-1])
+            if os.path.isdir(f'OpenSourcePymol/dist/{pymol}'):
+                pymol_path = f'OpenSourcePymol/dist/{pymol}'
+
+            elif os.path.isdir(f"{'/'.join(sys.path[0].split('/')[0:-1])}/OpenSourcePymol/dist/{pymol}"):
+                pymol_path = f"{'/'.join(sys.path[0].split('/')[0:-1])}/OpenSourcePymol/dist/{pymol}"
+
             else:
                 self.append_text("Can not find REACT Open Source Pymol")
                 self.append_text(sys.path[0])
