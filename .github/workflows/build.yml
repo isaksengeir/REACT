@@ -18,6 +18,10 @@
         - name: Build binary
           run: |
             pyinstaller REACT_darvin.spec
-        - uses: actions/upload-artifact@v2
-          with:
-            path: dist/*
+        - name: Commit and push to REACT_macos
+          run: |-
+            git config --global user.email "workflow-bot@example.com"
+            git config --global user.name "workflow-bot"
+            git add .
+            git commit -m "build with macos-latest"
+            git push --set-upstream origin clean_directory_three --force
