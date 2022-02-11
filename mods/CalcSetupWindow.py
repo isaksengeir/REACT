@@ -682,6 +682,9 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         # Add files separate to avoid issues relating to multithreading prosess in REACT.py
         for filepath in files:
+            if filepath == None:
+                #Something happend (maybe user changed their mind and closed QfileDialog)
+                return
             self.react.append_text(f"{filepath.split('/')[-1]} saved to: {filepath}")
             if self.ui.checkBox_cp_to_reactmain.isChecked():
                 self.react.add_file(filepath)
