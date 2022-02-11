@@ -20,7 +20,7 @@
             pyinstaller REACT_darvin.spec
 
         - name: Deploy build
-          if success()
+          if: success()
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: testing
