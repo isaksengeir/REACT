@@ -7,7 +7,7 @@ file_path = os.getcwd()
 
 a = Analysis(['REACT.py'],
              pathex=[f'{file_path}'],
-             datas=[('/cluster/home/gvi022/software/REACT/OpenSourcePymol/dist/OpenSourcePymol', 'OpenSourcePymol/dist/') ],
+             datas=[(f'{file_path}/OpenSourcePymol/dist/OpenSourcePymol.app', 'OpenSourcePymol/dist/') ],
              hiddenimports=["PyQt5.sip"],
              hookspath=[],
              runtime_hooks=[],
