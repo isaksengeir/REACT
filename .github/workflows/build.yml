@@ -17,4 +17,4 @@
             pip install pyinstaller
         - name: Build binary
           run: |
-            pyinstaller REACT.spec
+            pyinstaller REACT_darvin.spec
