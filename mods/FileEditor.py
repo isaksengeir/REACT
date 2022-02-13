@@ -101,12 +101,6 @@ class FileEditor(QtWidgets.QMainWindow):
 
         s = self.react.settings
 
-        # sub-strings that will be edited by their respective part
-        link0_str = ""
-        route_str = ""
-        molecule_str = ""
-
-
         ### This part creates prepares all link0 keyword by adding them first to the 'link0_list' ###
 
         link0_list = []
@@ -134,7 +128,6 @@ class FileEditor(QtWidgets.QMainWindow):
             else:
                 job = f"{s.job_type} "
 
-
         if s.basis_diff and not s.basis_diff.isspace():
             tmp = list(s.basis)
             if tmp[-1] == 'G':
@@ -144,7 +137,7 @@ class FileEditor(QtWidgets.QMainWindow):
                 tmp.append(s.basis_diff)
             basis = "".join(tmp)
         else:
-            basis = self.basis
+            basis = s.basis
 
         if s.basis_pol1 and not s.basis_pol1.isspace\
            and s.basis_pol2 and not s.basis_pol2.isspace():
