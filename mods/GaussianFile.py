@@ -278,7 +278,7 @@ class OutputFile(Properties):
                         else:
                             atoms.append(GaussianAtom(line))
 
-                    if "Input orientation:" in line:
+                    if "Input orientation:" in line or "Standard orientation" in line:
                         found_coordinates = True
                         atoms = list()
         return iter_atoms

@@ -50,8 +50,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Create PDB cluster window active or not
         self.cluster_window = None
 
-        # Bool allows only one instance of settings window at the time.
+        # Bool allows only one instance of settings/calc setup window at the time.
         self.settings_window = None
+        self.setup_window = None
+
+    
 
         self.add_state()
 
@@ -859,9 +862,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.append_text("\n No file selected - select a file to prepare calculation on")
             return
 
-        self.setup_window = CalcSetupWindow(self, self.current_file)
-        self.setup_window.show()
-    
+        if self.setup_window:
+            self.append_text("\nSettup window is already running."
+                             "\nPerhaps the window is hidden?")
+            self.setup_window.raise_()
+        else:
+            self.setup_window = CalcSetupWindow(self, self.current_file)
+            self.setup_window.show()
+
     def power_off_on(self):
         """
         power down when power button is clicked
