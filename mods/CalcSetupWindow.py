@@ -1017,3 +1017,5 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         if self.pymol_animation:
             self.stop_pymol_animation()
 
+        self.react.setup_window = None
+
