@@ -179,7 +179,10 @@ class XYZFile(Geometries):
             for line in xyz:
                 if len(line.split()) > 3:
                     index += 1
-                    atoms.append(XYZAtom(line, index))
+                    try:
+                        atoms.append(XYZAtom(line, index))
+                    except ValueError:
+                        continue
         return atoms
 
 
