@@ -696,13 +696,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Return: files_ --> list of files (absolute path)
         Return: files_type --> string with the chosen filter_type
         """
-        # TODO this can be removed at some point - it is not readable on mac either. This is because of the
-        #  DontUseNativeDialog (which will be removed)
-        if 'linux' in sys.platform:
-            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type)
-        else:
-            files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
-                                                                        options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        #  DontUseNativeDialog was planned removed - but it is required on linux... will crash elsewise.
+
+        files_, files_type = QtWidgets.QFileDialog.getOpenFileNames(self, title_, path, filter_type,
+                                                                    options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
         return files_, files_type
 
@@ -955,4 +952,4 @@ if __name__ == '__main__':
     # TODO transparent frameless main window? Maybe not, but maybe all the others?
     # window.setWindowFlags(QtCore.Qt.FramelessWindowHint)
     # window.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-    app.exec_()
+    app.exec()
