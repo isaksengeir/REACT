@@ -32,7 +32,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("REACT - Main")
 
         self.react_path = os.getcwd()
-        self.settings = Settings(parent=self, settingspath=f"{self.react_path}/.custom_settings.json")
+        # It is not a good idea to have the settings file inside the software itself
+        # self.settings = Settings(parent=self, settingspath=f"{self.react_path}/.custom_settings.json")
+        self.settings = Settings(parent=self, settingspath=f"{os.path.expanduser('~')}/.custom_settings.json")
         self.states = []
         self.proj_name = 'new_project'
 
@@ -53,8 +55,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Bool allows only one instance of settings/calc setup window at the time.
         self.settings_window = None
         self.setup_window = None
-
-    
 
         self.add_state()
 
