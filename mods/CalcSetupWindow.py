@@ -138,6 +138,8 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.toggle_raman()
 
+    
+
     @property
     def scan_bond(self):
         """
@@ -574,6 +576,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.update_job_details()
 
+        #setup SCRF 
+        self.ui.comboBox_SCRF.addItems(["PCM", "CPCM", "Dipole", "IPCM", "SMD"])
+        
+
     def update_print_button(self):
 
         key = self.Qbutton_group.checkedId()
@@ -838,8 +844,23 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         else:
             basis_str = f"{basis}"
 
+        #solvent
+        solvent = ""
+        eps = ""
+        if self.ui.checkbox_SCRF.isChecked():
+
+            if self.ui.checkbox_eps.isChecked():
+                solvent = f"SCRF=({self.ui.comboBox_SCRF.currentText()}, read)"
+                eps = f"Eps={self.ui.lineEdit_eps.text()}"
+            else:
+                if self.ui.lineEdit_solvent.text():
+                    solvent = f"SCRF=({self.ui.comboBox_SCRF.currentText()}, solvent={self.ui.lineEdit_solvent.text()})"
+                else:
+                    solvent = f"SCRF=({self.ui.comboBox_SCRF.currentText()})"
+                    
+
         route_str = f"{self.output_print} {job_str}{self.functional}/{basis_str} "\
-                    + " ".join(self.additional_keys)
+                    + f"{solvent} " +" ".join(self.additional_keys)
 
 
         ### This part prepares the molecule ###
@@ -861,7 +882,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         restraints_str = "\n".join(restraints_list)
 
 
-        return f"{link0_str}\n{route_str}\n\n{filename} {self.job_type}\n\n{molecule_str}\n\n{restraints_str}\n\n"
+        return f"{link0_str}\n{route_str}\n\n{filename} {self.job_type}\n\n{molecule_str}\n\n{restraints_str}\n\n{eps}\n\n"
     
 
     def route_checkboxes_update(self, checkbox, lineEdit):
