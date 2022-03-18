@@ -1009,7 +1009,7 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         try:
             shutil.rmtree(self.react.react_path + '/.scan_temp')
         except OSError as e:
-            print("Error: %s" % (e.strerror))
+            pass
 
     def on_close(self):
 
