@@ -219,7 +219,8 @@ class Settings():
                 }
     
     def set_default_settings(self):
-        self.workdir = os.getcwd()
+        # self.workdir = os.getcwd()
+        self.workdir = os.path.expanduser('~')
         self.pymolpath = None
         self.REACT_pymol = True
         self.pymol_at_launch = True
