@@ -44,7 +44,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
         self.mol_obj = self.react.states[self.react.state_index].get_molecule_object(self.filepath)
         self.charge = self.mol_obj.charge
-        self.multiplicity = self.mol_obj.multiplicity
+        if self.mol_obj.multiplicity:
+            self.multiplicity = self.mol_obj.multiplicity
+        else:
+            self.multiplicity = "1"
         self.filename = self.mol_obj.filename.split(".")[0] 
 
         # we need to make a local copy of all info job-related stuff,
@@ -864,6 +867,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
 
         ### This part prepares the molecule ###
+        if not self.charge:
+            self.react.append_text("WARNING: No charge is given to the system. Please add a charge in the main window of\
+                                   Calculation setup. Will set it to 0..")
+            self.charge = "0"
         if xyz:
             molecule_str = f"{self.charge} {self.multiplicity}\n" + "\n".join(xyz)
         else:
