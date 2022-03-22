@@ -574,11 +574,11 @@ class SettingsTheWindow(QtWidgets.QMainWindow):
             all_values_in_list.append(item)
        
         if user_input not in all_values_in_list: 
-            Qlist.addItem(user_input.lower())
+            Qlist.addItem(user_input)
 
         if DFT_key == "job keys":
             job_type = self.ui.job_type_comboBox.currentText()
-            self.job_options[job_type].append(user_input.lower())
+            self.job_options[job_type].append(user_input)
 
     def del_item_from_list(self, Qlist, DFT_key):
         """

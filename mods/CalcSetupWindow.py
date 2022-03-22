@@ -561,9 +561,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
 
             found_keyword = False
 
-            for keyword_0 in link0_to_add_to_list:
+            for keyword in link0_to_add_to_list:
 
-                keyword = keyword_0.lower()
+                orig_keyword = copy.deepcopy(keyword)
+
                 if "=" in keyword:
                     temp = keyword.split("=")
                     keyword = temp[0]
@@ -571,20 +572,18 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                 else:
                     value = None
 
-                if keyword == "mem" and checkbox.text() == "Memory":
+                if keyword.casefold() == "mem" and checkbox.text() == "Memory":
                     found_keyword = True
-                    value = value.upper()
-
-                elif keyword == checkbox.text().lower():
+                elif keyword.casefold() == checkbox.text().casefold():
                     found_keyword = True
-                    if keyword == "chk" and not value:
+                    if keyword.casefold() == "chk" and not value:
                         value = self.filename + ".chk"
-                    elif keyword == "oldchk" and not value:
+                    elif keyword.casefold() == "oldchk" and not value:
                         value = self.filename + "_old.chk"
 
                 if found_keyword:
                     checkbox.setChecked(True)
-                    link0_to_add_to_list.remove(keyword_0)
+                    link0_to_add_to_list.remove(orig_keyword)
                     if value and lineEdit:
                         lineEdit.setEnabled(True)
                         lineEdit.setText(value)
@@ -775,12 +774,10 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
                 if checkbox.text() == "Memory":
                     if value.isnumeric():
                         value = value + "GB"
-                    else:
-                        value = "3GB"
                     link0_list.append("%mem=" + value)
-                elif checkbox.text().lower() == "chk":
+                elif checkbox.text() == "Chk":
                     link0_list.append(f"%chk={filename}.chk") 
-                elif checkbox.text().lower() == "oldchk":
+                elif checkbox.text() == "OldChk":
                     if value:
                         link0_list.append(f"%oldchk={value}.chk")
                     else:
