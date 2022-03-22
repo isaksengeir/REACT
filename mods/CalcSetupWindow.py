@@ -482,9 +482,12 @@ class CalcSetupWindow(QtWidgets.QMainWindow, Ui_SetupWindow):
         else:
             self.ui.tabWidget.setTabEnabled(1, False)
             
-        if self.job_type == "IRC":
+        if self.job_type in ["IRC", "IRCMax"]:
             self.IRC_files[self.filename + "_frwd"] = ["forward"]
             self.IRC_files[self.filename + "_rev"] = ["reverse"]
+            if "calcfc" not in self.job_options[self.job_type]:
+                self.ui.List_add_job.addItem("calcfc")
+                self.job_options[self.job_type].append("calcfc")
             self.ui.checkbox_freq.setHidden(True)
             self.ui.checkBox_raman.setHidden(True)
 
