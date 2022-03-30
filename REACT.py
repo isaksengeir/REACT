@@ -188,6 +188,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         :param set_defaults: fix pymol representation
         :return:
         """
+
+        mol_obj = self.states[self.state_index].get_molecule_object(filepath)
+        if mol_obj.faulty:
+            return
+
         if not self.pymol:
             return
 
@@ -280,6 +285,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Takes the selected file and prints the 4 Convergence criterias.
         :return:
         """
+        mol_obj = self.states[self.state_index].get_molecule_object(self.tabWidget.currentWidget().currentItem().text())
+        
+        if mol_obj.faulty:
+            self.append_text("ERROR: not possible for broken file!")
+            return
+
         try:
             filepath = self.tabWidget.currentWidget().currentItem().text()
         except:
@@ -317,6 +328,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         items_insert_index = self.tabWidget.currentWidget().count()
         self.tabWidget.currentWidget().insertItem(items_insert_index, filepath)
+
         if self.pymol:
             self.file_to_pymol(filepath=filepath, state=self.get_current_state, set_defaults=True)
    
@@ -448,6 +460,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             tab_widget = self.tabWidget.widget(tab_index)
 
         mol_obj = self.states[tab_index].get_molecule_object(filepath=file_path)
+        if mol_obj.faulty:
+                tab_widget.item(item_index).setForeground(QtGui.QColor(195, 82, 52))
+                self.append_text("\nERROR: %s seems to have faulty..." % mol_obj.filename)
+                return
+
 
         if mol_obj.file_extension not in ["out", "log"]:
             tab_widget.item(item_index).setForeground(QtGui.QColor(98, 114, 164))
@@ -802,6 +819,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         :return:
         """
+
+        mol_obj = self.states[self.state_index].get_molecule_object(self.tabWidget.currentWidget().currentItem().text())
+        
+        if mol_obj.faulty:
+            self.append_text("ERROR: Analyse not possible for broken file!")
+            return
+
         if self.analyse_window:
             self.append_text("\nAnalyse Calculation is already running. \nPerhaps the window is hidden?")
             self.analyse_window.raise_()
@@ -816,6 +840,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def create_cluster(self):
         """
         """
+
+        mol_obj = self.states[self.state_index].get_molecule_object(self.tabWidget.currentWidget().currentItem().text())
+        
+        if mol_obj.faulty:
+            self.append_text("ERROR: Create cluster not possible for broken file!")
+            return
+
         if not self.pymol:
             self.append_text("\nINFO:\nPlease launch Pymol to use the Create cluster app.\n")
             return
@@ -837,6 +868,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
         :return:
         """
+
+        mol_obj = self.states[self.state_index].get_molecule_object(self.tabWidget.currentWidget().currentItem().text())
+        if mol_obj.faulty:
+            self.append_text("ERROR: Plotter not possible for broken file!")
+            return
+
         self.plotter = Plotter(self)
         self.plotter.show()
 
@@ -858,6 +895,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.tabWidget.currentWidget().currentItem():
             self.append_text("\n No file selected - select a file to prepare calculation on")
             return
+
+        mol_obj = self.states[self.state_index].get_molecule_object(self.tabWidget.currentWidget().currentItem().text())
+        
+        if mol_obj.faulty:
+            self.append_text("ERROR: Calculation setup not possible for broken file!")
+            return
+
 
         if self.setup_window:
             self.append_text("\nSettup window is already running."

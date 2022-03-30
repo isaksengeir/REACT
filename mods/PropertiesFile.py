@@ -14,7 +14,8 @@ class Properties(Geometries):
         self._filetype = filetype
 
         # Multiple geometries:
-        super().__init__(molecules=geometries, filepath=filepath)
+        if geometries:
+            super().__init__(molecules=geometries, filepath=filepath)
 
         self._filename = filepath.split("/")[-1]
         self._file_extension = self.filename.split(".")[-1]

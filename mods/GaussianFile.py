@@ -92,6 +92,11 @@ class OutputFile(Properties):
     def __init__(self, filepath):
         self._filepath = filepath
         molecules = self.get_coordinates()
+        self.faulty = False
+
+        if not molecules:
+            self.faulty = True
+            molecules = None
 
         super().__init__(filetype="Gaussian", filepath=filepath, geometries=molecules)
 
@@ -138,11 +143,16 @@ class OutputFile(Properties):
 
 
         # Setters in Properties:
-        self.converged = self.is_converged()
-        self.solvent = self.has_solvent()
-        self.frequencies = self.has_frequencies()
-        self.energy = self.get_energy()
-        self.scf_convergence = self.get_scf_convergence()
+        if self.faulty:
+            self.converged = False
+            self.energy = False
+            self.scf_convergence = False
+        else:
+            self.converged = self.is_converged()
+            self.solvent = self.has_solvent()
+            self.frequencies = self.has_frequencies()
+            self.energy = self.get_energy()
+            self.scf_convergence = self.get_scf_convergence()
 
     def read_gaussianfile(self):
         """
